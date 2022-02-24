@@ -10,7 +10,7 @@ public final class Bits {
     /**
      * Default constructor of the Bits class, which is private so that the class is not instanciable.
      */
-    private Bits(){}
+    public Bits(){}
 
     /**
      * Extracts the signed expression of the bit of length 'length', which starts at the 'start'th bit from
@@ -24,7 +24,7 @@ public final class Bits {
      */
     public int extractSigned(int value, int start, int length) {
         Preconditions.checkArgument(length > 0);
-        return (value << (31-(start)+length)) >>> (31-length);
+        return (value << (32-(start+length))) >> (32-length);
     }
 
     /**
@@ -38,7 +38,7 @@ public final class Bits {
      * from the bit vector 'value'
      */
     public int extractUnsigned(int value, int start, int length) {
-        Preconditions.checkArgument(value == Math.pow(2, 32));
-        return (value << (31-(start)+length)) >> (31-length);
+        Preconditions.checkArgument(!(value == Math.pow(2, 32)));
+        return (value << (32-(start+length)) >>> (32-length));
     }
 }
