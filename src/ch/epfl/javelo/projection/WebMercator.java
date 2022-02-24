@@ -14,7 +14,7 @@ public final class WebMercator {
     /**
      * private constructor to make the class non instantiable
      */
-    private WebMercator(){};
+    private WebMercator(){}
 
     /**
      * returns the x-coordinate of the projection of a
@@ -47,5 +47,4 @@ public final class WebMercator {
      * @return the latitude of the point
      */
     public static double lat(double y){return Math.atan(Math.sinh(Math.PI-2*Math.PI*y));}
-
 }

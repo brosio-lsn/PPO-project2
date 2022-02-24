@@ -36,7 +36,7 @@ public record PointCh(double e, double n) {
      * @return the distance from this PointCh to that PointCh, which is the square root of its squaredDistance
      */
     public double distanceTo(PointCh that){
-        return Math.sqrt(squaredDistanceTo(that));
+        return (Math2.norm(that.e -this.e, that.n - this.n));
     }
 
     /**
