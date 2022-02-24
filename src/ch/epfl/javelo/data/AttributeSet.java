@@ -3,8 +3,18 @@ package ch.epfl.javelo.data;
 import ch.epfl.javelo.Preconditions;
 import ch.epfl.javelo.projection.SwissBounds;
 import java.util.StringJoiner;
-
+/**
+ * represents set of attributes
+ *
+ * @author Louis ROCHE (345620)
+ * @author Ambroise AIGUEPERSE (341860)
+ */
 public record AttributeSet(long bits) {
+    /**
+     * constructor that throws an IllegalArgumentException if the value passed to the constructor contains
+     * a 1 bit which does not correspond to any valid attribute.
+     * @param bits represents the attributes contained in the set : the index bit b of this value is 1 if and only if the attribute b is contained in the set
+     */
     public AttributeSet{
         Preconditions.checkArgument(bits >>> Attribute.COUNT==0);
     }

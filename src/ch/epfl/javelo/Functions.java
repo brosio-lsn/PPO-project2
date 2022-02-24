@@ -4,6 +4,8 @@ import java.util.function.DoubleUnaryOperator;
 //TODO chnge intern classes to records and do the other todo
 
 /**
+ * creates functions
+ *
  * @author Louis ROCHE (345620)
  * @author Ambroise AIGUEPERSE (341860)
  */

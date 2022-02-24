@@ -1,7 +1,7 @@
 package ch.epfl.javelo;
 
 import ch.epfl.javelo.Preconditions;
-
+//TODO check that the throw error condtions are met in the methods
 /**
  * @author Louis ROCHE (345620)
  * @author Ambroise AIGUEPERSE (341890)
@@ -10,8 +10,7 @@ public final class Bits {
     /**
      * Default constructor of the Bits class, which is private so that the class is not instanciable.
      */
-    //TODO demander à un assistant si les méthodes ne sont pas statiques car la classe n'est pas instantiable.
-    private Bits(){}
+    public Bits(){}
 
     /**
      * Extracts the signed expression of the bit of length 'length', which starts at the 'start'th bit from
@@ -23,7 +22,7 @@ public final class Bits {
      * @return the signed expression of the bit of length 'length' which starts at the 'start'th bit
      * from the bit vector 'value'
      */
-    public static int extractSigned(int value, int start, int length) {
+    public int extractSigned(int value, int start, int length) {
         Preconditions.checkArgument(length > 0);
         return (value << (32-(start+length))) >> (32-length);
     }
@@ -38,8 +37,7 @@ public final class Bits {
      * @return the unsigned expression of the bit of length 'length' which starts at the 'start'th bit
      * from the bit vector 'value'
      */
-
-    public static int extractUnsigned(int value, int start, int length) {
+    public int extractUnsigned(int value, int start, int length) {
         Preconditions.checkArgument(!(value == Math.pow(2, 32)));
         return (value << (32-(start+length)) >>> (32-length));
     }

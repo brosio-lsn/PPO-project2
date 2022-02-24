@@ -1,6 +1,8 @@
 package ch.epfl.javelo;
 
 /**
+ * some usefool math tools
+ *
  * @author Louis ROCHE (345620)
  * @author Ambroise AIGUEPERSE (341860)
  */
