@@ -35,8 +35,9 @@ public final class Functions {
      * @return a function obtained by linear interpolation between samples,
      * * regularly spaced and covering the range from 0 to xMax
      */
-    public static DoubleUnaryOperator constant(float[] samples, double xMax) {
+    public static DoubleUnaryOperator sampled(float[] samples, double xMax) {
         Preconditions.checkArgument(samples.length > 1 && xMax > 0);
+
         return new Sampled(samples, xMax);
     }
 

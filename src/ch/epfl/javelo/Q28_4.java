@@ -33,5 +33,5 @@ public final class Q28_4 {
      * @param q28_4 the given Q28.4 value
      * @return the float value equal to the given Q28.4 value
      */
-    public float asFloat(int q28_4){return Math.scalb(q28_4,-4);}
+    public static float asFloat(int q28_4){return Math.scalb(q28_4,-4);}
 }
