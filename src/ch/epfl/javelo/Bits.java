@@ -22,7 +22,7 @@ public final class Bits {
      * @return the signed expression of the bit of length 'length' which starts at the 'start'th bit
      * from the bit vector 'value'
      */
-    public int extractSigned(int value, int start, int length) {
+    public static int extractSigned(int value, int start, int length) {
         Preconditions.checkArgument(length > 0);
         return (value << (32-(start+length))) >> (32-length);
     }
@@ -37,7 +37,7 @@ public final class Bits {
      * @return the unsigned expression of the bit of length 'length' which starts at the 'start'th bit
      * from the bit vector 'value'
      */
-    public int extractUnsigned(int value, int start, int length) {
+    public static int extractUnsigned(int value, int start, int length) {
         Preconditions.checkArgument(!(value == Math.pow(2, 32)));
         return (value << (32-(start+length)) >>> (32-length));
     }

@@ -19,6 +19,10 @@ public record PointMercator(double x, double y) {
         Preconditions.checkArgument(x== Math2.clamp(0,x,1) && y== Math2.clamp(0,x,1));
     }
 
+    public String getX(){
+        return (x+ ":"+y);
+    }
+
     /**
      * returns the Web Mercator point of whose coordinates at the given zoom level are x and y
      * @param zoomLevel the zoom level at which x and y are expressed
