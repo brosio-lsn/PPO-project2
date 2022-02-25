@@ -8,14 +8,14 @@ import ch.epfl.javelo.Preconditions;
  * @author Ambroise AIGUEPERSE (341860)
  */
 
-public record PointMercator(double x, double y) {
+public record PointWebMercator(double x, double y) {
     /**
      * Constructor of the class
      * @param x the x coordinate of the point
      * @param y the y coordinate of the point
      * @throws IllegalArgumentException if the x coordinate or the y coordinate are not in the interval [0,1]
      */
-    public PointMercator{
+    public PointWebMercator {
         Preconditions.checkArgument(x== Math2.clamp(0,x,1) && y== Math2.clamp(0,y,1));
     }
 
@@ -30,8 +30,8 @@ public record PointMercator(double x, double y) {
      * @param y the y coordinate at the given lzoom level
      * @return the Web Mercator point whose coordinates at the given zoom level are x and y
      */
-    public static PointMercator of(int zoomLevel, double x, double y){
-        return new PointMercator(Math.scalb(x,-(8+zoomLevel)), Math.scalb(y,-(8+zoomLevel)));
+    public static PointWebMercator of(int zoomLevel, double x, double y){
+        return new PointWebMercator(Math.scalb(x,-(8+zoomLevel)), Math.scalb(y,-(8+zoomLevel)));
     }
 
     /**
@@ -39,8 +39,8 @@ public record PointMercator(double x, double y) {
      * @param pointCh the given point expressed in suiss system
      * @return the equivalent Web Mercator point
      */
-    public static PointMercator ofPointCh(PointCh pointCh){
-        return new PointMercator(WebMercator.x(pointCh.lon()), WebMercator.y(pointCh.lat()));
+    public static PointWebMercator ofPointCh(PointCh pointCh){
+        return new PointWebMercator(WebMercator.x(pointCh.lon()), WebMercator.y(pointCh.lat()));
     }
 
     /**
