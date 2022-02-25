@@ -16,7 +16,7 @@ public record PointMercator(double x, double y) {
      * @throws IllegalArgumentException if the x coordinate or the y coordinate are not in the interval [0,1]
      */
     public PointMercator{
-        Preconditions.checkArgument(x== Math2.clamp(0,x,1) && y== Math2.clamp(0,x,1));
+        Preconditions.checkArgument(x== Math2.clamp(0,x,1) && y== Math2.clamp(0,y,1));
     }
 
     public String getX(){
@@ -31,7 +31,7 @@ public record PointMercator(double x, double y) {
      * @return the Web Mercator point whose coordinates at the given zoom level are x and y
      */
     public static PointMercator of(int zoomLevel, double x, double y){
-        return new PointMercator(Math.scalb(x,-(8+zoomLevel)), Math.scalb(x,(8+zoomLevel)));
+        return new PointMercator(Math.scalb(x,-(8+zoomLevel)), Math.scalb(y,-(8+zoomLevel)));
     }
 
     /**
@@ -82,7 +82,7 @@ public record PointMercator(double x, double y) {
      * @return the PointCh point at the same position as the instance this or null if the point isn't within suiss bounds
      */
     public PointCh toPointCh(){
-        PointCh pointCh=new PointCh(Ch1903.e(WebMercator.lon(this.x), WebMercator.lat(this.y)), Ch1903.n(WebMercator.lon(this.x), WebMercator.lat(this.y)));
+        PointCh pointCh=new PointCh(Ch1903.e(lon(), lat()), Ch1903.n(lon(), lat()));
         return (SwissBounds.containsEN(pointCh.e(), pointCh.n())? pointCh : null);
     }
 }
