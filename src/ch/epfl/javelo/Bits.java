@@ -23,7 +23,7 @@ public final class Bits {
      * from the bit vector 'value'
      */
     public static int extractSigned(int value, int start, int length) {
-        Preconditions.checkArgument(length > 0);
+        Preconditions.checkArgument(length >= 0 && (start+length) <= 31);
         return (value << (32-(start+length))) >> (32-length);
     }
 
@@ -38,8 +38,7 @@ public final class Bits {
      * from the bit vector 'value'
      */
     public static int extractUnsigned(int value, int start, int length) {
-        Preconditions.checkArgument(length >= 0);
-        Preconditions.checkArgument(!(value == Math.pow(2, 32)));
+        Preconditions.checkArgument(length >= 0 && (start+length) <= 31);
         return (value << (32-(start+length)) >>> (32-length));
     }
 }
