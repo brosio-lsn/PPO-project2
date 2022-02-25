@@ -7,15 +7,20 @@ import static org.junit.jupiter.api.Assertions.*;
 class Q28_4Test {
 
     @Test
-    void ofInt() {
-
+    void ofIntForTrivialBit() {
+        int trivialBit = 0b110110;
+        assertEquals(0b1101100000, Q28_4.ofInt(trivialBit));
     }
 
     @Test
-    void asDouble() {
+    void asDoubleForTrivialBit() {
+        int trivialBit = 0b110110;
+        assertEquals((double)trivialBit/16, Q28_4.asDouble(trivialBit));
     }
 
     @Test
-    void asFloat() {
+    void asFloatForTrivialBit() {
+        int trivialBit = 0b110110;
+        assertEquals((float)trivialBit/16, Q28_4.asDouble(trivialBit));
     }
 }
