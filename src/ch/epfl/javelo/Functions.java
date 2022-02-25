@@ -44,59 +44,22 @@ public final class Functions {
     /**
      * private innerclass used for the creation of a constant function
      */
-    private static final class Constant implements DoubleUnaryOperator {
-        /**
-         * the value of the constant function
-         */
-        private final double contante;
-
-        /**
-         * constructor of the function
-         *
-         * @param y the value of the constant function
-         */
-        public Constant(double y) {
-            this.contante = y;
-        }
-
+    private record Constant(double constante) implements DoubleUnaryOperator {
         /**
          * returns the image of a given x coordinate
-         *
          * @param x the x-coordinate
          * @return the image of the given x coordinate
          */
         @Override
         public double applyAsDouble(double x) {
-            return this.contante;
+            return this.constante;
         }
     }
 
     /**
-     * private innerclass used for the creation of a constant function with linear interpolation
+     * private inner record used for the creation of a function with linear interpolation
      */
-    private static final class Sampled implements DoubleUnaryOperator {
-        /**
-         * samples used for the  linear interpolation
-         */
-        private float[] samples;
-
-        /**
-         * samples are covering the range from 0 to xMax
-         */
-        private double xMax;
-
-        /**
-         * the constructor of the function
-         *
-         * @param samples used for the  linear interpolation
-         * @param xMax    samples are covering the range from 0 to xMax
-         */
-        public Sampled(float[] samples, double xMax) {
-            this.samples = samples;
-            this.xMax = xMax;
-        }
-
-
+    private record Sampled(float[] samples, double xMax) implements DoubleUnaryOperator {
         /**
          * returns the image of a given x coordinate
          * @param x the x-coordinate
@@ -105,11 +68,14 @@ public final class Functions {
         @Override
         public double applyAsDouble(double x) {
             double result = Math2.clamp(0, x, samples.length - 1);
-            if (!(result == x)) return samples[(int) result];
+            //if (!(result == x)) return samples[(int) result];
+            int length= samples.length;
+            if(x>xMax) return samples[length-1];
+            else if(x<0) return samples[0];
             else {
-                double nb = this.xMax / (samples.length-1); //???
-                int precedentSampleIndex = (int) Math.floor(x / nb);
-                return Math2.interpolate(samples[precedentSampleIndex], samples[precedentSampleIndex + 1], Math.fma(x, 1 / nb, -precedentSampleIndex));
+                double lengthBetweenSamples = this.xMax / (samples.length-1);
+                int precedentSampleIndex = (int) Math.floor(x / lengthBetweenSamples);
+                return Math2.interpolate(samples[precedentSampleIndex], samples[precedentSampleIndex + 1], Math.fma(x, 1 / lengthBetweenSamples, -precedentSampleIndex));
             }
         }
     }
