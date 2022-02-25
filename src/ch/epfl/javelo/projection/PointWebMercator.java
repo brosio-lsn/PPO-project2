@@ -85,7 +85,7 @@ public record PointWebMercator(double x, double y) {
         //created those variables to calculate lon() and (lat) only one time
         double longitude =lon();
         double latitude = lat();
-        PointCh pointCh=new PointCh(Ch1903.e(longitude, latitude), Ch1903.n(longitude, latitude));
-        return (SwissBounds.containsEN(pointCh.e(), pointCh.n())? pointCh : null);
+        return (SwissBounds.containsEN(Ch1903.e(longitude, latitude), Ch1903.n(longitude, latitude))?
+                new PointCh(Ch1903.e(longitude, latitude), Ch1903.n(longitude, latitude)): null);
     }
 }
