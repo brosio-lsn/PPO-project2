@@ -10,7 +10,7 @@ public final class Bits {
     /**
      * Default constructor of the Bits class, which is private so that the class is not instanciable.
      */
-    public Bits(){}
+    private Bits(){}
 
     /**
      * Extracts the signed expression of the bit of length 'length', which starts at the 'start'th bit from
