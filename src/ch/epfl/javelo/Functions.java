@@ -68,14 +68,13 @@ public final class Functions {
         @Override
         public double applyAsDouble(double x) {
             double result = Math2.clamp(0, x, samples.length - 1);
-            //if (!(result == x)) return samples[(int) result];
             int length= samples.length;
             if(x>xMax) return samples[length-1];
             else if(x<0) return samples[0];
             else {
                 double lengthBetweenSamples = this.xMax / (samples.length-1);
-                int precedentSampleIndex = (int) Math.floor(x / lengthBetweenSamples);
-                return Math2.interpolate(samples[precedentSampleIndex], samples[precedentSampleIndex + 1], Math.fma(x, 1 / lengthBetweenSamples, -precedentSampleIndex));
+                int precedentSampleIndex = (int) (x / lengthBetweenSamples);
+                return Math2.interpolate(samples[precedentSampleIndex], samples[precedentSampleIndex + 1], (x-lengthBetweenSamples*precedentSampleIndex)/lengthBetweenSamples);
             }
         }
     }
