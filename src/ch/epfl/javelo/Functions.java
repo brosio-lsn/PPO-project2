@@ -67,7 +67,6 @@ public final class Functions {
          */
         @Override
         public double applyAsDouble(double x) {
-            double result = Math2.clamp(0, x, samples.length - 1);
             int length= samples.length;
             if(x>xMax) return samples[length-1];
             else if(x<0) return samples[0];
