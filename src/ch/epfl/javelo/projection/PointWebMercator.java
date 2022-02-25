@@ -82,11 +82,10 @@ public record PointWebMercator(double x, double y) {
      * @return the PointCh point at the same position as the instance this or null if the point isn't within suiss bounds
      */
     public PointCh toPointCh(){
-        try {
-            return new PointCh(Ch1903.e(lon(), lat()), Ch1903.n(lon(), lat()));
-        }
-        catch (IllegalArgumentException e) {
-            return null;
-        }
+        //created those variables to calculate lon() and (lat) only one time
+        double longitude =lon();
+        double latitude = lat();
+        PointCh pointCh=new PointCh(Ch1903.e(longitude, latitude), Ch1903.n(longitude, latitude));
+        return (SwissBounds.containsEN(pointCh.e(), pointCh.n())? pointCh : null);
     }
 }
