@@ -18,6 +18,7 @@ public final class Functions {
 
     /**
      * returns a constant function whose value is always y
+     *
      * @param y the constant value of the function
      * @return a function whose value is always y
      */
@@ -28,13 +29,14 @@ public final class Functions {
     /**
      * returns a function obtained by linear interpolation between samples,
      * regularly spaced and covering the range from 0 to xMax
+     *
      * @param samples used for the  linear interpolation
-     * @param xMax samples are covering the range from 0 to xMax
+     * @param xMax    samples are covering the range from 0 to xMax
      * @return a function obtained by linear interpolation between samples,
-     *      * regularly spaced and covering the range from 0 to xMax
+     * * regularly spaced and covering the range from 0 to xMax
      */
     public static DoubleUnaryOperator constant(float[] samples, double xMax) {
-        Preconditions.checkArgument(samples.length>1 && xMax>0);
+        Preconditions.checkArgument(samples.length > 1 && xMax > 0);
         return new Sampled(samples, xMax);
     }
 
@@ -45,10 +47,11 @@ public final class Functions {
         /**
          * the value of the constant function
          */
-        private double contante;
+        private final double contante;
 
         /**
          * constructor of the function
+         *
          * @param y the value of the constant function
          */
         public Constant(double y) {
@@ -57,6 +60,7 @@ public final class Functions {
 
         /**
          * returns the image of a given x coordinate
+         *
          * @param x the x-coordinate
          * @return the image of the given x coordinate
          */
@@ -82,15 +86,16 @@ public final class Functions {
 
         /**
          * the constructor of the function
+         *
          * @param samples used for the  linear interpolation
-         * @param xMax samples are covering the range from 0 to xMax
+         * @param xMax    samples are covering the range from 0 to xMax
          */
         public Sampled(float[] samples, double xMax) {
-            this.samples=samples;
-            this.xMax=xMax;
+            this.samples = samples;
+            this.xMax = xMax;
         }
 
-    //TODO improve this
+
         /**
          * returns the image of a given x coordinate
          * @param x the x-coordinate
@@ -98,16 +103,13 @@ public final class Functions {
          */
         @Override
         public double applyAsDouble(double x) {
-            int length= samples.length;
-            if(x>xMax) return samples[length-1];
-            else if(x<0) return samples[0];
+            double result = Math2.clamp(0, x, samples.length - 1);
+            if (!(result == x)) return samples[(int) result];
             else {
-                double nb=this.xMax/(length-1);
-                double a= x/nb;
-                int n = (int) Math.floor(a);
-                return Math2.interpolate(samples[n],samples[n+1], (x-n*nb)/nb);
+                double nb = this.xMax / (samples.length-1); //???
+                int precedentSampleIndex = (int) Math.floor(x / nb);
+                return Math2.interpolate(samples[precedentSampleIndex], samples[precedentSampleIndex + 1], Math.fma(x, 1 / nb, -precedentSampleIndex));
             }
         }
-
     }
 }

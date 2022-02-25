@@ -13,8 +13,6 @@ public final class Preconditions {
      * private constructor to make the class non instantiable
      */
     private Preconditions() {}
-
-
     /**
      * throws an error if the given argument is false
      * @param shouldBeTrue the argument that should be true

@@ -38,6 +38,7 @@ public final class Bits {
      * from the bit vector 'value'
      */
     public static int extractUnsigned(int value, int start, int length) {
+        Preconditions.checkArgument(length >= 0);
         Preconditions.checkArgument(!(value == Math.pow(2, 32)));
         return (value << (32-(start+length)) >>> (32-length));
     }
