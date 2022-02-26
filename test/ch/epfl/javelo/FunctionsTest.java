@@ -19,6 +19,11 @@ class FunctionsTest {
         assertEquals((Functions.sampled(new float []{0f, 4f, 4f}, 8)).applyAsDouble(2), 2);
         assertEquals((Functions.sampled(new float []{0f, 4f, 4f}, 8)).applyAsDouble(-4), 0);
         assertEquals((Functions.sampled(new float []{0f, 4f, 4f}, 8)).applyAsDouble(18), 4);
+        float [] tab = new float [100];
+        for (int i = 0; i < 100; i ++) {
+            tab [i] = RNG.generateFloat();
+        }
+        //for (int i )
     }
     @Test
     void throwsExceptionWhenxMaxNegative() {

@@ -10,6 +10,8 @@ class AttributeSetTest {
     void ofTrivialAttribute() {
         Attribute[] A = new Attribute[]{Attribute.HIGHWAY_SERVICE};
         assertEquals(new AttributeSet(0b1L), AttributeSet.of(A));
+        Attribute [] B = new Attribute[] {};
+        assertEquals(new AttributeSet(0), AttributeSet.of(B));
     }
 
     @Test
@@ -22,6 +24,7 @@ class AttributeSetTest {
     void doesNotContainKnownAttribute() {
         Attribute[] B = new Attribute[]{Attribute.HIGHWAY_CYCLEWAY};
         assertFalse(AttributeSet.of(B).contains(Attribute.HIGHWAY_TRACK));
+
     }
 
     @Test
@@ -43,11 +46,13 @@ class AttributeSetTest {
     void testToString() {
         AttributeSet set = AttributeSet.of(Attribute.TRACKTYPE_GRADE1, Attribute.HIGHWAY_TRACK);
         assertEquals("{highway=track,tracktype=grade1}", set.toString());
+        Attribute [] B = new Attribute[] {};
+        AttributeSet emptySet = AttributeSet.of(B);
+        assertEquals("", emptySet.toString());
     }
 
     @Test
     void bits() {
-
     }
 
     @Test
