@@ -19,7 +19,7 @@ public final class Q28_4 {
      * @return the Q28.4 value corresponding to the given integer
      */
     public static int ofInt(int i){
-        return i << 4;
+        return i >>> 4;
     }
 
     /**

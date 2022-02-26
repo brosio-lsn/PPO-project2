@@ -8,8 +8,9 @@ class Q28_4Test {
 
     @Test
     void ofIntForTrivialBit() {
-        int trivialBit = 0b110110;
-        assertEquals(0b1101100000, Q28_4.ofInt(trivialBit));
+        int trivialBit = 0b10011100;
+        System.out.println(trivialBit);
+        assertEquals(-6.25, Q28_4.ofInt(-100));
     }
 
     @Test
