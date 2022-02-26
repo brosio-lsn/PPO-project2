@@ -52,8 +52,12 @@ class AttributeSetTest {
 
     @Test
     void throwsExceptionWhenIllegalArgument() {
+        System.out.println(~0b1L<<63);
         assertThrows(IllegalArgumentException.class, () -> {
             new AttributeSet(~0b1L);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            new AttributeSet(0b1L<<63);
         });
     }
 }

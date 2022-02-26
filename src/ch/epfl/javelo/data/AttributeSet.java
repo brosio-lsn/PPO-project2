@@ -18,6 +18,7 @@ public record AttributeSet(long bits) {
      * @param bits represents the attributes contained in the set : the index bit b of this value is 1 if and only if the attribute b is contained in the set
      */
     public AttributeSet {
+        long b = bits >>> Attribute.COUNT;
         Preconditions.checkArgument(bits >>> Attribute.COUNT == 0);
     }
 
