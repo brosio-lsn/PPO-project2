@@ -58,6 +58,11 @@ class PointWebMercatorTest {
     }
 
     @Test
+    void toPointChException() {
+        assertEquals(null, new PointWebMercator(0, 0).toPointCh());
+    }
+
+    @Test
     void x() {
     }
 

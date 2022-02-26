@@ -19,6 +19,7 @@ public record PointWebMercator(double x, double y) {
         Preconditions.checkArgument(x== Math2.clamp(0,x,1) && y== Math2.clamp(0,y,1));
     }
 
+    //TODO delete that when handing the project(only used for test purposes)
     public String getX(){
         return (x+ ":"+y);
     }
