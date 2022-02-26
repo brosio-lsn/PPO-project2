@@ -12,14 +12,14 @@ class BitsTest {
     void extractSigned() {
         int trivialBit = 0b11001010111111101011101010111110;
         System.out.println(Bits.extractSigned(trivialBit, 8, 4 ));
-        assertEquals(0b00000000000000000000000000001010, Bits.extractSigned(trivialBit, 8, 4 ));
+        assertEquals(0b11111111111111111111111111111010, Bits.extractSigned(trivialBit, 8, 4 ));
     }
 
     @Test
     void extractUnsigned() {
         int trivialBit = 0b11001010111111101011101010111110;
         System.out.println(Bits.extractSigned(trivialBit, 8, 4 ));
-        assertEquals(0b11111111111111111111111111111010, Bits.extractUnsigned(trivialBit, 8, 4 ));
+        assertEquals(0b00000000000000000000000000001010, Bits.extractUnsigned(trivialBit, 8, 4 ));
     }
 
     @Test
