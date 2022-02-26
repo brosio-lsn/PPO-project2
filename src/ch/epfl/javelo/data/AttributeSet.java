@@ -18,7 +18,6 @@ public record AttributeSet(long bits) {
      * @param bits represents the attributes contained in the set : the index bit b of this value is 1 if and only if the attribute b is contained in the set
      */
     public AttributeSet {
-        long b = bits >>> Attribute.COUNT;
         Preconditions.checkArgument(bits >>> Attribute.COUNT == 0);
     }
 
@@ -41,6 +40,7 @@ public record AttributeSet(long bits) {
      * @return true if the attribute is contained in this AttributeSet, false otherwise.
      */
     public boolean contains(Attribute attribute) {
+        //mask initiated here to not calculate 2 times
         long mask = 1L << attribute.ordinal();
         return ((this.bits & mask) == mask);
     }

@@ -27,8 +27,8 @@ public record PointWebMercator(double x, double y) {
     /**
      * returns the Web Mercator point of whose coordinates at the given zoom level are x and y
      * @param zoomLevel the zoom level at which x and y are expressed
-     * @param x the x coordinate at the given lzoom level
-     * @param y the y coordinate at the given lzoom level
+     * @param x the x coordinate at the given zoom level
+     * @param y the y coordinate at the given zoom level
      * @return the Web Mercator point whose coordinates at the given zoom level are x and y
      */
     public static PointWebMercator of(int zoomLevel, double x, double y){
@@ -44,6 +44,7 @@ public record PointWebMercator(double x, double y) {
         return new PointWebMercator(WebMercator.x(pointCh.lon()), WebMercator.y(pointCh.lat()));
     }
 
+    //TODO those methods need to be static?
     /**
      * retruns the x coordinate of the point at the given zoom level
      * @param zoomLevel the zoom level at which the coordinate will be returned

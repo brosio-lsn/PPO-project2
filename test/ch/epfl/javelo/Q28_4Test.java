@@ -22,6 +22,6 @@ class Q28_4Test {
     @Test
     void asFloatForTrivialBit() {
         int trivialBit = 0b110110;
-        assertEquals((float)trivialBit/16, Q28_4.asDouble(trivialBit));
+        assertEquals((float)trivialBit/16, Q28_4.asFloat(trivialBit));
     }
 }

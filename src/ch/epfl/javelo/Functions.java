@@ -37,7 +37,6 @@ public final class Functions {
      */
     public static DoubleUnaryOperator sampled(float[] samples, double xMax) {
         Preconditions.checkArgument(samples.length > 1 && xMax > 0);
-
         return new Sampled(samples, xMax);
     }
 
@@ -67,14 +66,18 @@ public final class Functions {
          */
         @Override
         public double applyAsDouble(double x) {
-            int length= samples.length;
-            if(x>xMax) return samples[length-1];
+            //create those varaibles to not calculate them twice
+            int SamplesLength= samples.length;
+            double lengthBetweenSamples = this.xMax / (SamplesLength-1);
+            int precedentSampleIndex = (int) (x / lengthBetweenSamples);
+            /*if(x>xMax) return samples[SamplesLength-1];
             else if(x<0) return samples[0];
             else {
-                double lengthBetweenSamples = this.xMax / (samples.length-1);
-                int precedentSampleIndex = (int) (x / lengthBetweenSamples);
+                lengthBetweenSamples = this.xMax / (SamplesLength-1);
+                precedentSampleIndex = (int) (x / lengthBetweenSamples);
                 return Math2.interpolate(samples[precedentSampleIndex], samples[precedentSampleIndex + 1], (x-lengthBetweenSamples*precedentSampleIndex)/lengthBetweenSamples);
-            }
+            }*/
+            return (x>xMax ? samples[SamplesLength-1] : (x<0 ? samples[0] : Math2.interpolate(samples[precedentSampleIndex], samples[precedentSampleIndex + 1], (x-lengthBetweenSamples*precedentSampleIndex)/lengthBetweenSamples)));
         }
     }
 }
