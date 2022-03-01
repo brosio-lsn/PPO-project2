@@ -3,13 +3,13 @@ package ch.epfl.javelo;
 import java.util.Random;
 
 public class RNG {
-    public static float generateFloat() {
-        return new Random().nextFloat(100);
+    public static float generateFloat(int bound) {
+        return new Random().nextFloat(bound);
     }
-    public static double generateDouble() {
-        return new Random().nextDouble(10000);
+    public static double generateDouble(int bound) {
+        return new Random().nextDouble(bound);
     }
-    public static int generateIntNoBounds() {
-        return new Random().nextInt((Integer.MAX_VALUE));
+    public static int generateIntNoBounds(int bound) {
+        return new Random().nextInt((bound));
     }
 }

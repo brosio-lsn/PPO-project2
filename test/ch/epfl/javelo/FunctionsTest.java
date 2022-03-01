@@ -21,7 +21,7 @@ class FunctionsTest {
         assertEquals((Functions.sampled(new float []{0f, 4f, 4f}, 8)).applyAsDouble(18), 4);
         float [] tab = new float [100];
         for (int i = 0; i < 100; i ++) {
-            tab [i] = RNG.generateFloat();
+            tab [i] = RNG.generateFloat(100);
         }
         //for (int i )
     }
