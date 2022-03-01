@@ -17,9 +17,13 @@ class BitsTest {
 
     @Test
     void extractUnsigned() {
-        int trivialBit = 0b11001010111111101011101010111110;
-        System.out.println(Bits.extractSigned(trivialBit, 8, 4 ));
-        assertEquals(0b00000000000000000000000000001010, Bits.extractUnsigned(trivialBit, 8, 4 ));
+        int trivialBit = 0b11101110111;
+        System.out.println(Bits.extractUnsigned(trivialBit, 0, 3 ));
+        assertEquals(0b111, Bits.extractUnsigned(trivialBit, 0, 3 ));
+        int bizarreBit = 0b11111110111111011111110000001010;
+        System.out.println(0b011111101111110111111100000010100);
+        System.out.println(bizarreBit);
+        assertEquals(32, Bits.extractUnsigned(trivialBit, 31, 0 ));
     }
 
     @Test
