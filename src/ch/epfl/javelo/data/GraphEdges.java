@@ -1,6 +1,7 @@
 package ch.epfl.javelo.data;
 
 import ch.epfl.javelo.Bits;
+import ch.epfl.javelo.Math2;
 import ch.epfl.javelo.Q28_4;
 
 import java.nio.ByteBuffer;
@@ -72,7 +73,32 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
      */
 
     public float[] profileSamples(int edgeId) {
-        return (hasProfile(edgeId) ? new float[1] : new float[0]);
+        int nbOfProfiles = (int)Math.ceil(length(edgeId)/2) + 1;
+        int type = Bits.extractUnsigned(profileIds.get(edgeId), 30, 2);
+        int profileId = Bits.extractSigned(profileIds.get(edgeId), 0, 30);
+        float[] samples = new float[nbOfProfiles];
+        switch (type) {
+            case 0 :
+                return new float []{};
+            case 1 :
+                for (int i = 0; i < nbOfProfiles; i++) {
+                    samples[i] = elevation.get(profileId+i);
+                }
+                return samples;
+            case 2:
+                samples[0] = elevation.get(profileId);
+                for (int i = 1; i < nbOfProfiles; i++) {
+                    samples[i] = (float)Q28_4.asDouble(Bits.extractUnsigned(elevation.get(profileId+i), 0, 8));
+                }
+                return samples;
+            case 3:
+                samples[0] = elevation.get(profileId);
+                for (int i = 1; i < nbOfProfiles; i++) {
+                    samples[i] = (float)Q28_4.asDouble(Bits.extractUnsigned(elevation.get(profileId+i), 0, 4));
+                }
+                return samples;
+        }
+        return samples;
     }
 
     /**
