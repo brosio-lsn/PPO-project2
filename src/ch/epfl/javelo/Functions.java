@@ -67,6 +67,7 @@ public final class Functions {
         @Override
         public double applyAsDouble(double x) {
             //create those varaibles to not calculate them twice
+            //TODO longueur tableau
             int SamplesLength= samples.length;
             double lengthBetweenSamples = this.xMax / (SamplesLength-1);
             int precedentSampleIndex = (int) (x / lengthBetweenSamples);
