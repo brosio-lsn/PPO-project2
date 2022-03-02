@@ -30,6 +30,7 @@ public final class WebMercator {
      * @param lat the longitude of the point given in radians
      * @return the y-coordinate of the projection
      */
+    //TODO demander à un assistant comment les paramètres seront donnés en argument (degrés ou radians)
     public static double y(double lat){return 1/(2*Math.PI)*(Math.PI- Math2.asinh(Math.tan(lat)));}
 
     /**
