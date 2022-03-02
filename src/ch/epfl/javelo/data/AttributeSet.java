@@ -8,7 +8,7 @@ import java.util.StringJoiner;
  * represents set of attributes
  *
  * @author Louis ROCHE (345620)
- * @author Ambroise AIGUEPERSE (341860)
+ * @author Ambroise AIGUEPERSE (341890)
  */
 public record AttributeSet(long bits) {
     /**

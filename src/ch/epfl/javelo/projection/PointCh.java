@@ -7,7 +7,7 @@ import static ch.epfl.javelo.projection.SwissBounds.*;
 
 /**
  * @author Louis ROCHE (345620)
- * @author Ambroise AIGUEPERSE (341860)
+ * @author Ambroise AIGUEPERSE (341890)
  */
 public record PointCh(double e, double n) {
     /**

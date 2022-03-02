@@ -5,7 +5,7 @@ import ch.epfl.javelo.Preconditions;
 
 /**
  * @author Louis ROCHE (345620)
- * @author Ambroise AIGUEPERSE (341860)
+ * @author Ambroise AIGUEPERSE (341890)
  */
 
 public record PointWebMercator(double x, double y) {

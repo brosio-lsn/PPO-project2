@@ -5,7 +5,7 @@ package ch.epfl.javelo;
  * and other representations
  *
  * @author Louis ROCHE (345620)
- * @author Ambroise AIGUEPERSE (341860)
+ * @author Ambroise AIGUEPERSE (341890)
  */
 public final class Q28_4 {
     /**

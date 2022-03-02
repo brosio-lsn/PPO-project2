@@ -9,7 +9,7 @@ import java.nio.IntBuffer;
  * represents the set of nodes contained in the JaVelo graph
  *
  * @author Louis ROCHE (345620)
- * @author Ambroise AIGUEPERSE (341860)
+ * @author Ambroise AIGUEPERSE (341890)
  */
 
 public record GraphNodes(IntBuffer buffer) {

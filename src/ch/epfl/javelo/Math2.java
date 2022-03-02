@@ -4,7 +4,7 @@ package ch.epfl.javelo;
  * some usefool math tools
  *
  * @author Louis ROCHE (345620)
- * @author Ambroise AIGUEPERSE (341860)
+ * @author Ambroise AIGUEPERSE (341890)
  */
 public final class Math2 {
     private Math2() {
