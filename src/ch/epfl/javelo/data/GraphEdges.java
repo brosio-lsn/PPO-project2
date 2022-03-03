@@ -35,8 +35,8 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
      * @return the id of the target node of the Edge at edgeId.
      */
     public int targetNodeId(int edgeId) {
-        return (isInverted(edgeId) ? Bits.extractUnsigned(edgesBuffer.getInt(edgeId * 10), 0, 30) :
-                Bits.extractSigned(edgesBuffer.getInt(edgeId * 10), 0, 30));
+        return (isInverted(edgeId) ? Bits.extractUnsigned(~edgesBuffer.getInt(edgeId * 10), 0, 31)
+                : Bits.extractUnsigned(edgesBuffer.getInt(edgeId * 10), 0, 31));
     }
 
     /**

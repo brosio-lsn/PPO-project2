@@ -14,6 +14,7 @@ class GraphEdgesTest {
     void test() {
         ByteBuffer edgesBuffer = ByteBuffer.allocate(10);
 // Sens : inversé. Nœud destination : 12.
+        //TODO ASK A MFING ASSISTANT FKEZGFKUHG FDVTYAZF DYTVAZFDFAZUVY
         edgesBuffer.putInt(0, ~12);
 // Longueur : 0x10.b m (= 16.6875 m)
         edgesBuffer.putShort(4, (short) 0x10_b);
