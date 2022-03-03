@@ -53,7 +53,8 @@ public record GraphNodes(IntBuffer buffer) {
      * @return the number of edges coming out of the node with given identity
      */
     public double outDegree(int nodeId){
-        return Bits.extractUnsigned(buffer.get(nodeId*NODE_INTS + OFFSET_OUT_EDGES),27,4 );
+        System.out.println(nodeId*NODE_INTS + OFFSET_OUT_EDGES);
+        return Bits.extractUnsigned(buffer.get(nodeId*NODE_INTS + OFFSET_OUT_EDGES),28,4 );
     }
 
     /**

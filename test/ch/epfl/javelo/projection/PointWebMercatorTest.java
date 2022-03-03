@@ -1,6 +1,9 @@
 package ch.epfl.javelo.projection;
 
+import ch.epfl.test.TestRandomizer;
 import org.junit.jupiter.api.Test;
+import static ch.epfl.test.TestRandomizer.RANDOM_ITERATIONS;
+import static ch.epfl.test.TestRandomizer.newRandom;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -68,5 +71,17 @@ class PointWebMercatorTest {
 
     @Test
     void y() {
+    }
+
+    @Test
+    void ofForAllowedValues () {
+        var rng = newRandom();
+        for (int i = 0; i < TestRandomizer.RANDOM_ITERATIONS; i++) {
+            var zoomLevel =  rng.nextInt(0, 19);
+            var x = rng.nextDouble(0,1 );
+            var y = rng.nextDouble(0, 1);
+            var expected = 256*Math.pow(2, zoomLevel);
+            var actual = PointWebMercator.of(zoomLevel, x, y);
+        }
     }
 }
