@@ -14,6 +14,9 @@ import java.nio.ShortBuffer;
  */
 
 public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuffer elevation) {
+    private static final int LENGTH_OFFSET = 4;
+    private static final int ELEVATIONGAIN_OFFSET = 6;
+    private static final int ATTRIBUTESINDEX_OFFSET = 8;
     /**
      * returns whether the given edge's orientation goes in the opposite direction of the OSM way which it provides from
      *
@@ -22,7 +25,7 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
      * True if so, false otherwise.
      */
     public boolean isInverted(int edgeId) {
-        return (edgesBuffer.getInt(edgeId * 10 + 1) < 0);
+        return (edgesBuffer.getInt(edgeId * 10) < 0);
     }
 
     /**
@@ -32,7 +35,8 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
      * @return the id of the target node of the Edge at edgeId.
      */
     public int targetNodeId(int edgeId) {
-        return Bits.extractUnsigned(edgesBuffer.getInt(edgeId * 10 + 1), 0, 31);
+        return (isInverted(edgeId) ? Bits.extractUnsigned(edgesBuffer.getInt(edgeId * 10), 0, 30) :
+                Bits.extractSigned(edgesBuffer.getInt(edgeId * 10), 0, 30));
     }
 
     /**
@@ -42,7 +46,7 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
      * @return the length of the edge whose id is edgeId.
      */
     public double length(int edgeId) {
-        return (Q28_4.asDouble(edgesBuffer.getShort(edgeId * 10 + 5)));
+        return (Q28_4.asDouble(edgesBuffer.getShort(edgeId * 10 + 4)));
     }
 
     /**
@@ -52,7 +56,7 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
      * @return the elevation gain of the edge whose id is edgeId.
      */
     public double elevationGain(int edgeId) {
-        return edgesBuffer.getShort(edgeId * 10 + 7);
+        return edgesBuffer.getShort(edgeId * 10 + 6);
     }
 
     /**
@@ -108,6 +112,6 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
      * @return the identity of the set of attributes attached to the given edge, whose id is edgeId.
      */
     public int attributesIndex(int edgeId) {
-        return edgesBuffer.getShort(edgeId * 10 + 9);
+        return edgesBuffer.getShort(edgeId * 10 + 8);
     }
 }
