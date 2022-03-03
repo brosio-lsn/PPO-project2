@@ -56,7 +56,7 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
      * @return the elevation gain of the edge whose id is edgeId.
      */
     public double elevationGain(int edgeId) {
-        return edgesBuffer.getShort(edgeId * 10 + 6);
+        return Q28_4.asDouble(edgesBuffer.getShort(edgeId * 10 + 6));
     }
 
     /**
@@ -96,9 +96,9 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
                 }
                 return samples;
             case 3:
-                samples[0] = elevation.get(profileId);
+                samples[0] = (float)Q28_4.asDouble(elevation.get(profileId));
                 for (int i = 1; i < nbOfProfiles; i++) {
-                    samples[i] = (float)Q28_4.asDouble(Bits.extractUnsigned(elevation.get(profileId+i), 0, 4));
+                    samples[i] = samples[0] + (float)Q28_4.asDouble(Bits.extractUnsigned(elevation.get(profileId+i/4+1), 0, i/4+1));
                 }
                 return samples;
         }
