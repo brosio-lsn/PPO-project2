@@ -94,8 +94,12 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
                 return samples;
             case 2:
                 samples[0] = elevation.get(profileId);
-                for (int i = 1; i < nbOfProfiles; i++) {
-                    samples[i] = Q28_4.asFloat(Bits.extractUnsigned(elevation.get(profileId + i), 0, 8));
+                for (int i = 1; i <= nbOfProfiles / 2 + 1; i++) {
+                    for (int j = 1; j >= 0; j--)
+                        if (count < nbOfProfiles)
+                            samples[count] = samples[count - 1] +
+                                    Q28_4.asFloat(Bits.extractSigned(elevation.get(profileId + i), 4 * j, 8));
+                    ++count;
                 }
                 return samples;
             case 3:
@@ -103,8 +107,8 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
                 for (int i = 1; i <= nbOfProfiles / 4 + 1; i += 1) {
                     for (int j = 3; j >= 0; j--) {
                         if (count < nbOfProfiles)
-                            samples[count] = samples[count - 1] + Q28_4.asFloat(Bits.extractSigned(elevation.get(profileId + i)
-                                    , 4 * j, 4));
+                            samples[count] = samples[count - 1] +
+                                    Q28_4.asFloat(Bits.extractSigned(elevation.get(profileId + i), 4 * j, 4));
                         ++count;
                     }
 
