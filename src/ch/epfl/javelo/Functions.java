@@ -55,6 +55,7 @@ public final class Functions {
         }
     }
 
+
     /**
      * private inner record used for the creation of a function with linear interpolation
      */
