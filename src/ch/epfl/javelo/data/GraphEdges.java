@@ -98,7 +98,7 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
                     for (int j = 1; j >= 0; j--)
                         if (count < nbOfProfiles)
                             samples[count] = samples[count - 1] +
-                                    Q28_4.asFloat(Bits.extractSigned(elevation.get(profileId + i), 4 * j, 8));
+                                    Q28_4.asFloat(Bits.extractSigned(elevation.get(profileId + i), 8 * j, 8));
                     ++count;
                 }
                 return samples;
