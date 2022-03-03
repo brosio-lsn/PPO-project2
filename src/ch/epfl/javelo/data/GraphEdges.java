@@ -17,6 +17,7 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
     private static final int LENGTH_OFFSET = 4;
     private static final int ELEVATIONGAIN_OFFSET = 6;
     private static final int ATTRIBUTESINDEX_OFFSET = 8;
+
     /**
      * returns whether the given edge's orientation goes in the opposite direction of the OSM way which it provides from
      *
@@ -77,28 +78,42 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
      */
 
     public float[] profileSamples(int edgeId) {
-        int nbOfProfiles = (int)Math.ceil(length(edgeId)/2) + 1;
+        int nbOfProfiles = (int) Math.ceil(length(edgeId) / 2) + 1;
         int type = Bits.extractUnsigned(profileIds.get(edgeId), 30, 2);
         int profileId = Bits.extractSigned(profileIds.get(edgeId), 0, 30);
         float[] samples = new float[nbOfProfiles];
+        float[] reverse = new float[nbOfProfiles];
+        int count = 1;
         switch (type) {
-            case 0 :
-                return new float []{};
-            case 1 :
+            case 0:
+                return new float[]{};
+            case 1:
                 for (int i = 0; i < nbOfProfiles; i++) {
-                    samples[i] = elevation.get(profileId+i);
+                    samples[i] = elevation.get(profileId + i);
                 }
                 return samples;
             case 2:
                 samples[0] = elevation.get(profileId);
                 for (int i = 1; i < nbOfProfiles; i++) {
-                    samples[i] = (float)Q28_4.asDouble(Bits.extractUnsigned(elevation.get(profileId+i), 0, 8));
+                    samples[i] = Q28_4.asFloat(Bits.extractUnsigned(elevation.get(profileId + i), 0, 8));
                 }
                 return samples;
             case 3:
-                samples[0] = (float)Q28_4.asDouble(elevation.get(profileId));
-                for (int i = 1; i < nbOfProfiles; i++) {
-                    samples[i] = samples[0] + (float)Q28_4.asDouble(Bits.extractUnsigned(elevation.get(profileId+i/4+1), 0, i/4+1));
+                samples[0] = Q28_4.asFloat(elevation.get(profileId));
+                for (int i = 1; i <= nbOfProfiles / 4 + 1; i += 1) {
+                    for (int j = 3; j >= 0; j--) {
+                        if (count < nbOfProfiles)
+                            samples[count] = samples[count - 1] + Q28_4.asFloat(Bits.extractSigned(elevation.get(profileId + i)
+                                    , 4 * j, 4));
+                        ++count;
+                    }
+
+                }
+                if (isInverted(edgeId)) {
+                    for (int i = samples.length - 1; i >= 0; i--) {
+                        reverse[i] = samples[samples.length - i - 1];
+                    }
+                    return reverse;
                 }
                 return samples;
         }
