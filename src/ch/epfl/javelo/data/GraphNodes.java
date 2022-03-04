@@ -44,7 +44,6 @@ public record GraphNodes(IntBuffer buffer) {
      */
     public double nodeN(int nodeId){
         return Q28_4.asDouble(buffer.get(nodeId*NODE_INTS + OFFSET_N));
-        //TODO sur de consversion
     }
 
     /**
@@ -53,7 +52,7 @@ public record GraphNodes(IntBuffer buffer) {
      * @return the number of edges coming out of the node with given identity
      */
     public double outDegree(int nodeId){
-        System.out.println(nodeId*NODE_INTS + OFFSET_OUT_EDGES);
+        //System.out.println(nodeId*NODE_INTS + OFFSET_OUT_EDGES);
         return Bits.extractUnsigned(buffer.get(nodeId*NODE_INTS + OFFSET_OUT_EDGES),28,4 );
     }
 

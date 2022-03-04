@@ -141,7 +141,10 @@ class GraphSectorsTest {
         }
         GraphSectors graph=new GraphSectors(sectorsBuffer);
         //graph.sectorsInArea(new PointCh(2600000, 1200000), 6000);
-        List<GraphSectors.Sector> dondon= graph.sectorsInArea(new PointCh(2600000, 1200000), 600000000);
+        List<GraphSectors.Sector> dondon= graph.sectorsInArea(new PointCh(SwissBounds.MIN_E+3500, SwissBounds.MIN_N), 10);
+        assertThrows(IllegalArgumentException.class, () -> {
+            List<GraphSectors.Sector> maqe = graph.sectorsInArea(new PointCh(SwissBounds.MIN_E+10000, SwissBounds.MIN_N), 1);
+        });
         int a =0;
         }
 }
