@@ -91,9 +91,9 @@ class GraphEdgesTest {
         assertEquals(30921, edges.attributesIndex(1));
         float[] expectedSamples = new float[]{
                 384.75f, 380.625f, 381.5625f, 384.4375f, 386.4375f, 386.375f,
-                385.35f, 387.25f, 389.25f, 390.25f,
+                385.25f, 387.25f, 389.25f, 390.25f,
         };
-        assertArrayEquals(expectedSamples, edges.profileSamples(0));
+        assertArrayEquals(expectedSamples, edges.profileSamples(1));
     }
 
 }

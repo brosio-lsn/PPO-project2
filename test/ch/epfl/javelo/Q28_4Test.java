@@ -10,7 +10,7 @@ class Q28_4Test {
     void ofIntForTrivialBit() {
         int trivialBit = 0b10011100;
         System.out.println(trivialBit);
-        assertEquals(-6.25, Q28_4.ofInt(-100));
+        assertEquals(-6.25, Q28_4.ofInt(0b10011100));
     }
     //si ça marche pas c'est normal
     @Test

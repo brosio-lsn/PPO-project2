@@ -48,7 +48,7 @@ class AttributeSetTest {
         assertEquals("{highway=track,tracktype=grade1}", set.toString());
         Attribute [] B = new Attribute[] {};
         AttributeSet emptySet = AttributeSet.of(B);
-        assertEquals("", emptySet.toString());
+        assertEquals("{}", emptySet.toString());
     }
 
     @Test
