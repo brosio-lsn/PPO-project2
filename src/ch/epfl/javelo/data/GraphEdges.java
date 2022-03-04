@@ -47,7 +47,7 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
      * @return the length of the edge whose id is edgeId.
      */
     public double length(int edgeId) {
-        return (Q28_4.asDouble(edgesBuffer.getShort(edgeId * 10 + 4)));
+        return (Q28_4.asDouble(edgesBuffer.getShort(edgeId * 10 + LENGTH_OFFSET)));
     }
 
     /**
@@ -57,7 +57,7 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
      * @return the elevation gain of the edge whose id is edgeId.
      */
     public double elevationGain(int edgeId) {
-        return Q28_4.asDouble(edgesBuffer.getShort(edgeId * 10 + 6));
+        return Q28_4.asDouble(edgesBuffer.getShort(edgeId * 10 + ELEVATIONGAIN_OFFSET));
     }
 
     /**
@@ -93,33 +93,32 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
                 }
                 return samples;
             case 2:
-                samples[0] = elevation.get(profileId);
-                for (int i = 1; i <= nbOfProfiles / 2 + 1; i++) {
-                    for (int j = 1; j >= 0; j--)
+                samples[0] = Q28_4.asFloat(elevation.get(profileId));
+                for (int shortIndex = 1; shortIndex <= (nbOfProfiles - 1)/ 2 + 1; shortIndex++) {
+                    for (int sampleIndex = 1; sampleIndex >= 0; sampleIndex--) {
                         if (count < nbOfProfiles)
                             samples[count] = samples[count - 1] +
-                                    Q28_4.asFloat(Bits.extractSigned(elevation.get(profileId + i), 8 * j, 8));
-                    ++count;
+                                    Q28_4.asFloat(Bits.extractSigned(elevation.get(profileId + shortIndex), 8 * sampleIndex, 8));
+                        ++count;
+                    }
                 }
                 return samples;
             case 3:
                 samples[0] = Q28_4.asFloat(elevation.get(profileId));
-                for (int i = 1; i <= nbOfProfiles / 4 + 1; i += 1) {
+                for (int i = 1; i <= nbOfProfiles -1 / 4 + 1; i += 1) {
                     for (int j = 3; j >= 0; j--) {
                         if (count < nbOfProfiles)
                             samples[count] = samples[count - 1] +
                                     Q28_4.asFloat(Bits.extractSigned(elevation.get(profileId + i), 4 * j, 4));
                         ++count;
                     }
-
                 }
-                if (isInverted(edgeId)) {
-                    for (int i = samples.length - 1; i >= 0; i--) {
-                        reverse[i] = samples[samples.length - i - 1];
-                    }
-                    return reverse;
-                }
-                return samples;
+        }
+        if (isInverted(edgeId)) {
+            for (int i = samples.length - 1; i >= 0; i--) {
+                reverse[i] = samples[samples.length - i - 1];
+            }
+            return reverse;
         }
         return samples;
     }
@@ -131,6 +130,6 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
      * @return the identity of the set of attributes attached to the given edge, whose id is edgeId.
      */
     public int attributesIndex(int edgeId) {
-        return edgesBuffer.getShort(edgeId * 10 + 8);
+        return edgesBuffer.getShort(edgeId * 10 + ATTRIBUTESINDEX_OFFSET);
     }
 }
