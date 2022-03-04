@@ -1,5 +1,6 @@
 package ch.epfl.javelo.data;
 
+import ch.epfl.javelo.Math2;
 import ch.epfl.javelo.projection.PointCh;
 import ch.epfl.javelo.projection.SwissBounds;
 
@@ -47,31 +48,55 @@ public record GraphSectors(ByteBuffer buffer) {
     public List<Sector> sectorsInArea(PointCh center, double distance){
         //TODO voir si (center.n()-distance/2)-SwissBounds.MIN_N pas negaatif
         ArrayList<Sector> sectors= new ArrayList<>();
-        int xCoordinateOfBottomLeftSector = (int)Math.ceil(((center.n()-distance/2)-SwissBounds.MIN_N)/SECTOR_WIDTH);
-        //int yCoordinateOfBottomLeftSector = (int)Math.ceil(((center.e()-distance/2)-SwissBounds.MIN_E)/SECTOR_HEIGHT);
-        //int identityOfBottomLeftSector= 128*(yCoordinateOfBottomLeftSector-1)+xCoordinateOfBottomLeftSector-1;
-
-        int xCoordinateOfBottomRightSector = (int)Math.ceil(((center.n()-distance/2)-SwissBounds.MIN_N)/SECTOR_WIDTH);
-        //int yCoordinateOfBottomRightSector = (int)Math.ceil(((center.e()+distance/2)-SwissBounds.MIN_E)/SECTOR_HEIGHT);
-        //int identityOfBottomRightSector= 128*(yCoordinateOfBottomRightSector-1)+xCoordinateOfBottomRightSector-1;
-
-        int xCoordinateOfTopRightSector = (int)Math.ceil(((center.n()+distance/2)-SwissBounds.MIN_N)/SECTOR_WIDTH);
-        //int yCoordinateOfTopRightSector = (int)Math.ceil(((center.e()+distance/2)-SwissBounds.MIN_E)/SECTOR_HEIGHT);
-        //int identityOfTopRightSector= 128*(yCoordinateOfTopRightSector-1)+xCoordinateOfTopRightSector-1;
-
-        int xCoordinateOfTopLeftSector = (int)Math.ceil(((center.n()-distance/2)-SwissBounds.MIN_N)/SECTOR_WIDTH);
-        //int yCoordinateOfTopLeftSector = (int)Math.ceil(((center.e()+distance/2)-SwissBounds.MIN_E)/SECTOR_HEIGHT);
-        //int identityOfTopLeftSector= 128*(yCoordinateOfTopLeftSector-1)+xCoordinateOfTopLeftSector-1;
-
-/*        sectors.add(getSectorAtIdentity(identityOfBottomLeftSector));
-        sectors.add(getSectorAtIdentity(identityOfBottomRightSector));
-        sectors.add(getSectorAtIdentity(identityOfTopLeftSector));
-        sectors.add(getSectorAtIdentity(identityOfTopRightSector));*/
-
-        for(int x=xCoordinateOfBottomLeftSector; x<=xCoordinateOfBottomRightSector; ++x ){
-            for(int y=xCoordinateOfTopLeftSector; y<=xCoordinateOfTopRightSector; ++y )
-                sectors.add(getSectorAtIdentity(128*(y-1)+x-1));
+        int xCoordinateOfBottomLeftSector = Math2.clamp(0, (int)Math.ceil(((center.e()-distance/2)-SwissBounds.MIN_E)/SECTOR_WIDTH), NUMBER_OF_SECTORS_ON_SIDE);
+        int xCoordinateOfBottomRightSector = Math2.clamp(0, (int)Math.ceil(((center.e()+distance/2)-SwissBounds.MIN_E)/SECTOR_WIDTH), NUMBER_OF_SECTORS_ON_SIDE);;
+        int yCoordinateOfBottomLeftSector = Math2.clamp(0, (int)Math.ceil(((center.n()-distance/2)-SwissBounds.MIN_N)/SECTOR_HEIGHT), NUMBER_OF_SECTORS_ON_SIDE);
+        int yCoordinateOfTopLeftSector = Math2.clamp(0, (int)Math.ceil(((center.n()+distance/2)-SwissBounds.MIN_N)/SECTOR_HEIGHT), NUMBER_OF_SECTORS_ON_SIDE);
+        int count=0;
+        for(int y=yCoordinateOfBottomLeftSector; y<=yCoordinateOfTopLeftSector; ++y ) {
+            for (int x = xCoordinateOfBottomLeftSector; x <= xCoordinateOfBottomRightSector; ++x) {
+                //if (y > 0) yo.add(count);
+                int b = NUMBER_OF_SECTORS_ON_SIDE * Math2.clamp(0, (y - 1), 127) + Math2.clamp(0, (x - 1), 127);
+                if (y > 0)
+                    sectors.add(getSectorAtIdentity(NUMBER_OF_SECTORS_ON_SIDE * Math2.clamp(0, (y - 1), 127) + Math2.clamp(0, (x - 1), 127)));
+                if (y > 0)
+                    //System.out.println(NUMBER_OF_SECTORS_ON_SIDE * Math2.clamp(0, (y - 1), 127) + Math2.clamp(0, (x - 1), 127));
+                if (y > 0) ++count;
+            }
         }
+/*        System.out.println("NOMBRE DE yeet " + count);
+        for(Integer i : yo){
+            int yeet=0;
+            System.out.println(i);
+            for(Integer y : yo){
+                if(y==i) ++yeet;
+                if(yeet>1) System.out.print(y);
+            }
+        }*/
+        ArrayList<Sector>se= new ArrayList<>();
+        for(Sector s : sectors)se.add(s);
+        for(Sector s : sectors) {
+            System.out.println(s.startNodeId);
+        }
+
+        var sec2 = sectors.stream().distinct().toList();
+
+        for(int i=0; i<sec2.size();++i) {
+            int b = 0;
+            for (int j = 0; j < se.size(); ++j){
+                if(sec2.get(i).equals(se.get(j))&& b>0) {
+                    System.out.println(se.get(j));
+                }
+                if(sec2.get(i).equals(se.get(j))&& b==0) {
+                    ++b;
+                }
+            }
+        }
+
+        System.out.println("sdffffffffff");
+        System.out.println(sec2.size());
+
+
         return sectors;
     }
 
@@ -80,7 +105,7 @@ public record GraphSectors(ByteBuffer buffer) {
      * @param identity the identity of the sector
      * @return the sector of given identity
      */
-    private Sector getSectorAtIdentity(int identity) {
+    public Sector getSectorAtIdentity(int identity) {
         //initiated startNodeId here to not calculate it twice
         int startNodeId=buffer.getInt(identity*SECTOR_BYTES+OFFSET_IDENTITY_OF_FIRST_NODE);
         return new Sector(startNodeId, startNodeId + buffer.getShort(identity*SECTOR_BYTES+OFFSET_NUMBER_OF_NODES));
@@ -91,6 +116,6 @@ public record GraphSectors(ByteBuffer buffer) {
      * @param startNodeId the index of the sector's first node
      * @param endNodeId the index of the node just after the sector's last node
      */
-    private record Sector(int startNodeId, int endNodeId) {
+    public record Sector(int startNodeId, int endNodeId) {
     }
 }

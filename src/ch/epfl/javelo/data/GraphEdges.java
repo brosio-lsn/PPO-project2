@@ -104,15 +104,20 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
                 return samples;
             case 3:
                 samples[0] = Q28_4.asFloat(elevation.get(profileId));
-                for (int i = 1; i <= nbOfProfiles / 4 + 1; i += 1) {
+                /*for (int i = 1; i <= nbOfProfiles / 4 + 1; i += 1) {
                     for (int j = 3; j >= 0; j--) {
                         if (count < nbOfProfiles)
                             samples[count] = samples[count - 1] +
                                     Q28_4.asFloat(Bits.extractSigned(elevation.get(profileId + i), 4 * j, 4));
                         ++count;
-                    }
+                    }*/
+               /* for (int i = 0; i <= (nbOfProfiles-1)/4+1; i += 1) {
+                    for (int j = 0; j <=3 && 4*i+j<nbOfProfiles-1; j++) {
+                            samples[4*i+j+1] = samples[4*i+j] + Q28_4.asFloat(Bits.extractSigned(elevation.get(profileId + i)
+                                    , 4 * j, 4));
+                    }*/
 
-                }
+                //}
                 if (isInverted(edgeId)) {
                     for (int i = samples.length - 1; i >= 0; i--) {
                         reverse[i] = samples[samples.length - i - 1];
