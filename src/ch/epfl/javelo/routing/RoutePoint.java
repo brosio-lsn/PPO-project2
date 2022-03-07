@@ -5,7 +5,7 @@ import ch.epfl.javelo.projection.PointCh;
 import static java.lang.Double.NaN;
 import static java.lang.Double.POSITIVE_INFINITY;
 /**
- * represents the point on an itinerary closest to a given reference point, which is in the vicinity of the route
+ * represents the point on a route closest to a given reference point, which is in the vicinity of the route
  *
  * @author Ambroise Aigueperse (341890)
  * @author Louis Roche (345620)
@@ -36,8 +36,8 @@ public record RoutePoint(PointCh point, double position, double distanceToRefere
     /**
      * returns the current RoutePointis if its distance to the reference is less than or equal to
      * thatDistanceToReference, and a new instance of RoutePoint whose attributes are the arguments passed to min otherwise
-     * @param thatPoint the point on the itinerary of the potential new RoutePoint
-     * @param thatPosition the position of the potential new RoutePoint  along the itinerary
+     * @param thatPoint the point on the route of the potential new RoutePoint
+     * @param thatPosition the position of the potential new RoutePoint  along the route
      * @param thatDistanceToReference the distance between the potential new RoutePoint and the reference
      * @return the current RoutePointis if its distance to the reference is less than or equal to
      *      * thatDistanceToReference, and a new instance of RoutePoint whose attributes are the arguments passed to min otherwise
