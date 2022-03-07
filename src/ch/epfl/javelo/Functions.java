@@ -35,8 +35,9 @@ public final class Functions {
      * @return a function obtained by linear interpolation between samples,
      * * regularly spaced and covering the range from 0 to xMax
      */
+
     public static DoubleUnaryOperator sampled(float[] samples, double xMax) {
-        Preconditions.checkArgument(samples.length > 1 && xMax > 0);
+        Preconditions.checkArgument(samples.length > 1  && xMax > 0);
         return new Sampled(samples, xMax);
     }
 
@@ -68,18 +69,19 @@ public final class Functions {
         @Override
         public double applyAsDouble(double x) {
             //create those varaibles to not calculate them twice
-            //TODO longueur tableau
-            int SamplesLength= samples.length;
-            double lengthBetweenSamples = this.xMax / (SamplesLength-1);
+            int samplesLength = samples.length;
+            double lengthBetweenSamples = this.xMax / (samplesLength-1);
             int precedentSampleIndex = (int) (x / lengthBetweenSamples);
-            /*if(x>xMax) return samples[SamplesLength-1];
+            /*if(x>xMax) return samples[samplesLength-1];
             else if(x<0) return samples[0];
             else {
-                lengthBetweenSamples = this.xMax / (SamplesLength-1);
+                lengthBetweenSamples = this.xMax / (samplesLength-1);
                 precedentSampleIndex = (int) (x / lengthBetweenSamples);
                 return Math2.interpolate(samples[precedentSampleIndex], samples[precedentSampleIndex + 1], (x-lengthBetweenSamples*precedentSampleIndex)/lengthBetweenSamples);
             }*/
-            return (x>xMax ? samples[SamplesLength-1] : (x<0 ? samples[0] : Math2.interpolate(samples[precedentSampleIndex], samples[precedentSampleIndex + 1], (x-lengthBetweenSamples*precedentSampleIndex)/lengthBetweenSamples)));
+            return (x>=xMax ? samples[samplesLength-1] :
+                    (x<=0 ? samples[0] : Math2.interpolate(samples[precedentSampleIndex], samples[precedentSampleIndex + 1],
+                            (x-lengthBetweenSamples*precedentSampleIndex)/lengthBetweenSamples)));
         }
     }
 }

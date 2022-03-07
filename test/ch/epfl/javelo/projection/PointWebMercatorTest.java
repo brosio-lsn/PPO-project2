@@ -19,22 +19,22 @@ class PointWebMercatorTest {
     @Test
     void getX() {
         PointWebMercator p =new PointWebMercator(0,1);
-        p.getX();
         //System.out.println(p.getX());
-        assertEquals("0.0:1.0", p.getX());
+        assertEquals("0.0:1.0", p.x());
     }
 
     @Test
     void of() {
         PointWebMercator.of(19,69561722,47468099);
-        assertEquals("ff", PointWebMercator.of(19,69561722,47468099).getX());
+        assertEquals("ff", PointWebMercator.of(19,69561722,47468099).x());
+        //assertEquals("ff", PointWebMercator.of(0, 00));
     }
 
     @Test
     void ofPointCh() {
         double x = Ch1903.e(Math.toRadians(6.5790772),Math.toRadians(46.5218976));
         PointWebMercator p = PointWebMercator.ofPointCh(new PointCh(Ch1903.e(Math.toRadians(6.5790772),Math.toRadians(46.5218976)), Ch1903.n(Math.toRadians(6.5790772),Math.toRadians(46.5218976))));
-        assertEquals("ff", PointWebMercator.ofPointCh(new PointCh(Ch1903.e(Math.toRadians(6.5790772),Math.toRadians(46.5218976)), Ch1903.n(Math.toRadians(6.5790772),Math.toRadians(46.5218976)))).getX());
+        assertEquals("ff", PointWebMercator.ofPointCh(new PointCh(Ch1903.e(Math.toRadians(6.5790772),Math.toRadians(46.5218976)), Ch1903.n(Math.toRadians(6.5790772),Math.toRadians(46.5218976)))).x());
     }
 
     @Test

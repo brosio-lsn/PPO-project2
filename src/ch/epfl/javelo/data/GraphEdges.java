@@ -89,7 +89,7 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
                 return new float[]{};
             case 1:
                 for (int i = 0; i < nbOfProfiles; i++) {
-                    samples[i] = elevation.get(profileId + i);
+                    samples[i] = Q28_4.asFloat(elevation.get(profileId + i));
                 }
                 return samples;
             case 2:

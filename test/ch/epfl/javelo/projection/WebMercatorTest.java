@@ -13,16 +13,16 @@ class WebMercatorTest {
 
     @Test
     void y() {
-        assertEquals(0.5, WebMercator.y(Math.toRadians(0)));
+        assertEquals(0.353664, WebMercator.y(Math.toRadians(46.5218)));
     }
 
     @Test
     void lon() {
-        assertEquals(0.5, Math.toDegrees(WebMercator.lon(0.518275214444)));
+        assertEquals(6.579, (WebMercator.lon(Math.toRadians(0.518275214444))));
     }
 
     @Test
     void lat() {
-        assertEquals(0.5, Math.toDegrees(WebMercator.lat(0.353664894749)));
+        assertEquals(46.521, (WebMercator.lat(Math.toRadians(0.353664894749))));
     }
 }
