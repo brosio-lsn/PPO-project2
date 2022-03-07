@@ -30,7 +30,7 @@ public final class WebMercator {
      * @param lat the longitude of the point given in radians
      * @return the y-coordinate of the projection
      */
-    //TODO demander à un assistant comment les paramètres seront donnés en argument (degrés ou radians)
+
     public static double y(double lat){return 1/(2*Math.PI)*(Math.PI- Math2.asinh(Math.tan(lat)));}
 
     /**
@@ -39,7 +39,7 @@ public final class WebMercator {
      * @param x the longitude of the point given in radians
      * @return the longitude of the point
      */
-    public static double lon(double x){return 2*Math.PI*x-Math.PI;}
+    public static double lon(double x){return (2*Math.PI*x-Math.PI);}
 
     /**
      * returns the latitude of the projection of a
@@ -47,5 +47,5 @@ public final class WebMercator {
      * @param y the longitude of the point given in radians
      * @return the latitude of the point
      */
-    public static double lat(double y){return Math.atan(Math.sinh(Math.PI-2*Math.PI*y));}
+    public static double lat(double y){return (Math.atan(Math.sinh(Math.PI-2*Math.PI*y)));}
 }
