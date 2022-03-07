@@ -51,7 +51,7 @@ public record GraphNodes(IntBuffer buffer) {
       * @param nodeId the identity of the considered node
      * @return the number of edges coming out of the node with given identity
      */
-    public double outDegree(int nodeId){
+    public int outDegree(int nodeId){
         //System.out.println(nodeId*NODE_INTS + OFFSET_OUT_EDGES);
         return Bits.extractUnsigned(buffer.get(nodeId*NODE_INTS + OFFSET_OUT_EDGES),28,4 );
     }
@@ -62,7 +62,7 @@ public record GraphNodes(IntBuffer buffer) {
      * @param edgeIndex the index of the edge in the list containing all the edges coming out of the node
      * @return the identity of the edgeIndex-th edge coming out of the node with given identity
      */
-    public double edgeId(int nodeId, int edgeIndex){
+    public int edgeId(int nodeId, int edgeIndex){
         assert 0 <= edgeIndex && edgeIndex < outDegree(nodeId);
         return Bits.extractUnsigned(buffer.get(nodeId*NODE_INTS + OFFSET_OUT_EDGES),0,28 )+edgeIndex;
     }
