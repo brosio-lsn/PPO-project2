@@ -35,15 +35,15 @@ public record GraphSectors(ByteBuffer buffer) {
     /**
      * returns the list of all sectors having an intersection with a scare defined by its given center and length side
      * @param center the center of the scare
-     * @param distance the length of a side
+     * @param distance half the length of a side
      * @return the list of all sectors having an intersection with the scare
      */
     public List<Sector> sectorsInArea(PointCh center, double distance){
         ArrayList<Sector> sectors= new ArrayList<>();
-        int xCoordinateOfBottomLeftSector = Math2.clamp(0, (int)Math.ceil(((center.e()-distance/2)-SwissBounds.MIN_E)/SECTOR_WIDTH), NUMBER_OF_SECTORS_ON_SIDE);
-        int xCoordinateOfBottomRightSector = Math2.clamp(0, (int)Math.ceil(((center.e()+distance/2)-SwissBounds.MIN_E)/SECTOR_WIDTH), NUMBER_OF_SECTORS_ON_SIDE);;
-        int yCoordinateOfBottomLeftSector = Math2.clamp(0, (int)Math.ceil(((center.n()-distance/2)-SwissBounds.MIN_N)/SECTOR_HEIGHT), NUMBER_OF_SECTORS_ON_SIDE);
-        int yCoordinateOfTopLeftSector = Math2.clamp(0, (int)Math.ceil(((center.n()+distance/2)-SwissBounds.MIN_N)/SECTOR_HEIGHT), NUMBER_OF_SECTORS_ON_SIDE);
+        int xCoordinateOfBottomLeftSector = Math2.clamp(0, (int)Math.ceil(((center.e()-distance)-SwissBounds.MIN_E)/SECTOR_WIDTH), NUMBER_OF_SECTORS_ON_SIDE);
+        int xCoordinateOfBottomRightSector = Math2.clamp(0, (int)Math.ceil(((center.e()+distance)-SwissBounds.MIN_E)/SECTOR_WIDTH), NUMBER_OF_SECTORS_ON_SIDE);;
+        int yCoordinateOfBottomLeftSector = Math2.clamp(0, (int)Math.ceil(((center.n()-distance)-SwissBounds.MIN_N)/SECTOR_HEIGHT), NUMBER_OF_SECTORS_ON_SIDE);
+        int yCoordinateOfTopLeftSector = Math2.clamp(0, (int)Math.ceil(((center.n()+distance)-SwissBounds.MIN_N)/SECTOR_HEIGHT), NUMBER_OF_SECTORS_ON_SIDE);
         boolean yValueIs0AlreadyCounted=false;
         boolean xValueIs0AlreadyCounted=false;
         for(int y=yCoordinateOfBottomLeftSector; y<=yCoordinateOfTopLeftSector; ++y ) {
