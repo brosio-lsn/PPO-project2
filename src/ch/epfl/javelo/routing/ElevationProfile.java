@@ -4,6 +4,7 @@ import ch.epfl.javelo.Functions;
 import ch.epfl.javelo.Preconditions;
 
 import java.util.DoubleSummaryStatistics;
+import java.util.function.DoubleUnaryOperator;
 
 /**
  * represents the profile of a single or multiple itinerary
@@ -21,6 +22,14 @@ public class ElevationProfile {
      * altitude samples evenly distributed over the profile
      */
     private float[] elevationSamples;
+    /**
+     * contains the samples (initiated in constructor to not calculate it many times)
+     */
+    private DoubleSummaryStatistics s;
+    /**
+     * contains the function made of the samples (initiated in constructor to not calculate it many times)
+     */
+    private DoubleUnaryOperator function;
 
     /**
      * constructs an instance of ElevationProfile
@@ -31,6 +40,9 @@ public class ElevationProfile {
         Preconditions.checkArgument(length>0 && elevationSamples.length>=2);
         this.length=length;
         this.elevationSamples=elevationSamples;
+        s = new DoubleSummaryStatistics();
+        for(float sample :elevationSamples) s.accept(sample);
+        function= Functions.sampled(elevationSamples, length);
     }
 
     /**
@@ -44,8 +56,6 @@ public class ElevationProfile {
      * @return the minimum altitude of the profile
      */
     public double minElevation(){
-        DoubleSummaryStatistics s = new DoubleSummaryStatistics();
-        for(float sample :elevationSamples) s.accept(sample);
         return s.getMin();
     }
 
@@ -53,10 +63,7 @@ public class ElevationProfile {
      * returns the maximum altitude of the profile
      * @return the maximum altitude of the profile
      */
-    //TODO demander assistant si je devrais pas construire s dans le constructeur pour pas le recalculer a chaque fois
     public double maxElevation(){
-        DoubleSummaryStatistics s = new DoubleSummaryStatistics();
-        for(float sample :elevationSamples) s.accept(sample);
         return s.getMax();
     }
 
@@ -87,9 +94,8 @@ public class ElevationProfile {
      * @param position the position of which we want to get the altitude
      * @return the altitude of the profile at the given position (the first sample is returned when the position is negative, the last one when it is greater than the length)
      */
-    //TODO si je construit la fonction au debut ou pas (pour pas recalculer a chaque fois)
     public double elevationAt(double position){
-        return Functions.sampled(elevationSamples, length).applyAsDouble(position);
+        return function.applyAsDouble(position);
     }
 
 }

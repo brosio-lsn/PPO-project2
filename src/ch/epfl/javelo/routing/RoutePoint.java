@@ -23,7 +23,7 @@ public record RoutePoint(PointCh point, double position, double distanceToRefere
      * @param positionDifference the difference of position
      * @return a point identical to the current RoutePoint (this) but whose position is offset by the given difference (positive of negative)
      */
-    //TODO ask static + juste à faire ca (cf description de withPositionShiftedBy)
+    //TODO juste à faire ca (cf description de withPositionShiftedBy)
     public RoutePoint withPositionShiftedBy(double positionDifference){return new RoutePoint(this.point, this.position+positionDifference, this.distanceToReference);}
 
     /**

@@ -16,4 +16,14 @@ public record Edge(int fromNodeId, int toNodeId, PointCh fromPoint, PointCh toPo
     public double positionClosestTo(PointCh point){
         return Math2.projectionLength(fromPoint.e(), fromPoint.n(), point.e(), point.n(), toPoint.e(), toPoint.n());
     }
+
+    public PointCh pointAt(double position){
+        double e= position/length*(toPoint.e()-fromPoint.e())+fromPoint.e();
+        double n= position/length*(toPoint.n()-fromPoint.n())+fromPoint.n();
+       return new PointCh(e,n);
+       //faire des interpolate avec les x et les y
+    }
+    public double elevationAt(double position){
+        return profile.applyAsDouble(position);
+    }
 }
