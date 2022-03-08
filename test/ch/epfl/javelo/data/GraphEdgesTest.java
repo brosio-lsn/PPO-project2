@@ -57,7 +57,7 @@ class GraphEdgesTest {
 
         ByteBuffer edgesBuffer = ByteBuffer.allocate(30);
         // Profil 1 :
-        // Sens : Normal. Nœud destination : 52.
+        // Sens : Normal. Nœud destination : 53.
         edgesBuffer.putInt(0, 0b110101);
         // Longueur : 4.0m
         edgesBuffer.putShort(4, (short)0x04_0);
