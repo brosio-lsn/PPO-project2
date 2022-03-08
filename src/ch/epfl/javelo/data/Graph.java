@@ -3,7 +3,6 @@ package ch.epfl.javelo.data;
 import ch.epfl.javelo.Functions;
 import ch.epfl.javelo.projection.PointCh;
 
-import java.awt.*;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
@@ -26,6 +25,14 @@ public final class Graph {
         this.nodes = nodes;
         this.sectors = sectors;
     }
+
+    /**
+     * returns a new graph loaded from the files at the given basePath
+     *
+     * @param basePath path to read the files from
+     * @return a new graph loaded from the files at the given basePath.
+     * @throws IOException if the files do not exist.
+     */
     public static Graph loadFrom(Path basePath) throws IOException {
         Path nodesPath = basePath.resolve("nodes.bin");
         Path edgesPath = basePath.resolve("edges.bin");
@@ -56,20 +63,38 @@ public final class Graph {
              attributesSet = attributesChannel.map(FileChannel.MapMode.READ_ONLY, 0, attributesChannel.size())
                      .asLongBuffer();
         }
-        //TODO check ça pcq wtf ptdrr
         List<AttributeSet> attributs = new ArrayList<AttributeSet>();
-        for (int i = 0; i < attributesSet.remaining(); i++) {
+        for (int i = 0; i < attributesSet.capacity(); i++) {
             attributs.add(new AttributeSet(attributesSet.get(i)));
         }
         return new Graph(new GraphNodes(nodesBuffer), new GraphSectors(sectorsBuffer), new GraphEdges(edgesBuffer,
                 profileIds, elevations), attributs);
     }
+
+    /**
+     * returns the number of nodes the graph has
+     *
+     * @return (int) the number of nodes the graph has.
+     */
     public int nodeCount() {
         return this.nodes.count();
     }
+
+    /**
+     * returns the PointCh corresponding to the node at the given id.
+     *
+     * @param nodeId id of the node, which will permit the program to identify the node to transform.
+     * @return the PointCh corresponding to the node at the give id.
+     */
     public PointCh nodePoint(int nodeId) {
         return new PointCh(nodes.nodeE(nodeId), nodes.nodeN(nodeId));
     }
+
+    /**
+     *
+     * @param nodeId
+     * @return
+     */
     public int nodeOutDegree(int nodeId) {
         return nodes.outDegree(nodeId);
     }
@@ -77,8 +102,25 @@ public final class Graph {
         return nodes.edgeId(nodeId, edgeIndex);
     }
     public int nodeClosestTo(PointCh point, double searchDistance) {
-
-        return ()
+        List<GraphSectors.Sector> sectorsNearby = sectors.sectorsInArea(point, searchDistance);
+        List<PointCh> candidates = new ArrayList<>();
+        List<Integer> indexLists = new ArrayList<>();
+        for(GraphSectors.Sector secteurs : sectorsNearby) {
+            for (int i = secteurs.startNodeId(); i <= secteurs.endNodeId(); ++i) {
+                candidates.add(nodePoint(i));
+                indexLists.add(i);
+            }
+        }
+        if (candidates.isEmpty()) return -1;
+        int index = 0;
+        double minDistance = Double.POSITIVE_INFINITY;
+        for (int i = 0; i<candidates.size(); i++) {
+            if (candidates.get(i).squaredDistanceTo(point) < minDistance) {
+                index = indexLists.get(i);
+                minDistance = candidates.get(i).squaredDistanceTo(point);
+            }
+        }
+        return index;
     }
     public int edgeTargetNodeId(int edgeId) {
         return edges.targetNodeId(edgeId);
@@ -99,6 +141,4 @@ public final class Graph {
         return (edges.hasProfile(edgeId) ? Functions.sampled(edges.profileSamples(edgeId), edgeLength(edgeId))
                 : Functions.constant(Double.NaN));
     }
-
-
 }

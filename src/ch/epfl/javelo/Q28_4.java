@@ -27,7 +27,7 @@ public final class Q28_4 {
      * @param q28_4 the given Q28.4 value
      * @return the double value equal to the given Q28.4 value
      */
-    public static double asDouble(int q28_4){return Math.scalb(q28_4, -4);}
+    public static double asDouble(int q28_4){return Math.scalb((double)q28_4, -4);}
     /**
      * returns the float value equal to the given Q28.4 value
      * @param q28_4 the given Q28.4 value
