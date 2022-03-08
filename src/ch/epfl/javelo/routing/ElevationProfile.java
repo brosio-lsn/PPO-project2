@@ -27,7 +27,6 @@ public class ElevationProfile {
      * @param length the length of the profile (meters)
      * @param elevationSamples altitude samples evenly distributed over the profile
      */
-    //TODO créer la fonction dans le constructeur ou apres (si dans constrcuteur comment accéder a length et samples)
     public ElevationProfile(double length, float[] elevationSamples){
         Preconditions.checkArgument(length>0 && elevationSamples.length>=2);
         this.length=length;
@@ -65,7 +64,6 @@ public class ElevationProfile {
      * returns the total positive vertical drop of the profile, in meters
      * @return the total positive vertical drop of the profile, in meters
      */
-    //TODO demander si les altitudes sont données en metres
     public double totalAscent(){
         float totalAscent=0;
         for(int i=1; i<elevationSamples.length;++i)
@@ -89,7 +87,9 @@ public class ElevationProfile {
      * @param position the position of which we want to get the altitude
      * @return the altitude of the profile at the given position (the first sample is returned when the position is negative, the last one when it is greater than the length)
      */
+    //TODO si je construit la fonction au debut ou pas (pour pas recalculer a chaque fois)
     public double elevationAt(double position){
         return Functions.sampled(elevationSamples, length).applyAsDouble(position);
     }
+
 }

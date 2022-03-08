@@ -95,7 +95,7 @@ public final class Graph {
     public double elevationGain(int edgeId) {
         return edges.elevationGain(edgeId);
     }
-    public DoubleUnaryOperator edgesProfile(int edgeId) {
+    public DoubleUnaryOperator edgeProfile(int edgeId) {
         return (edges.hasProfile(edgeId) ? Functions.sampled(edges.profileSamples(edgeId), edgeLength(edgeId))
                 : Functions.constant(Double.NaN));
     }
