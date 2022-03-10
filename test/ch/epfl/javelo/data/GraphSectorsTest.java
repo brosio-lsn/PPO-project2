@@ -1,5 +1,6 @@
 package ch.epfl.javelo.data;
 
+import ch.epfl.javelo.Bits;
 import ch.epfl.javelo.projection.Ch1903;
 import ch.epfl.javelo.projection.PointCh;
 import ch.epfl.javelo.projection.SwissBounds;
@@ -147,4 +148,99 @@ class GraphSectorsTest {
         });
         int a =0;
         }
-}
+
+        @Test
+        void SectorWorkOnStraightArray(){
+            ByteBuffer a = ByteBuffer.allocate(128*128);
+            for (int i = 0; i < 1600; i++)   {
+                a.putInt(i*6,i);
+                a.putShort(i*6+4,(short)i);
+            }
+            GraphSectors ns = new GraphSectors(a);
+            assertEquals(1,ns.sectorsInArea(new PointCh(SwissBounds.MIN_E, SwissBounds.MIN_N),  2000));
+
+        }
+    @Test
+    void GraphsSectorsWorksTrivial() {
+        byte[] tab = new byte[48];
+        for (byte i = 0; i < 48; i++) {
+            tab[i] = i;
+        }
+        ByteBuffer b = ByteBuffer.wrap(tab);
+        List<GraphSectors.Sector> output = new ArrayList<GraphSectors.Sector>();
+
+    }
+
+    @Test
+    void GraphSectorsWorksWith00() {
+
+        byte[] tab = new byte[98304];
+
+        for (int i = 0; i < 98304; i += 6) {
+
+            tab[i] = (byte) Bits.extractUnsigned(i * 4, 24, 8);
+            tab[i + 1] = (byte) Bits.extractUnsigned(i * 4, 16, 8);
+            tab[i + 2] = (byte) Bits.extractUnsigned(i * 4, 8, 8);
+            tab[i + 3] = (byte) Bits.extractUnsigned(i * 4, 0, 8);
+
+            tab[i + 4] = (byte) 0;
+            tab[i + 5] = (byte) 1;
+
+        }
+
+        ByteBuffer buffer = ByteBuffer.wrap(tab);
+
+        GraphSectors graph = new GraphSectors(buffer);
+
+        ArrayList<GraphSectors.Sector> output = new ArrayList<>();
+        output.add(new GraphSectors.Sector(0, 1));
+
+        List<GraphSectors.Sector> actual = graph.sectorsInArea(new PointCh(SwissBounds.MIN_E, SwissBounds.MIN_N), 5);
+
+
+        assertEquals(output.get(0), actual.get(0));
+
+    }
+
+    @Test
+    void GraphSectorsWorksWithExpected() {
+
+        byte[] tab = new byte[98304];
+
+        for (int i = 0; i < 16384; i++) {
+
+            tab[i * 6] = (byte) Bits.extractUnsigned(i * 4, 24, 8);
+            tab[6 * i + 1] = (byte) Bits.extractUnsigned(i * 4, 16, 8);
+            tab[6 * i + 2] = (byte) Bits.extractUnsigned(i * 4, 8, 8);
+            tab[6 * i + 3] = (byte) Bits.extractUnsigned(i * 4, 0, 8);
+
+            tab[6 * i + 4] = (byte) 0;
+            tab[6 * i + 5] = (byte) 4;
+
+        }
+
+        ByteBuffer buffer = ByteBuffer.wrap(tab);
+
+        GraphSectors graph = new GraphSectors(buffer);
+
+        ArrayList<GraphSectors.Sector> output = new ArrayList<>();
+
+        for (int i = 0; i < 384; i += 128) {
+            for (int j = 0; j < 3; j++) {
+                output.add(new GraphSectors.Sector((j + i) * 4, (j + i + 1) * 4));
+            }
+        }
+
+        List<GraphSectors.Sector> actual = graph.sectorsInArea(
+                new PointCh(SwissBounds.MIN_E + 3700, SwissBounds.MIN_N + 2500), 2000);
+
+
+        //actual.set(6,new GraphSectors.Sector(0, 0));
+
+
+        assertArrayEquals(output.toArray(), actual.toArray());
+
+    }
+
+
+    }

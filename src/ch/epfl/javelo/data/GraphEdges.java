@@ -47,7 +47,7 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
      * @return the length of the edge whose id is edgeId.
      */
     public double length(int edgeId) {
-        return (Q28_4.asDouble(Short.toUnsignedInt(edgesBuffer.getShort(edgeId * 10 + LENGTH_OFFSET))));
+        return (Q28_4.asDouble(edgesBuffer.getShort(edgeId * 10 + LENGTH_OFFSET)));
     }
 
     /**
@@ -56,9 +56,10 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
      * @param edgeId id of the edge to extract the gain of elevation from.
      * @return the elevation gain of the edge whose id is edgeId.
      */
-    //TODO demander à un assistant pour le gain d'altitude négatif.
+    //TODO gain d'elevation négative possible ??
     public double elevationGain(int edgeId) {
-        return Q28_4.asDouble((edgesBuffer.getShort(edgeId * 10 + ELEVATIONGAIN_OFFSET)));
+        double elevation = Q28_4.asDouble(edgesBuffer.getShort(edgeId * 10 + ELEVATIONGAIN_OFFSET));
+        return elevation >= 0 ? elevation : 0;
     }
 
     /**
@@ -79,9 +80,9 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
      */
 
     public float[] profileSamples(int edgeId) {
-        int nbOfProfiles = Math2.ceilDiv(Short.toUnsignedInt(edgesBuffer.getShort(edgeId * 10 + LENGTH_OFFSET)), Q28_4.ofInt(2)) + 1;
+        int nbOfProfiles = (int) Math.ceil(length(edgeId) / 2) + 1;
         int type = Bits.extractUnsigned(profileIds.get(edgeId), 30, 2);
-        int profileId = Bits.extractUnsigned(profileIds.get(edgeId), 0, 30);
+        int profileId = Bits.extractSigned(profileIds.get(edgeId), 0, 30);
         float[] samples = new float[nbOfProfiles];
         float[] reverse = new float[nbOfProfiles];
         int count = 1;
