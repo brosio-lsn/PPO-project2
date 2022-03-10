@@ -192,7 +192,7 @@ class GraphEdgesTest {
                 new GraphEdges(edgesBuffer, profileIds2, elevations2);
 
         GraphEdges edges3 =
-                new GraphEdges(edgesBuffer, profileIds3, elevations2);
+                new GraphEdges(edgesBuffer, profileIds3, elevations3);
         //assertArrayEquals(expectedSamples, edges.profileSamples(0));
 
         float[] sample = new float[3];

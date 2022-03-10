@@ -4,6 +4,7 @@ import ch.epfl.javelo.Functions;
 import ch.epfl.javelo.Preconditions;
 
 import java.util.DoubleSummaryStatistics;
+import java.util.List;
 import java.util.function.DoubleUnaryOperator;
 
 /**
@@ -13,36 +14,38 @@ import java.util.function.DoubleUnaryOperator;
  * @author Louis Roche (345620)
  */
 
-public class ElevationProfile {
+public final class ElevationProfile {
     /**
      * the length of the profile (meters)
      */
-    private double length;
+    final private double length;
     /**
      * altitude samples evenly distributed over the profile
      */
-    private float[] elevationSamples;
+    final private float[] elevationSamples;
     /**
      * contains the samples (initiated in constructor to not calculate it many times)
      */
-    private DoubleSummaryStatistics s;
+    final private DoubleSummaryStatistics s;
     /**
      * contains the function made of the samples (initiated in constructor to not calculate it many times)
      */
-    private DoubleUnaryOperator function;
+    final private DoubleUnaryOperator function;
 
     /**
      * constructs an instance of ElevationProfile
      * @param length the length of the profile (meters)
      * @param elevationSamples altitude samples evenly distributed over the profile
      */
+    //TODO verifier immuabilité (a la fois pour parametres du constructeur et voir si on doit retourner des copies aussi pour les types primitifs)
     public ElevationProfile(double length, float[] elevationSamples){
         Preconditions.checkArgument(length>0 && elevationSamples.length>=2);
         this.length=length;
-        this.elevationSamples=elevationSamples;
+        this.elevationSamples=new float[elevationSamples.length];
+        System.arraycopy(elevationSamples, 0, this.elevationSamples, 0, elevationSamples.length);
         s = new DoubleSummaryStatistics();
-        for(float sample :elevationSamples) s.accept(sample);
-        function= Functions.sampled(elevationSamples, length);
+        for(float sample :this.elevationSamples) s.accept(sample);
+        function= Functions.sampled(this.elevationSamples, length);
     }
 
     /**

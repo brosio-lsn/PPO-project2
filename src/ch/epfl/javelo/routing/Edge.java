@@ -14,7 +14,7 @@ import java.util.function.DoubleUnaryOperator;
  * @author Ambroise AIGUEPERSE (341890)
  */
 
-
+//TODO demander ici aussi comment est donné le profile
 public record Edge(int fromNodeId, int toNodeId, PointCh fromPoint, PointCh toPoint, double length, DoubleUnaryOperator profile) {
 
     /**
@@ -26,6 +26,7 @@ public record Edge(int fromNodeId, int toNodeId, PointCh fromPoint, PointCh toPo
      * @return the edge with given parameters
      */
     public static Edge of (Graph graph, int edgeId, int fromNodeId, int toNodeId){
+        //TODO ask, on aurait pu utiliser Graph.edgeTargetNodeId pour choper le point d arriver mais ca change R je pense
         return new Edge(fromNodeId, toNodeId, graph.nodePoint(fromNodeId), graph.nodePoint(toNodeId), graph.edgeLength(edgeId), graph.edgeProfile(edgeId));
     }
 
@@ -35,7 +36,7 @@ public record Edge(int fromNodeId, int toNodeId, PointCh fromPoint, PointCh toPo
      * @return the position along the edge, in meters, that is closest to the given point,
      */
     public double positionClosestTo(PointCh point){
-        return Math2.projectionLength(fromPoint.e(), fromPoint.n(), point.e(), point.n(), toPoint.e(), toPoint.n());
+        return Math2.projectionLength(fromPoint.e(), fromPoint.n(), toPoint.e(), toPoint.n(), point.e(), point.n());
     }
 
     /**
@@ -46,8 +47,7 @@ public record Edge(int fromNodeId, int toNodeId, PointCh fromPoint, PointCh toPo
     public PointCh pointAt(double position){
         double e= position/length*(toPoint.e()-fromPoint.e())+fromPoint.e();
         double n= position/length*(toPoint.n()-fromPoint.n())+fromPoint.n();
-       return new PointCh(e,n);
-       //faire des interpolate avec les x et les y
+        return new PointCh(e,n);
     }
 
     /**

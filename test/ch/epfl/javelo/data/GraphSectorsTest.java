@@ -148,18 +148,6 @@ class GraphSectorsTest {
         });
         int a =0;
         }
-
-        @Test
-        void SectorWorkOnStraightArray(){
-            ByteBuffer a = ByteBuffer.allocate(128*128);
-            for (int i = 0; i < 1600; i++)   {
-                a.putInt(i*6,i);
-                a.putShort(i*6+4,(short)i);
-            }
-            GraphSectors ns = new GraphSectors(a);
-            assertEquals(1,ns.sectorsInArea(new PointCh(SwissBounds.MIN_E, SwissBounds.MIN_N),  2000));
-
-        }
     @Test
     void GraphsSectorsWorksTrivial() {
         byte[] tab = new byte[48];
@@ -241,6 +229,4 @@ class GraphSectorsTest {
         assertArrayEquals(output.toArray(), actual.toArray());
 
     }
-
-
-    }
+}
