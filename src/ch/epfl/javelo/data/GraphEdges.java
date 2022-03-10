@@ -47,7 +47,7 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
      * @return the length of the edge whose id is edgeId.
      */
     public double length(int edgeId) {
-        return (Q28_4.asDouble(edgesBuffer.getShort(edgeId * 10 + LENGTH_OFFSET)));
+        return Q28_4.asDouble(Short.toUnsignedInt(edgesBuffer.getShort(edgeId * 10 + LENGTH_OFFSET)));
     }
 
     /**
@@ -93,10 +93,10 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
                 for (int i = 0; i < nbOfProfiles; i++) {
                     samples[i] = Q28_4.asFloat(elevation.get(profileId + i));
                 }
-                return samples;
+                break;
             case 2:
                 samples[0] = Q28_4.asFloat(elevation.get(profileId));
-                for (int shortIndex = 1; shortIndex <= (nbOfProfiles - 1)/ 2 + 1; shortIndex++) {
+                for (int shortIndex = 1; shortIndex <= (nbOfProfiles - 1) / 2 + 1; shortIndex++) {
                     for (int sampleIndex = 1; sampleIndex >= 0; sampleIndex--) {
                         if (count < nbOfProfiles)
                             samples[count] = samples[count - 1] +
@@ -104,10 +104,10 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
                         ++count;
                     }
                 }
-                return samples;
+                break;
             case 3:
                 samples[0] = Q28_4.asFloat(elevation.get(profileId));
-                for (int i = 1; i <= nbOfProfiles -1 / 4 + 1; i += 1) {
+                for (int i = 1; i <= nbOfProfiles - 1 / 4 + 1; i += 1) {
                     for (int j = 3; j >= 0; j--) {
                         if (count < nbOfProfiles)
                             samples[count] = samples[count - 1] +
@@ -115,6 +115,7 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
                         ++count;
                     }
                 }
+                break;
         }
         if (isInverted(edgeId)) {
             for (int i = samples.length - 1; i >= 0; i--) {
