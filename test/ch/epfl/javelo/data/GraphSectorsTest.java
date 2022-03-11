@@ -43,7 +43,6 @@ class GraphSectorsTest {
         private static final int OFFSET_IDENTITY_OF_FIRST_NODE = 0;
         private static final int OFFSET_NUMBER_OF_NODES = OFFSET_IDENTITY_OF_FIRST_NODE+4;
         private static final int SECTOR_BYTES = OFFSET_NUMBER_OF_NODES+2;
-        //TODO ASK BETTER CONSTANTS OR METHODS?
         private static final int NUMBER_OF_SECTORS=64;
         private static final int NUMBER_OF_SECTORS_ON_SIDE=(int)Math.sqrt(NUMBER_OF_SECTORS);//128
         private static final double SECTOR_WIDTH = 1;
@@ -60,7 +59,6 @@ class GraphSectorsTest {
          * @return the list of all sectors having an intersection with the scare
          */
         public List<ch.epfl.javelo.data.GraphSectors.Sector> sectorsInArea(PointCh center, double distance){
-            //TODO voir si (center.n()-distance/2)-SwissBounds.MIN_N pas negaatif
             ArrayList<ch.epfl.javelo.data.GraphSectors.Sector> sectors= new ArrayList<>();
             int xCoordinateOfBottomLeftSector = (int)Math.ceil(((3-distance/2)-0)/SECTOR_WIDTH);
             //int yCoordinateOfBottomLeftSector = (int)Math.ceil(((center.e()-distance/2)-SwissBounds.MIN_E)/SECTOR_HEIGHT);

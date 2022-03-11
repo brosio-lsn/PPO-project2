@@ -2,6 +2,7 @@ package ch.epfl.javelo.data;
 
 import ch.epfl.javelo.Bits;
 import ch.epfl.javelo.Math2;
+import ch.epfl.javelo.Preconditions;
 import ch.epfl.javelo.Q28_4;
 
 import java.nio.ByteBuffer;
@@ -13,10 +14,29 @@ import java.nio.ShortBuffer;
  * @author Ambroise AIGUEPERSE (341890)
  */
 
-public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuffer elevation) {
+public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuffer elevations) {
     private static final int LENGTH_OFFSET = 4;
     private static final int ELEVATIONGAIN_OFFSET = 6;
     private static final int ATTRIBUTESINDEX_OFFSET = 8;
+
+    public GraphEdges{
+       /* Preconditions.checkArgument(edgesBuffer.capacity() >= 10 && profileIds.capacity()>0);
+        int type = Bits.extractUnsigned(profileIds.get(0), 30, 2);
+        int nbOfProfiles = Math2.ceilDiv(edgesBuffer.getShort(LENGTH_OFFSET), Q28_4.ofInt(2))+1;
+        switch (type) {
+            case 1:
+                Preconditions.checkArgument(elevations.capacity() >= nbOfProfiles);
+                break;
+            case 2:
+                Preconditions.checkArgument(elevations.capacity() >= Math2.ceilDiv(nbOfProfiles, 2));
+                break;
+            case 3:
+                Preconditions.checkArgument(elevations.capacity() >= 1 + Math2.ceilDiv(nbOfProfiles-1, 4));
+        }
+
+        */
+    }
+    //TODO faire une enum pour le switch
 
     /**
      * returns whether the given edge's orientation goes in the opposite direction of the OSM way which it provides from
@@ -56,10 +76,9 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
      * @param edgeId id of the edge to extract the gain of elevation from.
      * @return the elevation gain of the edge whose id is edgeId.
      */
-    //TODO gain d'elevation négative possible ??
+
     public double elevationGain(int edgeId) {
-        double elevation = Q28_4.asDouble(edgesBuffer.getShort(edgeId * 10 + ELEVATIONGAIN_OFFSET));
-        return elevation >= 0 ? elevation : 0;
+        return Q28_4.asDouble(Short.toUnsignedInt(edgesBuffer.getShort(edgeId * 10 + ELEVATIONGAIN_OFFSET)));
     }
 
     /**
@@ -80,8 +99,9 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
      */
 
     public float[] profileSamples(int edgeId) {
-        int nbOfProfiles = (int) Math.ceil(length(edgeId) / 2) + 1;
-        int type = Bits.extractUnsigned(profileIds.get(edgeId), 30, 2);
+        int nbOfProfiles = Math2.ceilDiv(edgesBuffer.getShort(edgeId * 10 + LENGTH_OFFSET),
+                Q28_4.ofInt(2))+1;
+        int type = (Bits.extractUnsigned(profileIds.get(edgeId), 30, 2));
         int profileId = Bits.extractSigned(profileIds.get(edgeId), 0, 30);
         float[] samples = new float[nbOfProfiles];
         float[] reverse = new float[nbOfProfiles];
@@ -91,27 +111,27 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
                 return new float[]{};
             case 1:
                 for (int i = 0; i < nbOfProfiles; i++) {
-                    samples[i] = Q28_4.asFloat(Short.toUnsignedInt(elevation.get(profileId + i)));
+                    samples[i] = Q28_4.asFloat(Short.toUnsignedInt(elevations.get(profileId + i)));
                 }
                 break;
             case 2:
-                samples[0] = Q28_4.asFloat(elevation.get(profileId));
+                samples[0] = Q28_4.asFloat(elevations.get(profileId));
                 for (int shortIndex = 1; shortIndex <= (nbOfProfiles - 1) / 2 + 1; shortIndex++) {
                     for (int sampleIndex = 1; sampleIndex >= 0; sampleIndex--) {
                         if (count < nbOfProfiles)
                             samples[count] = samples[count - 1] +
-                                    Q28_4.asFloat(Bits.extractSigned(elevation.get(profileId + shortIndex), 8 * sampleIndex, 8));
+                                    Q28_4.asFloat(Bits.extractSigned(elevations.get(profileId + shortIndex), 8 * sampleIndex, 8));
                         ++count;
                     }
                 }
                 break;
             case 3:
-                samples[0] = Q28_4.asFloat(elevation.get(profileId));
+                samples[0] = Q28_4.asFloat(elevations.get(profileId));
                 for (int i = 1; i <= nbOfProfiles - 1 / 4 + 1; i += 1) {
                     for (int j = 3; j >= 0; j--) {
                         if (count < nbOfProfiles)
                             samples[count] = samples[count - 1] +
-                                    Q28_4.asFloat(Bits.extractSigned(elevation.get(profileId + i), 4 * j, 4));
+                                    Q28_4.asFloat(Bits.extractSigned(elevations.get(profileId + i), 4 * j, 4));
                         ++count;
                     }
                 }

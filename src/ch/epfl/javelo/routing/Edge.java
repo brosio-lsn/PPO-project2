@@ -14,7 +14,7 @@ import java.util.function.DoubleUnaryOperator;
  * @author Ambroise AIGUEPERSE (341890)
  */
 
-//TODO demander ici aussi comment est donné le profile
+//TODO demander ici aussi comment est donné le profile - ça n'importe pas
 public record Edge(int fromNodeId, int toNodeId, PointCh fromPoint, PointCh toPoint, double length, DoubleUnaryOperator profile) {
 
     /**
@@ -26,7 +26,7 @@ public record Edge(int fromNodeId, int toNodeId, PointCh fromPoint, PointCh toPo
      * @return the edge with given parameters
      */
     public static Edge of (Graph graph, int edgeId, int fromNodeId, int toNodeId){
-        //TODO ask, on aurait pu utiliser Graph.edgeTargetNodeId pour choper le point d arriver mais ca change R je pense
+        //TODO ask, on aurait pu utiliser Graph.edgeTargetNodeId pour choper le point d arriver mais ca change R je pense - oui effectivement
         return new Edge(fromNodeId, toNodeId, graph.nodePoint(fromNodeId), graph.nodePoint(toNodeId), graph.edgeLength(edgeId), graph.edgeProfile(edgeId));
     }
 
