@@ -4,10 +4,7 @@ import ch.epfl.javelo.Functions;
 import ch.epfl.javelo.projection.PointCh;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.IntBuffer;
-import java.nio.LongBuffer;
-import java.nio.ShortBuffer;
+import java.nio.*;
 import java.nio.channels.FileChannel;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -21,7 +18,7 @@ public final class Graph {
     private final List<AttributeSet> attributeSets;
 
     public Graph(GraphNodes nodes, GraphSectors sectors, GraphEdges edges, List<AttributeSet> attributeSets) {
-        this.attributeSets = attributeSets;
+        this.attributeSets = List.copyOf(attributeSets);
         this.edges = edges;
         this.nodes = nodes;
         this.sectors = sectors;
@@ -35,41 +32,33 @@ public final class Graph {
      * @throws IOException if the files do not exist.
      */
     public static Graph loadFrom(Path basePath) throws IOException {
-        Path nodesPath = basePath.resolve("nodes.bin");
-        Path edgesPath = basePath.resolve("edges.bin");
-        Path sectorsPath = basePath.resolve("sectors.bin");
-        Path attributesPath = basePath.resolve("attributes.bin");
-        Path profile_idsPath = basePath.resolve("profile_ids.bin");
-        Path elevationsPath = basePath.resolve("elevations.bin");
-        IntBuffer nodesBuffer;
-        ByteBuffer edgesBuffer;
-        IntBuffer profileIds;
-        ShortBuffer elevations;
-        ByteBuffer sectorsBuffer;
-        LongBuffer attributesSet;
-        List<AttributeSet> attributeSetList;
-        try (FileChannel edgesChannel = FileChannel.open(edgesPath);
-             FileChannel nodesChannel = FileChannel.open(nodesPath);
-             FileChannel sectorsChannel = FileChannel.open(sectorsPath);
-             FileChannel attributesChannel = FileChannel.open(attributesPath);
-             FileChannel profile_idsChannel = FileChannel.open(profile_idsPath);
-             FileChannel elevationsChannel = FileChannel.open(elevationsPath)) {
-            edgesBuffer = edgesChannel.map(FileChannel.MapMode.READ_ONLY, 0, edgesChannel.size());
-            nodesBuffer = nodesChannel.map(FileChannel.MapMode.READ_ONLY, 0, nodesChannel.size()).asIntBuffer();
-            profileIds = profile_idsChannel.map(FileChannel.MapMode.READ_ONLY, 0, profile_idsChannel.size())
-                    .asIntBuffer();
-            elevations = elevationsChannel.map(FileChannel.MapMode.READ_ONLY, 0, elevationsChannel.size())
-                    .asShortBuffer();
-            sectorsBuffer = sectorsChannel.map(FileChannel.MapMode.READ_ONLY, 0, sectorsChannel.size());
-            attributesSet = attributesChannel.map(FileChannel.MapMode.READ_ONLY, 0, attributesChannel.size())
-                    .asLongBuffer();
-        }
+        ByteBuffer edgesBuffer = readFile(basePath, "edges.bin");
+        IntBuffer nodesBuffer = readFile(basePath, "nodes.bin").asIntBuffer();
+        IntBuffer profileIds = readFile(basePath, "profile_ids.bin").asIntBuffer();
+        ShortBuffer elevations = readFile(basePath, "elevations.bin").asShortBuffer();
+        ByteBuffer sectorsBuffer = readFile(basePath, "sectors.bin");
+        LongBuffer attributesSet = readFile(basePath, "attributes.bin").asLongBuffer();
         List<AttributeSet> attributs = new ArrayList<AttributeSet>();
         for (int i = 0; i < attributesSet.capacity(); i++) {
             attributs.add(new AttributeSet(attributesSet.get(i)));
         }
         return new Graph(new GraphNodes(nodesBuffer), new GraphSectors(sectorsBuffer), new GraphEdges(edgesBuffer,
                 profileIds, elevations), attributs);
+    }
+
+    /**
+     * Opens a file channel from the base path and resolves it to a given file.
+     * Returns a byteBuffer of the mapped given file.
+     *
+     * @param basePath Path the program has to go to in order to find the desired files.
+     * @param fileName name of the file to map.
+     * @return Returns a ByteBuffer of the mapped file.
+     * @throws IOException if the file does not exist.
+     */
+    private static ByteBuffer readFile(Path basePath, String fileName) throws IOException {
+        try (FileChannel channel = FileChannel.open(basePath.resolve(fileName))) {
+            return channel.map(FileChannel.MapMode.READ_ONLY, 0, channel.size());
+        }
     }
 
     /**
@@ -130,7 +119,6 @@ public final class Graph {
             }
         }
         int index = Integer.MAX_VALUE;
-        //TODO opti avec les stats ?
         double minDistance = Math.pow(searchDistance, 2);
         for (int i = 0; i < candidates.size(); i++) {
             if (candidates.get(i).squaredDistanceTo(point) < minDistance) {
@@ -187,7 +175,7 @@ public final class Graph {
      * @param edgeId ID of the given edge to extract the elevation gain from.
      * @return (double) the elevation gain of a give edge.
      */
-    public double elevationGain(int edgeId) {
+    public double edgeElevationGain(int edgeId) {
         return edges.elevationGain(edgeId);
     }
 
@@ -197,7 +185,6 @@ public final class Graph {
      * @param edgeId ID of the edge to extract the profile samples from.
      * @return the Function sampling the profiles of a given edge.
      */
-
     public DoubleUnaryOperator edgeProfile(int edgeId) {
         return (edges.hasProfile(edgeId) ? Functions.sampled(edges.profileSamples(edgeId), edgeLength(edgeId))
                 : Functions.constant(Double.NaN));

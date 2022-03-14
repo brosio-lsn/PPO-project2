@@ -1,7 +1,6 @@
 package ch.epfl.javelo;
 
 import java.util.function.DoubleUnaryOperator;
-//TODO chnge intern classes to records and do the other todo
 
 /**
  * creates functions

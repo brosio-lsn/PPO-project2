@@ -10,6 +10,7 @@ import static java.lang.Double.POSITIVE_INFINITY;
  * @author Ambroise Aigueperse (341890)
  * @author Louis Roche (345620)
  */
+//TODO voir que faire avec NONE
 //TODO ask if we should comment the attributes in a record
 public record RoutePoint(PointCh point, double position, double distanceToReference) {
     /**

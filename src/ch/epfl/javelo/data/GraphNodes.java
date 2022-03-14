@@ -21,50 +21,53 @@ public record GraphNodes(IntBuffer buffer) {
 
     /**
      * returns the total number of nodes
+     *
      * @return the total number of nodes
      */
-    public int count(){
-        return  buffer.capacity()/NODE_INTS;
+    public int count() {
+        return buffer.capacity() / NODE_INTS;
     }
 
     /**
      * returns the E coordinate of the node whose identity is given
+     *
      * @param nodeId the identity of the considered node
      * @return the E coordinate of the node whose identity is given
      */
-    public double nodeE(int nodeId){
-        return Q28_4.asDouble(buffer.get(nodeId*NODE_INTS + OFFSET_E));
-        //TODO sur de consversion
+    public double nodeE(int nodeId) {
+        return Q28_4.asDouble(buffer.get(nodeId * NODE_INTS + OFFSET_E));
     }
 
     /**
      * returns the N coordinate of the node whose identity is given
+     *
      * @param nodeId the identity of the considered node
      * @return the N coordinate of the node whose identity is given
      */
-    public double nodeN(int nodeId){
-        return Q28_4.asDouble(buffer.get(nodeId*NODE_INTS + OFFSET_N));
+    public double nodeN(int nodeId) {
+        return Q28_4.asDouble(buffer.get(nodeId * NODE_INTS + OFFSET_N));
     }
 
     /**
      * returns the number of edges coming out of the node with given identity
-      * @param nodeId the identity of the considered node
+     *
+     * @param nodeId the identity of the considered node
      * @return the number of edges coming out of the node with given identity
      */
-    public int outDegree(int nodeId){
-        //System.out.println(nodeId*NODE_INTS + OFFSET_OUT_EDGES);
-        return Bits.extractUnsigned(buffer.get(nodeId*NODE_INTS + OFFSET_OUT_EDGES),28,4 );
+    public int outDegree(int nodeId) {
+        return Bits.extractUnsigned(buffer.get(nodeId * NODE_INTS + OFFSET_OUT_EDGES), 28, 4);
     }
 
     /**
      * returns the identity of the edgeIndex-th edge coming out of the node with given identity
-     * @param nodeId the identity of the considered node
+     *
+     * @param nodeId    the identity of the considered node
      * @param edgeIndex the index of the edge in the list containing all the edges coming out of the node
      * @return the identity of the edgeIndex-th edge coming out of the node with given identity
      */
-    public int edgeId(int nodeId, int edgeIndex){
+    public int edgeId(int nodeId, int edgeIndex) {
         assert 0 <= edgeIndex && edgeIndex < outDegree(nodeId);
-        return Bits.extractUnsigned(buffer.get(nodeId*NODE_INTS + OFFSET_OUT_EDGES),0,28 )+edgeIndex;
+        return Bits.extractUnsigned(buffer.get(nodeId * NODE_INTS + OFFSET_OUT_EDGES), 0, 28) + edgeIndex;
     }
 
 }

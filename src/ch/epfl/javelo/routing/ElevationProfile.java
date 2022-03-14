@@ -4,7 +4,6 @@ import ch.epfl.javelo.Functions;
 import ch.epfl.javelo.Preconditions;
 
 import java.util.DoubleSummaryStatistics;
-import java.util.List;
 import java.util.function.DoubleUnaryOperator;
 
 /**
@@ -26,7 +25,7 @@ public final class ElevationProfile {
     /**
      * contains the samples (initiated in constructor to not calculate it many times)
      */
-    final private DoubleSummaryStatistics s;
+    final private DoubleSummaryStatistics stats;
     /**
      * contains the function made of the samples (initiated in constructor to not calculate it many times)
      */
@@ -41,10 +40,9 @@ public final class ElevationProfile {
     public ElevationProfile(double length, float[] elevationSamples){
         Preconditions.checkArgument(length>0 && elevationSamples.length>=2);
         this.length=length;
-        this.elevationSamples=new float[elevationSamples.length];
-        System.arraycopy(elevationSamples, 0, this.elevationSamples, 0, elevationSamples.length);
-        s = new DoubleSummaryStatistics();
-        for(float sample :this.elevationSamples) s.accept(sample);
+        this.elevationSamples = elevationSamples.clone();
+        stats = new DoubleSummaryStatistics();
+        for(float sample :this.elevationSamples) stats.accept(sample);
         function= Functions.sampled(this.elevationSamples, length);
     }
 
@@ -59,7 +57,7 @@ public final class ElevationProfile {
      * @return the minimum altitude of the profile
      */
     public double minElevation(){
-        return s.getMin();
+        return stats.getMin();
     }
 
     /**
@@ -67,7 +65,7 @@ public final class ElevationProfile {
      * @return the maximum altitude of the profile
      */
     public double maxElevation(){
-        return s.getMax();
+        return stats.getMax();
     }
 
     /**

@@ -41,7 +41,7 @@ public final class Bits {
      * from the bit vector 'value'
      */
     public static int extractUnsigned(int value, int start, int length) {
-        Preconditions.checkArgument(start >= 0 && (start + length) <= 32 && length <= 32 && length > 0);
+        Preconditions.checkArgument(start >= 0 && (start + length) <= 32 && length < 32 && length > 0);
         return (value << (32 - (start + length)) >>> (32 - length));
     }
 }
