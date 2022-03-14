@@ -88,7 +88,7 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
      * @return whether the edge whose id is edgeId has a profile.
      */
     public boolean hasProfile(int edgeId) {
-        return (Bits.extractUnsigned(profileIds.get(edgeId), 30, 1) != 0);
+        return (Bits.extractUnsigned(profileIds.get(edgeId), 30, 2) != 0);
     }
 
     /**
@@ -153,6 +153,6 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
      * @return the identity of the set of attributes attached to the given edge, whose id is edgeId.
      */
     public int attributesIndex(int edgeId) {
-        return edgesBuffer.getShort(edgeId * 10 + ATTRIBUTESINDEX_OFFSET);
+        return Short.toUnsignedInt(edgesBuffer.getShort(edgeId * 10 + ATTRIBUTESINDEX_OFFSET));
     }
 }
