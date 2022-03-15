@@ -20,18 +20,22 @@ public final class ElevationProfileComputer {
      */
     public static ElevationProfile elevationProfile(Route route, double maxStepLength) {
         Preconditions.checkArgument(maxStepLength > 0);
-        int profileSpacing = (int) Math.ceil(route.length() / maxStepLength);
-        float[] samples = new float[(int) route.length() / profileSpacing];
-        for (int i = 0; i < route.length(); i++) {
-            if (!(profileSpacing * i > route.length())) {
-                samples[i] = ((float) route.elevationAt(profileSpacing * i));
+        double length = route.length();
+        int profileSpacing = (int) Math.ceil(route.length()/ maxStepLength);
+        float[] samples = new float[profileSpacing];
+        int debug = samples.length;
+        for (int i = 0; i < samples.length; i++) {
+            if (!(maxStepLength * i > route.length())) {
+                samples[i] = ((float) route.elevationAt(maxStepLength * i));
             }
         }
+        System.out.println(Arrays.toString(fillTheHoles(samples)));
         return new ElevationProfile(route.length(), fillTheHoles(samples));
     }
 
-    private static float[] fillTheHoles(float[] samples) {
+    public static float[] fillTheHoles(float[] samples) {
         float firstValidValue = Float.NaN;
+        int firstValidValueIndex = 0;
         float lastValidValue = 0;
         int lastValidValueIndex = 0;
         //filling front and back holes
@@ -42,19 +46,19 @@ public final class ElevationProfileComputer {
                 lastValidValueIndex = i;
                 if (Float.isNaN(firstValidValue)) {
                     firstValidValue = samples[i];
+                    Arrays.fill(samples, 0, i, firstValidValue);
                 }
             }
-            Arrays.fill(samples, 0, i, firstValidValue);
+
         }
         if (Float.isNaN(firstValidValue)) return new float[samples.length];
-        Arrays.fill(samples, lastValidValueIndex, samples.length - 1, lastValidValue);
+        Arrays.fill(samples, lastValidValueIndex, samples.length, lastValidValue);
         //filling intermediate holes
         int beginningIndex = 0;
         int finishIndex = 0;
         boolean finishStreak = false;
-        for (int i = 0; i < samples.length; i++) {
+        for (int i = 0; i < samples.length-1; i++) {
             if (Float.isNaN(samples[i])) {
-
                 if (!Float.isNaN(samples[i - 1])) {
                     beginningIndex = i - 1;
                 }
@@ -64,7 +68,7 @@ public final class ElevationProfileComputer {
                 }
             }
             if (finishStreak) {
-                for (int j = beginningIndex; j < finishIndex; j++) {
+                for (int j = beginningIndex+1; j < finishIndex; j++) {
                     samples[j] = (float) Math2.interpolate(samples[beginningIndex], samples[finishIndex],
                             (double) (j - beginningIndex) / ((finishIndex) - beginningIndex));
                 }
