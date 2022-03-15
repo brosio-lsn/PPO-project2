@@ -1,7 +1,9 @@
 package ch.epfl.javelo.data;
 
+import ch.epfl.javelo.projection.PointCh;
 import org.junit.jupiter.api.Test;
 
+import java.awt.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -10,6 +12,7 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.LongBuffer;
 import java.nio.ShortBuffer;
+import java.nio.channels.FileChannel;
 import java.nio.file.Path;
 import java.text.FieldPosition;
 import java.util.ArrayList;
@@ -26,82 +29,32 @@ class GraphTest {
     }
     @Test
     void loadFrom() throws IOException{
-        int[] nodesBuffer = new int[100000];
-        byte[] sectorsBuffer = new byte[100000];
-        int[] profileBuffer = new int[100000];
-        byte[] edgesBuffer = new byte[1000000];
-        short[] elevationBuffer = new short[1000000];
-        long[] attributesBuffer = new long[100000];
-
-    Graph b = Graph.loadFrom(Path.of("lausanne"));
-    try(InputStream edgesRead = new FileInputStream("lausanne/edges.bin");
-    InputStream nodesRead = new FileInputStream("lausanne/nodes.bin");
-    InputStream elevationRead = new FileInputStream("lausanne/elevations.bin");
-    InputStream profileIdsRead = new FileInputStream("lausanne/profile_ids.bin");
-    InputStream attributesRead = new FileInputStream("lausanne/attributes.bin");
-    InputStream sectorsRead = new FileInputStream("lausanne/sectors.bin")) {
-        int j = 0;
-        int reader;
-        boolean pasPasse = false;
-        while ((reader = nodesRead.read()) != -1) {
-            if (!pasPasse) nodesBuffer[0] = reader; pasPasse = true;
-            nodesBuffer[(j+1)/32] = nodesBuffer[(j+1)/32] <<1 | reader;
-            ++j;
-
-        }
-        j = 0; pasPasse = false;
-        while((reader = edgesRead.read()) != -1) {
-            if (!pasPasse) edgesBuffer[0] = (byte)reader; pasPasse = true;
-            edgesBuffer[(j)/8] = (byte)(edgesBuffer[(j)/8]<<1 | reader);
-            ++j;
+        Graph b = Graph.loadFrom(Path.of("lausanne"));
+        Path filePath = Path.of("lausanne/nodes_osmid.bin");
+        LongBuffer osmIdBuffer;
+        try (FileChannel channel = FileChannel.open(filePath)) {
+            osmIdBuffer = channel
+                    .map(FileChannel.MapMode.READ_ONLY, 0, channel.size())
+                    .asLongBuffer();
         }
 
+        System.out.println(osmIdBuffer.get(1));
+        System.out.println(osmIdBuffer.get(0));
+        System.out.println(b.nodePoint(1));
+        System.out.println(b.nodePoint(0));
+        PointCh a = b.nodePoint(0);
+        PointCh c = b.nodePoint(1);
+        System.out.println("distance : " + c.distanceTo(a));
+        System.out.println(b.nodeOutDegree(1));
+        assertEquals(b.nodeCount(), osmIdBuffer.capacity());
+        assertEquals(b.nodeClosestTo(new PointCh(2549212.9375, 1166183.5625), 0.1), 1);
+        System.out.println(b.nodeOutEdgeId(2022,0));
+        System.out.println(b.edgeAttributes(4095));
+        System.out.println(b.edgeLength(1));
+        System.out.println(b.edgeProfile(1));
+        System.out.println(b.edgeElevationGain(1));
+        System.out.println(b.edgeTargetNodeId(1));
 
-       j= 0;pasPasse = false;
-        while((reader = sectorsRead.read()) != -1) {
-            if (!pasPasse) sectorsBuffer[0] = (byte)reader; pasPasse = true;
-            sectorsBuffer[(j+1)/8] = (byte)(sectorsBuffer[(j+1)/8]<<1 | reader);
-            ++j;
-        }
-
-
-        j=0;pasPasse = false;
-        while((reader = elevationRead.read()) != -1) {
-
-            if (!pasPasse) elevationBuffer[0] = (short)reader; pasPasse = true;
-            elevationBuffer[(j+1)/16] = (short)(elevationBuffer[(j+1)/16]<<1 | reader);
-            ++j;
-        }
-        j=0;pasPasse = false;
-
-        while ((reader = profileIdsRead.read()) != -1) {
-            if (!pasPasse) profileBuffer[0] = reader; pasPasse = true;
-            profileBuffer[(j+1)/32] =(elevationBuffer[(j+1)/32]<<1 | reader);
-
-        }
-
-
-        j = 0;pasPasse = false;
-        while ((reader = attributesRead.read()) != -1) {
-            if (!pasPasse) attributesBuffer[0] = reader; pasPasse = true;
-            attributesBuffer[j/64] =0;
-                    // (attributesBuffer[j/64]<<1 | reader);
-            j++;
-        }
-
-        List<AttributeSet> attributeSets = new ArrayList<>();
-        for (int i = 0; i < 9999; i++) {
-            attributeSets.add(new AttributeSet(attributesBuffer[i]));
-        }
-        Graph test = new Graph(new GraphNodes(IntBuffer.wrap(nodesBuffer)), new GraphSectors(ByteBuffer.wrap(sectorsBuffer)),
-                new GraphEdges(ByteBuffer.wrap(edgesBuffer), IntBuffer.wrap(profileBuffer), ShortBuffer.wrap(elevationBuffer)),
-                        attributeSets);
-        assertEquals(b.nodePoint(0), test.nodePoint(0));
-        //assertEquals(b.edgeLength(0), test.edgeLength(0));
-       //assertEquals(b.edgeProfile(0), test.edgeProfile(0));
-        //assertEquals(b.edgeAttributes(0), test.edgeAttributes(0));
-        //assertEquals(b.edgeTargetNodeId(0), test.edgeTargetNodeId(0));
-    }
     }
 
     @Test

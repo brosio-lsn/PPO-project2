@@ -38,7 +38,7 @@ public final class Graph {
         ShortBuffer elevations = readFile(basePath, "elevations.bin").asShortBuffer();
         ByteBuffer sectorsBuffer = readFile(basePath, "sectors.bin");
         LongBuffer attributesSet = readFile(basePath, "attributes.bin").asLongBuffer();
-        List<AttributeSet> attributs = new ArrayList<AttributeSet>();
+        List<AttributeSet> attributs = new ArrayList<>();
         for (int i = 0; i < attributesSet.capacity(); i++) {
             attributs.add(new AttributeSet(attributesSet.get(i)));
         }
@@ -156,7 +156,7 @@ public final class Graph {
      * @return the OSM AttributeSet of a given edge. Not Null.
      */
     public AttributeSet edgeAttributes(int edgeId) {
-        return new AttributeSet(edges.attributesIndex(edgeId));
+        return attributeSets.get(edges.attributesIndex(edgeId));
     }
 
     /**

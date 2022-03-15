@@ -20,13 +20,16 @@ public final class ElevationProfileComputer {
      */
     public static ElevationProfile elevationProfile(Route route, double maxStepLength) {
         Preconditions.checkArgument(maxStepLength > 0);
-        int profileSpacing = (int) Math.ceil(route.length() / maxStepLength);
-        float[] samples = new float[(int) route.length() / profileSpacing];
+        double length = route.length();
+        int profileSpacing = (int) Math.ceil(route.length()/ maxStepLength);
+        float[] samples = new float[profileSpacing];
+        int debug = samples.length;
         for (int i = 0; i < samples.length; i++) {
-            if (!(profileSpacing * i > route.length())) {
-                samples[i] = ((float) route.elevationAt(profileSpacing * i));
+            if (!(maxStepLength * i > route.length())) {
+                samples[i] = ((float) route.elevationAt(maxStepLength * i));
             }
         }
+        System.out.println(Arrays.toString(fillTheHoles(samples)));
         return new ElevationProfile(route.length(), fillTheHoles(samples));
     }
 
