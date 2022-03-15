@@ -39,6 +39,11 @@ public class EdgeTest {
         pointOndroite = edge.pointAt(expected);
         pointNotOnDroite = new PointCh(SwissBounds.MIN_E+51, -1/a*(SwissBounds.MIN_E+51)+pointOndroite.n()+1/a*pointOndroite.e());
         assertEquals(expected,edge.positionClosestTo(pointNotOnDroite), 10E-3);
+
+        expected=2*length;
+        pointOndroite = edge.pointAt(expected);
+        pointNotOnDroite = new PointCh(SwissBounds.MIN_E+51, -1/a*(SwissBounds.MIN_E+51)+pointOndroite.n()+1/a*pointOndroite.e());
+        assertEquals(expected,edge.positionClosestTo(pointNotOnDroite), 10E-3);
     }
 
     @Test

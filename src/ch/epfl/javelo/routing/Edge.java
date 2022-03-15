@@ -48,6 +48,7 @@ public record Edge(int fromNodeId, int toNodeId, PointCh fromPoint, PointCh toPo
      * @param position the given position
      * @return the point at the given position on the edge, in meters
      */
+    //TODO ask que faire si position negatif ou trop grand
     public PointCh pointAt(double position) {
         double e = position / length * (toPoint.e() - fromPoint.e()) + fromPoint.e();
         double n = position / length * (toPoint.n() - fromPoint.n()) + fromPoint.n();
