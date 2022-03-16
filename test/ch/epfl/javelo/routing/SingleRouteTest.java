@@ -139,8 +139,8 @@ class SingleRouteTest {
         assertEquals(edge1.pointAt(length), single.pointAt(length));
         //assertEquals(fromPoint, single.pointAt(-10));
         single.pointAt(length+length2+1);
-        assertEquals(edge2.pointAt(length*39), single.pointAt(length*40));
-        assertEquals(edge1.pointAt(-10), single.pointAt(-10));
+        assertEquals(edge2.pointAt(length2), single.pointAt(length*40));
+        assertEquals(edge1.pointAt(0), single.pointAt(-10));
     }
 
     @Test

@@ -69,15 +69,15 @@ final public class SingleRoute implements Route{
     }
 
     @Override
-    //TODO demander aussi que faire si longueur negative ou trop longue ( on est bien censö retourner les extrimités?) si oui je dois changer
     public PointCh pointAt(double position) {
+        //this treatment is only done here because elswhere is already done
+        position = position>this.length()? length() : (position<0? 0: position);
         int finalIndex= binarySearchIndex(position);
         return edges.get(finalIndex).pointAt(position-nodesDistanceTable[finalIndex]);
     }
 
     @Override
     //TODO demander que retourner si c est pile a la moitié
-    //todo demander si position trop longue ou negative (nous ca retourne soit le premier noeud soit le dernier)
     public int nodeClosestTo(double position) {
         int finalIndex= binarySearchIndex(position);
         Edge edge = edges.get(finalIndex);
