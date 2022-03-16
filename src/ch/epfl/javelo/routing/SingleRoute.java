@@ -32,6 +32,7 @@ final public class SingleRoute implements Route{
      * constructor of SingleRoute
      * @param edges the list containing the edges of the route
      */
+    //TODO ask c bon ? "qui retourne l'itinéraire simple composé des arêtes données"
     public SingleRoute (List<Edge> edges){
         Preconditions.checkArgument(!edges.isEmpty());
         this.edges=List.copyOf(edges);
@@ -55,7 +56,7 @@ final public class SingleRoute implements Route{
         return edges;
     }
 
-    //TODO demander pour immuabilité points
+    //TODO demander pour immuabilité points (est ce que on pourrait par ex change r les fromPoint et tt)
     @Override
     public List<PointCh> points() {
         List<PointCh> points= new ArrayList<PointCh>();
@@ -63,10 +64,11 @@ final public class SingleRoute implements Route{
             points.add(e.fromPoint());
             points.add(e.toPoint());
         }
-        return points;
+        return List.copyOf(points);
     }
 
     @Override
+    //TODO demander aussi que faire si longueur negative ou trop longue ( on est bien censö retourner les extrimités?) si oui je dois changer
     public PointCh pointAt(double position) {
         int finalIndex= binarySearchIndex(position);
         return edges.get(finalIndex).pointAt(position-nodesDistanceTable[finalIndex]);
@@ -81,7 +83,7 @@ final public class SingleRoute implements Route{
 
     }
 
-    //TODO same immuabilité
+    //TODO same immuabilité a check
     @Override
     public RoutePoint pointClosestTo(PointCh point) {
         RoutePoint routePoint = RoutePoint.NONE;
@@ -97,7 +99,7 @@ final public class SingleRoute implements Route{
     @Override
     public double elevationAt(double position) {
         int finalIndex= binarySearchIndex(position);
-        return edges.get(finalIndex).elevationAt(position-nodesDistanceTable[finalIndex]);
+        return finalIndex!= nodesDistanceTable.length-1? (edges.get(finalIndex).elevationAt(position-nodesDistanceTable[finalIndex])) : edges.get(finalIndex-1).elevationAt(position-nodesDistanceTable[finalIndex-1]);
     }
 
     /**
@@ -123,7 +125,9 @@ final public class SingleRoute implements Route{
     private int binarySearchIndex (double position){
         int binaryIndex= Arrays.binarySearch(nodesDistanceTable, position);
         int finalIndex;
+        //if(binaryIndex == nodesDistanceTable.length-1) finalIndex=nodesDistanceTable.length-2;
         if(binaryIndex >=0) finalIndex = binaryIndex;
+        else if(binaryIndex == -nodesDistanceTable.length-1) finalIndex=nodesDistanceTable.length-2;
         else if(binaryIndex<-1) finalIndex=-binaryIndex-2;
         else finalIndex =0;
         return finalIndex;

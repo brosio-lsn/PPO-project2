@@ -57,6 +57,17 @@ public class EdgeTest {
         assertEquals(45.5, edge.elevationAt(9.5));
         assertEquals(60, edge.elevationAt(92));
         assertEquals(30, edge.elevationAt(-10));
+        assertEquals(30, edge.elevationAt(0));
+        assertEquals(60f, edge.elevationAt(length));
+
+        float[] yeet2 = {28f, 30f, 30.5f, 34f, 26f, 30f, 37f, 29.5f, 32f, 31f,80f};
+        PointCh fromPoint2= new PointCh(SwissBounds.MIN_E+510, SwissBounds.MIN_N+205);
+        PointCh toPoint2= new PointCh(SwissBounds.MIN_E+522, SwissBounds.MIN_N+211);
+        double length2 = Math2.norm((toPoint2.n()-fromPoint2.n()),(toPoint2.e()-fromPoint2.e()));
+        DoubleUnaryOperator yo2 = Functions.sampled(yeet2,length);
+        Edge edge2 = new Edge(50,62,fromPoint2,toPoint2, length2, yo2);
+
+        assertEquals(80f, edge2.elevationAt(length));
     }
 }
 
