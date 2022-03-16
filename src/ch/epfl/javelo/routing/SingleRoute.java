@@ -57,6 +57,7 @@ final public class SingleRoute implements Route{
     }
 
     //TODO demander pour immuabilité points (est ce que on pourrait par ex change r les fromPoint et tt)
+    //TODO demander aussi si c un pb que le mm point soit mis plusieurs fois ( car fromPoint arreyN = toPoint arrayN-1)
     @Override
     public List<PointCh> points() {
         List<PointCh> points= new ArrayList<PointCh>();
@@ -76,6 +77,7 @@ final public class SingleRoute implements Route{
 
     @Override
     //TODO demander que retourner si c est pile a la moitié
+    //todo demander si position trop longue ou negative (nous ca retourne soit le premier noeud soit le dernier)
     public int nodeClosestTo(double position) {
         int finalIndex= binarySearchIndex(position);
         Edge edge = edges.get(finalIndex);
@@ -99,7 +101,7 @@ final public class SingleRoute implements Route{
     @Override
     public double elevationAt(double position) {
         int finalIndex= binarySearchIndex(position);
-        return finalIndex!= nodesDistanceTable.length-1? (edges.get(finalIndex).elevationAt(position-nodesDistanceTable[finalIndex])) : edges.get(finalIndex-1).elevationAt(position-nodesDistanceTable[finalIndex-1]);
+        return (edges.get(finalIndex).elevationAt(position-nodesDistanceTable[finalIndex])) ;
     }
 
     /**
@@ -125,8 +127,8 @@ final public class SingleRoute implements Route{
     private int binarySearchIndex (double position){
         int binaryIndex= Arrays.binarySearch(nodesDistanceTable, position);
         int finalIndex;
-        //if(binaryIndex == nodesDistanceTable.length-1) finalIndex=nodesDistanceTable.length-2;
-        if(binaryIndex >=0) finalIndex = binaryIndex;
+        if(binaryIndex == nodesDistanceTable.length-1) finalIndex=nodesDistanceTable.length-2;
+        else if(binaryIndex >=0) finalIndex = binaryIndex;
         else if(binaryIndex == -nodesDistanceTable.length-1) finalIndex=nodesDistanceTable.length-2;
         else if(binaryIndex<-1) finalIndex=-binaryIndex-2;
         else finalIndex =0;

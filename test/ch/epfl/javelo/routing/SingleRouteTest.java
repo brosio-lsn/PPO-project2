@@ -134,11 +134,13 @@ class SingleRouteTest {
         assertEquals(edge1.pointAt(5), single.pointAt(5));
         assertEquals(edge2.pointAt(2), single.pointAt(length+2));
         assertEquals(edge2.pointAt(0), single.pointAt(length));
+        assertEquals(edge2.pointAt(length2), single.pointAt(length+length2));
         assertEquals(edge1.pointAt(0), single.pointAt(0));
         assertEquals(edge1.pointAt(length), single.pointAt(length));
         //assertEquals(fromPoint, single.pointAt(-10));
         single.pointAt(length+length2+1);
         assertEquals(edge2.pointAt(length*39), single.pointAt(length*40));
+        assertEquals(edge1.pointAt(-10), single.pointAt(-10));
     }
 
     @Test
@@ -164,12 +166,18 @@ class SingleRouteTest {
         SingleRoute single = new SingleRoute(list);
 
         assertEquals(0, single.nodeClosestTo(1));
+        assertEquals(50, single.nodeClosestTo(length));
         assertEquals(50, single.nodeClosestTo(length-1));
         assertEquals(50, single.nodeClosestTo(length+1));
         assertEquals(62, single.nodeClosestTo(length+length2-1));
         assertEquals(0, single.nodeClosestTo(-10));
         assertEquals(62, single.nodeClosestTo(5000));
         assertEquals(0, single.nodeClosestTo(length/2));
+        single.nodeClosestTo(length+length2);
+        assertEquals(62, single.nodeClosestTo(length+length2));
+        assertEquals(0, single.nodeClosestTo(-100));
+        //single.nodeClosestTo(length+length2);
+        assertEquals(62, single.nodeClosestTo(length+length2+6));
     }
 
     @Test
@@ -236,12 +244,16 @@ class SingleRouteTest {
         assertEquals(edge1.elevationAt(1), single.elevationAt(1));
         assertEquals(edge1.elevationAt(length-1), single.elevationAt(length-1));
         assertEquals(edge2.elevationAt(1), single.elevationAt(length+1));
+        assertEquals(edge2.elevationAt(0), single.elevationAt(length));
         assertEquals(edge2.elevationAt(length2-1), single.elevationAt(length+length2-1));
         assertEquals(edge1.elevationAt(-1), single.elevationAt(-10));
         assertEquals(edge2.elevationAt(60000), single.elevationAt(5000));
         assertEquals(edge1.elevationAt(length/2), single.elevationAt(length/2));
         assertEquals(30f, single.elevationAt(0));
         single.elevationAt(length+length2);
+        single.elevationAt(length+length2);
         assertEquals(80f, single.elevationAt(length+length2));
+        assertEquals(80f, single.elevationAt(length+length2+6));
+        assertEquals(30f, single.elevationAt(-100));
     }
 }
