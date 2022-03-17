@@ -1,5 +1,6 @@
 package ch.epfl.javelo.data;
 
+import ch.epfl.javelo.Bits;
 import ch.epfl.javelo.Math2;
 import ch.epfl.javelo.projection.PointCh;
 import ch.epfl.javelo.projection.SwissBounds;
@@ -52,6 +53,7 @@ public record GraphSectors(ByteBuffer buffer) {
                 //int b = NUMBER_OF_SECTORS_ON_SIDE * Math2.clamp(0, (y - 1), 127) + Math2.clamp(0, (x - 1), 127);
                 //TODO let this comment : boolean to avoid the fact that some sectors are added twice ( because when you clamp with y=0 or =1, the result is 0 in both case, same for x)
                 if (!( (y==1 && yValueIs0AlreadyCounted) || (x==1 && xValueIs0AlreadyCounted)))
+                    //getSectorAtIdentity(NUMBER_OF_SECTORS_ON_SIDE * Math2.clamp(0, (y - 1), NUMBER_OF_SECTORS_ON_SIDE-1) + Math2.clamp(0, (x - 1), NUMBER_OF_SECTORS_ON_SIDE-1));
                     sectors.add(getSectorAtIdentity(NUMBER_OF_SECTORS_ON_SIDE * Math2.clamp(0, (y - 1), NUMBER_OF_SECTORS_ON_SIDE-1) + Math2.clamp(0, (x - 1), NUMBER_OF_SECTORS_ON_SIDE-1)));
                 if(x==0) xValueIs0AlreadyCounted=true;
                     //if (y > 0)
@@ -105,8 +107,9 @@ public record GraphSectors(ByteBuffer buffer) {
      */
     public Sector getSectorAtIdentity(int identity) {
         //initiated startNodeId here to not calculate it twice
-        int startNodeId=buffer.getInt(identity*SECTOR_BYTES+OFFSET_IDENTITY_OF_FIRST_NODE);
-        return new Sector(startNodeId, startNodeId + buffer.getShort(identity*SECTOR_BYTES+OFFSET_NUMBER_OF_NODES));
+        //TODO ask if for startNodeId we should use extractnsigned
+        int startNodeId= (buffer.getInt(identity*SECTOR_BYTES+OFFSET_IDENTITY_OF_FIRST_NODE));
+        return new Sector(startNodeId, startNodeId + Short.toUnsignedInt(buffer.getShort(identity*SECTOR_BYTES+OFFSET_NUMBER_OF_NODES)));
     }
 
     /**
