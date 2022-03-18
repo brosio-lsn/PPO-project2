@@ -32,7 +32,6 @@ final public class SingleRoute implements Route{
      * constructor of SingleRoute
      * @param edges the list containing the edges of the route
      */
-    //TODO ask c bon ? "qui retourne l'itinéraire simple composé des arêtes données"
     public SingleRoute (List<Edge> edges){
         Preconditions.checkArgument(!edges.isEmpty());
         this.edges=List.copyOf(edges);
@@ -57,14 +56,11 @@ final public class SingleRoute implements Route{
     }
 
     //TODO demander pour immuabilité points (est ce que on pourrait par ex change r les fromPoint et tt)
-    //TODO demander aussi si c un pb que le mm point soit mis plusieurs fois ( car fromPoint arreyN = toPoint arrayN-1)
     @Override
     public List<PointCh> points() {
         List<PointCh> points= new ArrayList<PointCh>();
-        for(Edge e : edges){
-            points.add(e.fromPoint());
-            points.add(e.toPoint());
-        }
+        for(Edge e : edges) points.add(e.fromPoint());
+        points.add(edges.get(edges.size()-1).toPoint());
         return List.copyOf(points);
     }
 
@@ -77,7 +73,6 @@ final public class SingleRoute implements Route{
     }
 
     @Override
-    //TODO demander que retourner si c est pile a la moitié
     public int nodeClosestTo(double position) {
         int finalIndex= binarySearchIndex(position);
         Edge edge = edges.get(finalIndex);

@@ -151,4 +151,63 @@ class ElevationProfileTest {
             ElevationProfile oh = new ElevationProfile(0, yeet);
         });
     }
+
+    float[] expectedSamples1 = new float[]{
+            384.0625f, 384.125f, 384.25f, 384.3125f, 384.375f,
+            384.4375f, 384.5f, 384.5625f, 384.6875f, 384.75f
+    };
+
+    float[] expectedSamples3 = new float[]{
+            384.0625f, 384.125f, 384.25f, 384.1f, 384.012f
+    };
+
+    float[] expectedSamples2 = new float[]{
+            384.0625f
+    };
+
+    @Test
+    void elevationProfileTest() {
+        assertThrows(IllegalArgumentException.class, () -> {
+            new ElevationProfile(0, expectedSamples1);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            new ElevationProfile(-6, expectedSamples2);
+        });
+        assertThrows(IllegalArgumentException.class, () -> {
+            new ElevationProfile(2, expectedSamples2);
+        });
+    }
+
+    @Test
+    void minElevationTest() {
+        DoubleSummaryStatistics s = new DoubleSummaryStatistics();
+        ElevationProfile profile = new ElevationProfile(2, expectedSamples1);
+        for (int i = 0; i < expectedSamples1.length; i++) {
+            s.accept(expectedSamples1[i]);
+        }
+        assertEquals(s.getMin(), profile.minElevation());
+    }
+
+    @Test
+    void maxElevationTest() {
+        DoubleSummaryStatistics s = new DoubleSummaryStatistics();
+        ElevationProfile profile = new ElevationProfile(2, expectedSamples1);
+        for (int i = 0; i < expectedSamples1.length; i++) {
+            s.accept(expectedSamples1[i]);
+        }
+        assertEquals(s.getMax(), profile.maxElevation());
+    }
+
+    @Test
+    void totalAscentTest() {
+        ElevationProfile profile = new ElevationProfile(3, expectedSamples3);
+        assertEquals(0.1875, profile.totalAscent());
+    }
+
+    @Test
+    void totalDescentTest() {
+        ElevationProfile profile = new ElevationProfile(3, expectedSamples3);
+        assertEquals(0.238, profile.totalDescent(), 1e-3);
+    }
+
 }

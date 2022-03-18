@@ -93,7 +93,6 @@ class SingleRouteTest {
 
         ArrayList<PointCh> points = new ArrayList<>();
         points.add(fromPoint);
-        points.add(toPoint);
         points.add(fromPoint2);
         points.add(toPoint2);
 
