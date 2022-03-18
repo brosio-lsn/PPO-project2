@@ -15,7 +15,6 @@ import java.util.List;
  * @author Louis ROCHE (345620)
  */
 
-//TODO demander pour immuabilité, notamment les return (est-ce qu il faut return des copy et tt ca)
 final public class SingleRoute implements Route{
 
     /**
@@ -55,7 +54,6 @@ final public class SingleRoute implements Route{
         return edges;
     }
 
-    //TODO demander pour immuabilité points (est ce que on pourrait par ex change r les fromPoint et tt)
     @Override
     public List<PointCh> points() {
         List<PointCh> points= new ArrayList<PointCh>();
@@ -80,7 +78,6 @@ final public class SingleRoute implements Route{
 
     }
 
-    //TODO same immuabilité a check
     @Override
     public RoutePoint pointClosestTo(PointCh point) {
         RoutePoint routePoint = RoutePoint.NONE;

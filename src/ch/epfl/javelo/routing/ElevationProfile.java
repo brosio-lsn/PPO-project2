@@ -36,7 +36,6 @@ public final class ElevationProfile {
      * @param length the length of the profile (meters)
      * @param elevationSamples altitude samples evenly distributed over the profile
      */
-    //TODO verifier immuabilité (a la fois pour parametres du constructeur et voir si on doit retourner des copies aussi pour les types primitifs)
     public ElevationProfile(double length, float[] elevationSamples){
         Preconditions.checkArgument(length>0 && elevationSamples.length>=2);
         this.length=length;
