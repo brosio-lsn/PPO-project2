@@ -104,7 +104,7 @@ public final class Graph {
     /**
      * returns the identity of the node closest to a given point, and given a radius of search.
      *
-     * @param point          (PointCh) point to search the closest node to.
+     * @param point          (PointCh) poi  nt to search the closest node to.
      * @param searchDistance (double) radius of the circle at which the node is to be searched
      * @return (int) the identity of the node closest to a given point, and given a radius of search.
      */
@@ -113,20 +113,22 @@ public final class Graph {
         List<PointCh> candidates = new ArrayList<>();
         List<Integer> indexLists = new ArrayList<>();
         for (GraphSectors.Sector secteurs : sectorsNearby) {
-            for (int i = secteurs.startNodeId(); i <= secteurs.endNodeId(); ++i) {
-                candidates.add(nodePoint(i));
-                indexLists.add(i);
+            if (!(secteurs.startNodeId() == 0 && secteurs.endNodeId() == 0)) {
+                for (int i = secteurs.startNodeId(); i < secteurs.endNodeId(); ++i) {
+                    candidates.add(nodePoint(i));
+                    indexLists.add(i);
+                }
             }
         }
-        int index = Integer.MAX_VALUE;
+        int index = -1;
         double minDistance = Math.pow(searchDistance, 2);
         for (int i = 0; i < candidates.size(); i++) {
-            if (candidates.get(i).squaredDistanceTo(point) < minDistance) {
+            if (candidates.get(i).squaredDistanceTo(point) <= minDistance) {
                 index = indexLists.get(i);
                 minDistance = candidates.get(i).squaredDistanceTo(point);
             }
         }
-        return (index == Integer.MAX_VALUE ? -1 : index);
+        return index;
     }
 
     /**

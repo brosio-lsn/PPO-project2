@@ -22,7 +22,7 @@ public class RouteSampleTest implements Route {
         Graph routeGraph = Graph.loadFrom(Path.of("lausanne"));
         this.length = Math2.norm((toPoint.n()-fromPoint.n()),(toPoint.e()-fromPoint.e()));
         DoubleUnaryOperator yo = Functions.sampled(yeet,length);
-        unoDosTres.add(new Edge(0, 50, fromPoint, toPoint, length, yo));
+        unoDosTres.add(Edge.of(routeGraph, 0, 0, routeGraph.edgeTargetNodeId(0)));
     }
 
     @Override

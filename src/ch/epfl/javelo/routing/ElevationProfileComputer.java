@@ -20,22 +20,20 @@ public final class ElevationProfileComputer {
      */
     public static ElevationProfile elevationProfile(Route route, double maxStepLength) {
         Preconditions.checkArgument(maxStepLength > 0);
-        double length = route.length();
-        int profileSpacing = (int) Math.ceil(route.length()/ maxStepLength);
-        float[] samples = new float[profileSpacing];
-        int debug = samples.length;
+        int nbOfSamples = (int)Math.ceil(route.length()/ maxStepLength)+1;
+        float[] samples = new float[nbOfSamples];
+        double stepLength = route.length()/(nbOfSamples-1);
         for (int i = 0; i < samples.length; i++) {
-            if (!(maxStepLength * i > route.length())) {
-                samples[i] = ((float) route.elevationAt(maxStepLength * i));
-            }
+                samples[i] = ((float) route.elevationAt(stepLength * i));
         }
+        System.out.println(route.elevationAt(0));
+        System.out.println(route.elevationAt(route.length()));
         System.out.println(Arrays.toString(fillTheHoles(samples)));
         return new ElevationProfile(route.length(), fillTheHoles(samples));
     }
 
     public static float[] fillTheHoles(float[] samples) {
         float firstValidValue = Float.NaN;
-        int firstValidValueIndex = 0;
         float lastValidValue = 0;
         int lastValidValueIndex = 0;
         //filling front and back holes
