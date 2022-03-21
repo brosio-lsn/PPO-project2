@@ -2,6 +2,7 @@ package ch.epfl.javelo.routing;
 
 import ch.epfl.javelo.Functions;
 import ch.epfl.javelo.Preconditions;
+import com.sun.jdi.DoubleValue;
 
 import java.util.DoubleSummaryStatistics;
 import java.util.function.DoubleUnaryOperator;
@@ -86,7 +87,7 @@ public final class ElevationProfile {
         float totalDescent=0;
         for(int i=1; i<elevationSamples.length;++i)
             if(elevationSamples[i]-elevationSamples[i-1]<0)totalDescent+=elevationSamples[i]-elevationSamples[i-1];
-        return -totalDescent;
+        return Math.abs(totalDescent);
     }
 
     /**

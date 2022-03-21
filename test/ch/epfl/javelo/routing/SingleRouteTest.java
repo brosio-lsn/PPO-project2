@@ -130,7 +130,7 @@ class SingleRouteTest {
         list.add(edge2);
         SingleRoute single = new SingleRoute(list);
 
-        assertEquals(edge1.pointAt(5), single.pointAt(5));
+        assertEquals(edge1.pointAt(5.5), single.pointAt(5.5));
         assertEquals(edge2.pointAt(2), single.pointAt(length+2));
         assertEquals(edge2.pointAt(0), single.pointAt(length));
         assertEquals(edge2.pointAt(length2), single.pointAt(length+length2));
@@ -164,7 +164,7 @@ class SingleRouteTest {
         list.add(edge2);
         SingleRoute single = new SingleRoute(list);
 
-        assertEquals(0, single.nodeClosestTo(1));
+        assertEquals(0, single.nodeClosestTo(1.5));
         assertEquals(50, single.nodeClosestTo(length));
         assertEquals(50, single.nodeClosestTo(length-1));
         assertEquals(50, single.nodeClosestTo(length+1));
@@ -211,8 +211,13 @@ class SingleRouteTest {
         assertEquals(toPoint2, single.pointClosestTo(toPoint2));*/
         /*System.out.println(toPoint2.distanceTo(new PointCh(SwissBounds.MIN_E+501, SwissBounds.MIN_N+207)));
         assertEquals(edge1.pointAt( edge1.positionClosestTo(new PointCh(SwissBounds.MIN_E+501, SwissBounds.MIN_N+207))), single.pointClosestTo(new PointCh(SwissBounds.MIN_E+501, SwissBounds.MIN_N+207)));*/
-        System.out.println(edge2.pointAt( edge2.positionClosestTo(new PointCh(SwissBounds.MIN_E+519, SwissBounds.MIN_N+210))).distanceTo(new PointCh(SwissBounds.MIN_E+519, SwissBounds.MIN_N+210)));
-        assertEquals(edge2.pointAt( edge2.positionClosestTo(new PointCh(SwissBounds.MIN_E+519, SwissBounds.MIN_N+210))), single.pointClosestTo(new PointCh(SwissBounds.MIN_E+519, SwissBounds.MIN_N+210)));
+        /*System.out.println(edge2.pointAt( edge2.positionClosestTo(new PointCh(SwissBounds.MIN_E+519, SwissBounds.MIN_N+210))).distanceTo(new PointCh(SwissBounds.MIN_E+519, SwissBounds.MIN_N+210)));
+        assertEquals(edge2.pointAt( edge2.positionClosestTo(new PointCh(SwissBounds.MIN_E+519, SwissBounds.MIN_N+210))), single.pointClosestTo(new PointCh(SwissBounds.MIN_E+519, SwissBounds.MIN_N+210)));*/
+        /*System.out.println(edge2.pointAt( edge2.positionClosestTo(new PointCh(SwissBounds.MIN_E+519.7, SwissBounds.MIN_N+210.9))).distanceTo(new PointCh(SwissBounds.MIN_E+519.7, SwissBounds.MIN_N+210.9)));
+        assertEquals(edge2.pointAt( edge2.positionClosestTo(new PointCh(SwissBounds.MIN_E+519.7, SwissBounds.MIN_N+210.9))), single.pointClosestTo(new PointCh(SwissBounds.MIN_E+519.7, SwissBounds.MIN_N+210.9)));*/
+        System.out.println(edge2.pointAt( edge2.positionClosestTo(new PointCh(SwissBounds.MIN_E+503.6, SwissBounds.MIN_N+206.9))).distanceTo(new PointCh(SwissBounds.MIN_E+503.6, SwissBounds.MIN_N+206.9)));
+        assertEquals(edge2.pointAt( edge2.positionClosestTo(new PointCh(SwissBounds.MIN_E+503.6, SwissBounds.MIN_N+206.9))), single.pointClosestTo(new PointCh(SwissBounds.MIN_E+503.6, SwissBounds.MIN_N+206.9)));
+
 
 
     }
