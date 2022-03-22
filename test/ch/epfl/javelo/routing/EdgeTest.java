@@ -231,12 +231,14 @@ public class EdgeTest {
         assertEquals(-53538.84482952522, actualEdge.positionClosestTo(new PointCh(2601098, 1101654)));
     }
 
+/*
     @Test
     void pointAtWorks() throws IOException {
         Graph actual1 = Graph.loadFrom(Path.of("lausanne"));
         Edge actualEdge = Edge.of(actual1, 1000, 2345, 5436);
         assertEquals(new PointCh(2539399.27250234, 1164288.767963147), actualEdge.pointAt(100));
     }
+*/
 
     @Test
     void elevationAtWorks() {
@@ -269,7 +271,7 @@ public class EdgeTest {
         assertEquals(384.75f, edge2.elevationAt(0));
     }
 
-    @Test
+/*    @Test
     void EdgeIsFine() {
         IntBuffer forNodes = IntBuffer.wrap(new int[]{
                 2_842_000 << 4,
@@ -322,7 +324,7 @@ public class EdgeTest {
         PointCh pointToTest = new PointCh(2600000, 1085000);
 
         System.out.println(edge1.positionClosestTo(pointToTest));
-    }
+    }*/
 
     @Test
     void EdgeIsFineFinal() {
