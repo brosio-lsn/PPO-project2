@@ -32,19 +32,24 @@ final public class RouteComputer {
             prédécésseurs[i]=0;
             distances[i]= Float.POSITIVE_INFINITY;
         }
-        distances[startNodeId]=0;
+        distances[startNodeId]=0f;
         en_exploration.add(new WeightedNode(startNodeId, distances[startNodeId]));
-        while(!en_exploration.isEmpty()){
+        while(!en_exploration.isEmpty()) {
             WeightedNode N = en_exploration.remove();
-            if(N.nodeId==endNodeId) return finalPath(prédécésseurs, startNodeId, endNodeId);
-            for(int i =0; i< graph.nodeOutDegree(N.nodeId);++i){
-                int edgeId = graph.nodeOutEdgeId(N.nodeId, i);
-                WeightedNode Nbis = new WeightedNode(graph.edgeTargetNodeId(edgeId), distances[graph.edgeTargetNodeId(edgeId)]);
-                float d = distances[N.nodeId]+ (float)costFunction.costFactor(N.nodeId, edgeId);//todo normal le transtipage?
-                if(d<distances[Nbis.nodeId]) {
-                    distances[Nbis.nodeId]=d;
-                    prédécésseurs[Nbis.nodeId]=N.nodeId;
-                    en_exploration.add(new WeightedNode(Nbis.nodeId, distances[Nbis.nodeId]));
+            if (distances[N.nodeId] != Float.NEGATIVE_INFINITY) {
+                if (N.nodeId == endNodeId) return finalPath(prédécésseurs, startNodeId, endNodeId);
+                float distanceN=distances[N.nodeId];
+                for (int i = 0; i < graph.nodeOutDegree(N.nodeId); ++i) {
+                    int edgeId = graph.nodeOutEdgeId(N.nodeId, i);
+                    WeightedNode Nbis = new WeightedNode(graph.edgeTargetNodeId(edgeId), distances[graph.edgeTargetNodeId(edgeId)]);
+                    float d = distanceN + (float) costFunction.costFactor(N.nodeId, edgeId);//todo normal le transtipage?
+                    if (d < distances[Nbis.nodeId]) {
+                        distances[Nbis.nodeId] = d;
+                        prédécésseurs[Nbis.nodeId] = N.nodeId;
+                        float a  = distances[Nbis.nodeId];
+                        en_exploration.add(new WeightedNode(Nbis.nodeId, distances[Nbis.nodeId]));
+                    }
+                    distances[N.nodeId] = Float.NEGATIVE_INFINITY;
                 }
             }
         }
@@ -57,14 +62,16 @@ final public class RouteComputer {
         int formerNodeId;
         do{
             formerNodeId= prédécésseur[nodeId];
-            for(int i =0; i< graph.nodeOutDegree(nodeId);++i) {
-                int edgeId = graph.nodeOutEdgeId(nodeId, i);
+            for(int i =0; i< graph.nodeOutDegree(formerNodeId);++i) {
+                int edgeId = graph.nodeOutEdgeId(formerNodeId, i);
+                System.out.println("yeet");
                 if(graph.edgeTargetNodeId(edgeId)==nodeId){
                     edges.add(Edge.of(graph, edgeId, formerNodeId, nodeId));
+                    nodeId=formerNodeId;
                     break;
                 }
             }
-        } while(nodeId != startNodeId);
+        } while(formerNodeId != startNodeId);
         return new SingleRoute(edges);
     }
 }
