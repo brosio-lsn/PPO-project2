@@ -8,12 +8,18 @@ import ch.epfl.javelo.projection.PointCh;
 import java.util.function.DoubleUnaryOperator;
 
 /**
- * represents an edge of a route
+ * Default constructor of an Edge.
  *
- * @author Louis ROCHE (345620)
- * @author Ambroise AIGUEPERSE (341890)
+ * @param fromNodeId (int) id of the node the edge originates from.
+ * @param toNodeId   (int) id of the node the edge goes to.
+ * @param fromPoint  (PointCh) point in Switzerland, corresponding to a node in the graph, the edge originates
+ *                   from. Not Null.
+ * @param toPoint    (PointCh) point in Switzerland, corresponding to a node in the graph, the edges goes
+ *                   to. Not Null.
+ * @param length     (double) length of the edge.
+ * @param profile    (DoubleUnaryOperator) function that computs the approximate height at any given point
+ *                   on the edge.
  */
-
 public record Edge(int fromNodeId, int toNodeId, PointCh fromPoint, PointCh toPoint, double length,
                    DoubleUnaryOperator profile) {
 

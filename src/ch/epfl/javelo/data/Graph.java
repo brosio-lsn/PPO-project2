@@ -17,6 +17,14 @@ public final class Graph {
     private final GraphEdges edges;
     private final List<AttributeSet> attributeSets;
 
+    /**
+     * Default constructor of the Graph Class.
+     *
+     * @param nodes          Nodes of the graph, not null.
+     * @param sectors        Sectors of the graph, not null.
+     * @param edges,         Edges of the graph, not null.
+     * @param attributeSets, attributes of the edges of the graph, not null.
+     */
     public Graph(GraphNodes nodes, GraphSectors sectors, GraphEdges edges, List<AttributeSet> attributeSets) {
         this.attributeSets = List.copyOf(attributeSets);
         this.edges = edges;

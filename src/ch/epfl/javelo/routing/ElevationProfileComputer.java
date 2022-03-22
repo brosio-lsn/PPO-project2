@@ -20,18 +20,25 @@ public final class ElevationProfileComputer {
      */
     public static ElevationProfile elevationProfile(Route route, double maxStepLength) {
         Preconditions.checkArgument(maxStepLength > 0);
-        int nbOfSamples = (int)Math.ceil(route.length()/ maxStepLength)+1;
+        int nbOfSamples = (int) Math.ceil(route.length() / maxStepLength) + 1;
         float[] samples = new float[nbOfSamples];
-        double stepLength = route.length()/(nbOfSamples-1);
+        double stepLength = route.length() / (nbOfSamples - 1);
         for (int i = 0; i < samples.length; i++) {
-                samples[i] = ((float) route.elevationAt(stepLength * i));
+            samples[i] = ((float) route.elevationAt(stepLength * i));
         }
-        System.out.println(route.elevationAt(0));
+       /* System.out.println(route.elevationAt(0));
         System.out.println(route.elevationAt(route.length()));
         System.out.println(Arrays.toString(fillTheHoles(samples)));
+        */
         return new ElevationProfile(route.length(), fillTheHoles(samples));
     }
 
+    /**
+     * Fills the NaN values with interpolated values from previous or next samples.
+     *
+     * @param samples tab to fill the NaN values in.
+     * @return the filled tab with no more NaN values in it.
+     */
     public static float[] fillTheHoles(float[] samples) {
         float firstValidValue = Float.NaN;
         float lastValidValue = 0;
@@ -55,7 +62,7 @@ public final class ElevationProfileComputer {
         int beginningIndex = 0;
         int finishIndex = 0;
         boolean finishStreak = false;
-        for (int i = 0; i < samples.length-1; i++) {
+        for (int i = 0; i < samples.length - 1; i++) {
             if (Float.isNaN(samples[i])) {
                 if (!Float.isNaN(samples[i - 1])) {
                     beginningIndex = i - 1;
@@ -66,7 +73,7 @@ public final class ElevationProfileComputer {
                 }
             }
             if (finishStreak) {
-                for (int j = beginningIndex+1; j < finishIndex; j++) {
+                for (int j = beginningIndex + 1; j < finishIndex; j++) {
                     samples[j] = (float) Math2.interpolate(samples[beginningIndex], samples[finishIndex],
                             (double) (j - beginningIndex) / ((finishIndex) - beginningIndex));
                 }
