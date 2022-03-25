@@ -12,4 +12,7 @@ public final class TestRandomizer {
     public static RandomGenerator newRandom() {
         return RandomGeneratorFactory.getDefault().create(SEED);
     }
+
+    //perso
+
 }

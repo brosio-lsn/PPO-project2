@@ -6,6 +6,10 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 import ch.epfl.javelo.Bits;
 
+import java.nio.LongBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.file.Path;
+
 class BitsTest {
 
     @Test
@@ -33,5 +37,17 @@ class BitsTest {
         assertThrows(IllegalArgumentException.class, () -> {
             Bits.extractUnsigned(trivialBit, 5, 29 );
         });
+
+        Path filePath = Path.of("lausanne/nodes_osmid.bin");
+        LongBuffer osmIdBuffer=null;
+        try (FileChannel channel = FileChannel.open(filePath)) {
+            osmIdBuffer = channel
+                    .map(FileChannel.MapMode.READ_ONLY, 0, channel.size())
+                    .asLongBuffer();
+        }
+        catch (Exception e ){
+            System.out.print("rip");
+        }
+        System.out.println(osmIdBuffer.get(201));
     }
 }

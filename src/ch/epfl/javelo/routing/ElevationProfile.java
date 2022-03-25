@@ -73,7 +73,7 @@ public final class ElevationProfile {
      * @return the total positive vertical drop of the profile, in meters
      */
     public double totalAscent(){
-        float totalAscent=0;
+        double totalAscent=0;
         for(int i=1; i<elevationSamples.length;++i)
             if(elevationSamples[i]-elevationSamples[i-1]>0)totalAscent+=elevationSamples[i]-elevationSamples[i-1];
         return totalAscent;
@@ -84,7 +84,7 @@ public final class ElevationProfile {
      * @return the total negative elevation of the profile, in meters
      */
     public double totalDescent(){
-        float totalDescent=0;
+        double totalDescent=0;
         for(int i=1; i<elevationSamples.length;++i)
             if(elevationSamples[i]-elevationSamples[i-1]<0)totalDescent+=elevationSamples[i]-elevationSamples[i-1];
         return Math.abs(totalDescent);
