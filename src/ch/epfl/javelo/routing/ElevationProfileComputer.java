@@ -54,7 +54,6 @@ public final class ElevationProfileComputer {
                     Arrays.fill(samples, 0, i, firstValidValue);
                 }
             }
-
         }
         if (Float.isNaN(firstValidValue)) return new float[samples.length];
         Arrays.fill(samples, lastValidValueIndex, samples.length, lastValidValue);

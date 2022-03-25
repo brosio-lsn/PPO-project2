@@ -182,7 +182,7 @@ final public class RouteComputer {
                 for (int i = 0; i < graph.nodeOutDegree(N.nodeId); ++i) {
                     int edgeId = graph.nodeOutEdgeId(N.nodeId, i);
                     WeightedNode Nbis = new WeightedNode(graph.edgeTargetNodeId(edgeId), distances[graph.edgeTargetNodeId(edgeId)]+distanceToTarget(graph, graph.edgeTargetNodeId(edgeId), endNodeId));
-                    float d = distanceN + (float) (costFunction.costFactor(N.nodeId, edgeId)*graph.edgeLength(edgeId)) ;//todo normal le transtipage?
+                    float d = distanceN + (float) (costFunction.costFactor(N.nodeId, edgeId)*graph.edgeLength(edgeId)) ;
                     if (d < distances[Nbis.nodeId]) {
                         distances[Nbis.nodeId] = d;
                         prédécésseurs[Nbis.nodeId] = N.nodeId;

@@ -30,6 +30,8 @@ class RouteComputerTest {
         RouteComputer rc = new RouteComputer(g, cf);
         Route r = rc.bestRouteBetween(159049, 117669);
         KmlPrinter.write("javelo.kml", r);
+        Route rN= rc.bestRouteBetween(0, 2);
+        System.out.println(rN.edges());
     }
 
 }

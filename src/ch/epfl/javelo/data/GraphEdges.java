@@ -14,6 +14,12 @@ import java.nio.ShortBuffer;
  * @author Ambroise AIGUEPERSE (341890)
  */
 
+/**
+ * @param edgesBuffer contains for all edges of the graph: the direction,
+ *                    the identity of the end node of the edge, the length of the edge,the positive drop and the identity of the attributs OSM set
+ *@param profileIds contains for all edges : the profile type and the identity of the first sample of the profile
+ *@param elevations contains all the profiles
+ */
 public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuffer elevations) {
     private static final int LENGTH_OFFSET = 4;
     private static final int ELEVATIONGAIN_OFFSET = 6;
