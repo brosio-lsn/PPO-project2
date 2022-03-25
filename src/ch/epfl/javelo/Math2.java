@@ -35,7 +35,7 @@ public final class Math2 {
      * y = ax + b, where b = y0 and a = y1 - y0.
      */
     public static double interpolate(double y0, double y1, double x) {
-        return (Math.fma((y1 - y0), x, y0));
+        return Math.fma((y1 - y0), x, y0);
     }
 
     /**

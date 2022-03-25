@@ -20,12 +20,14 @@ public final class ElevationProfileComputer {
      */
     public static ElevationProfile elevationProfile(Route route, double maxStepLength) {
         Preconditions.checkArgument(maxStepLength > 0);
+        double debug = route.length();
         int nbOfSamples = (int) Math.ceil(route.length() / maxStepLength) + 1;
         float[] samples = new float[nbOfSamples];
         double stepLength = route.length() / (nbOfSamples - 1);
         for (int i = 0; i < samples.length; i++) {
             samples[i] = ((float) route.elevationAt(stepLength * i));
         }
+        //TODO remove this
        /* System.out.println(route.elevationAt(0));
         System.out.println(route.elevationAt(route.length()));
         System.out.println(Arrays.toString(fillTheHoles(samples)));

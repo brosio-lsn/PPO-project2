@@ -13,5 +13,5 @@ public interface CostFunction {
      * @return the factor by which the length of the edge with identity edgeId, starting from the node with given identity,
      *      * must be multiplied
      */
-    abstract double costFactor(int nodeId, int edgeId);
+    double costFactor(int nodeId, int edgeId);
 }
