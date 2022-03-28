@@ -12,6 +12,9 @@ import java.nio.IntBuffer;
  * @author Ambroise AIGUEPERSE (341890)
  */
 
+/**
+ * @param buffer the attributes of all the nodes of the graph
+ */
 public record GraphNodes(IntBuffer buffer) {
 
     private static final int OFFSET_E = 0;

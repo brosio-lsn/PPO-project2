@@ -22,14 +22,16 @@ class RouteComputerTest {
         catch (Exception e ){
             System.out.print("rip");
         }
-        System.out.println(osmIdBuffer.get(0));
-        System.out.println(osmIdBuffer.get(600));
+        System.out.println(osmIdBuffer.get(50));
+        System.out.println(osmIdBuffer.get(1020));
 
         Graph g = Graph.loadFrom(Path.of("lausanne"));
         CostFunction cf = new CityBikeCF(g);
         RouteComputer rc = new RouteComputer(g, cf);
         Route r = rc.bestRouteBetween(159049, 117669);
         KmlPrinter.write("javelo.kml", r);
+        Route rN= rc.bestRouteBetween(0, 2);
+        System.out.println(rN.edges());
     }
 
 }
