@@ -4,10 +4,13 @@ import ch.epfl.javelo.Preconditions;
 import ch.epfl.javelo.projection.PointCh;
 
 import java.util.ArrayList;
-import java.util.Deque;
-import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * Represents multiple itineraries
+ * @author ROCHE Louis (345620)
+ * @author AIGUEPERSE Ambroise (341890)
+ */
 public final class MultiRoute {
     private final List<Route> segments;
 
@@ -24,6 +27,7 @@ public final class MultiRoute {
      */
 
     public int indexOfSegmentAt(double position) {
+        if (position == this.length()) return edges().size() -1;
         double distance = 0;
         int index = 0;
         while (distance <= position) {

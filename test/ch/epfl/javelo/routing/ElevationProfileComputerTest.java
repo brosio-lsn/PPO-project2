@@ -66,7 +66,6 @@ class ElevationProfileComputerTest {
         salut.add(edge);
         float[] elevationProfileComputer1Excepcted = new float[]{1f, 1f, 1f, 3f, 5f, 7f, 5.75f, 4.5f, 3.25f, 2f, 2f};//todo : boucle for imbriquee
         Route MDRR = new SingleRoute(salut);
-
        */
         List<float[]> lesTableaux = new ArrayList<>();
         float[][] lesEdges = new float[5][];
@@ -87,7 +86,7 @@ class ElevationProfileComputerTest {
         longueurs[4] = 8;
         lesTableaux.add(lesEdges[4]);
         int nbOfProfilesOfLaRoute = (int) Math.ceil(26.0/2) + 1;
-        double stepLengthOfLaRoute = 26.0 / nbOfProfiles;
+        double stepLengthOfLaRoute = 26.0 / (nbOfProfilesOfLaRoute-1);
         Route laRoute = routeCreator(lesTableaux, longueurs);
         ElevationProfile elevationRoute = ElevationProfileComputer.elevationProfile(laRoute, 1.0);
         System.out.println("============");
@@ -107,7 +106,27 @@ class ElevationProfileComputerTest {
             ElevationProfile weakActual = ElevationProfileComputer.elevationProfile(routeCreator(lesTableaux, longueurs), 0.001);
             ElevationProfile bigBossExpected = new ElevationProfile(26.0, new float[]{2f, 3f, 3f, 3f, 3f, 3f, 4f, 2f, 1f, 0f, 1f, 2f, 3f, 4f});
             elevationTests(bigBossExpected, weakActual);
-        }
+            lesTableaux.clear();
+        lesEdges[0] = new float[]{Float.NaN, Float.NaN, Float.NaN, Float.NaN};
+        longueurs[0] = 6;
+        lesTableaux.add(lesEdges[0]);
+        lesEdges[1] = new float[]{2f, 3F, 3f};
+        longueurs[1] = 4;
+        lesTableaux.add(lesEdges[1]);
+        lesEdges[2] = new float[] {Float.NaN, Float.NaN, Float.NaN, Float.NaN};
+        longueurs[2] = 6;
+        lesTableaux.add(lesEdges[2]);
+        lesEdges[3] = new float[]{3f, 4f, 2f};
+        longueurs[3] =4;
+        lesTableaux.add(lesEdges[3]);
+        lesEdges[4] = new float[]{Float.NaN, Float.NaN, Float.NaN, Float.NaN};
+        longueurs[4] = 6;
+        lesTableaux.add(lesEdges[4]);
+        ElevationProfile weakActual2 = ElevationProfileComputer.elevationProfile(routeCreator(lesTableaux, longueurs), 0.001);
+        ElevationProfile bigBossExpected2 = new ElevationProfile(26.0, new float[]{2f, 2f, 2f, 2f, 3f, 3f, 3f, 3f, 3f, 4f, 2f, 2f, 2f, 2f});
+        elevationTests(bigBossExpected2, weakActual2);
+
+    }
 
         void elevationTests (ElevationProfile uno, ElevationProfile dos){
             System.out.println("-> Tests avec les valeurs attendues (delta = 1e-2)");

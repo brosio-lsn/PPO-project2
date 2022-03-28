@@ -56,7 +56,7 @@ class RoutePointTest {
             assertEquals(p, new RoutePoint(new PointCh(SwissBounds.MIN_E + 500, SwissBounds.MIN_N + 200), 100, distanceRefthis).min(new PointCh(SwissBounds.MIN_E + 500, SwissBounds.MIN_N + 200), 100, distanceRefThat));
         }
         boolean b = NaN<=10;
-        assertEquals(1, new RoutePoint(new PointCh(SwissBounds.MIN_E + 500, SwissBounds.MIN_N + 200), NaN, NaN).min(new PointCh(SwissBounds.MIN_E + 500, SwissBounds.MIN_N + 200), 100, 10));
+//        assertEquals(1, new RoutePoint(new PointCh(SwissBounds.MIN_E + 500, SwissBounds.MIN_N + 200), NaN, NaN).min(new PointCh(SwissBounds.MIN_E + 500, SwissBounds.MIN_N + 200), 100, 10));
     }
     @Test
     public void withPositionShiftedByAtWorksOnSampleTests(){

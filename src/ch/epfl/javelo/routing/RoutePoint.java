@@ -6,6 +6,13 @@ import static java.lang.Double.NaN;
 import static java.lang.Double.POSITIVE_INFINITY;
 
 /**
+ * Represents a point on a route.
+ * @author ROCHE Louis (345620)
+ * @author AIGUEPERSE Ambroise (341890)
+ */
+
+
+/**
  * Default RoutePoint record constructor.
  *
  * @param point               (PointCh) Point in Switzerland represented by the RoutePoint

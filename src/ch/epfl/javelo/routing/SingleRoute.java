@@ -92,8 +92,9 @@ final public class SingleRoute implements Route{
 
     @Override
     public double elevationAt(double position) {
-        int finalIndex= binarySearchIndex(position);
-        return (edges.get(finalIndex).elevationAt(position-nodesDistanceTable[finalIndex])) ;
+        double clampedPosition = Math2.clamp(0, position, length());
+        int finalIndex= binarySearchIndex(clampedPosition);
+        return (edges.get(finalIndex).elevationAt(clampedPosition-nodesDistanceTable[finalIndex])) ;
     }
 
     /**

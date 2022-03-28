@@ -1,10 +1,13 @@
 package ch.epfl.javelo.routing;
 
 import ch.epfl.javelo.Functions;
+import ch.epfl.javelo.data.Graph;
 import ch.epfl.javelo.projection.PointCh;
 import ch.epfl.javelo.projection.SwissBounds;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -112,10 +115,34 @@ class MultiRouteTest {
     }
 
     @Test
-    void nodeClosestTo() {
+    void nodeClosestTo() throws IOException {
+
+        Graph routeGraph = Graph.loadFrom(Path.of("lausanne"));
+        Edge edge1 = Edge.of(routeGraph, 0, 0, routeGraph.edgeTargetNodeId(0));
+        Edge edge2 = Edge.of(routeGraph, 2, 1, routeGraph.edgeTargetNodeId(2));
+        List<Edge> edges = List.of(edge1);
+        Route coucou = new SingleRoute(edges);
+        Route salut = new SingleRoute(List.of(edge2));
+        List<Route> listeRoute = List.of(coucou, salut);
+        MultiRoute multiRoute = new MultiRoute(listeRoute);
+        assertEquals(0, multiRoute.nodeClosestTo(10));
+        assertEquals(1, multiRoute.nodeClosestTo(60));
+        assertEquals(2, multiRoute.nodeClosestTo(150));
+
+
     }
 
     @Test
-    void pointClosestTo() {
+    void pointClosestTo() throws IOException {
+        Graph routeGraph = Graph.loadFrom(Path.of("lausanne"));
+        Edge edge1 = Edge.of(routeGraph, 0, 0, routeGraph.edgeTargetNodeId(0));
+        Edge edge2 = Edge.of(routeGraph, 2, 1, routeGraph.edgeTargetNodeId(2));
+        List<Edge> edges = List.of(edge1);
+        Route coucou = new SingleRoute(edges);
+        Route salut = new SingleRoute(List.of(edge2));
+        List<Route> listeRoute = List.of(coucou, salut);
+        MultiRoute multiRoute = new MultiRoute(listeRoute);
+        System.out.println(multiRoute.pointClosestTo(new PointCh(2549213, 1166183.5625)));
+        System.out.println(multiRoute.pointClosestTo(new PointCh(2549278.75, 1166253)));
     }
 }
