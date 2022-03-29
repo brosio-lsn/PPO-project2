@@ -36,7 +36,7 @@ public final class Functions {
      */
 
     public static DoubleUnaryOperator sampled(float[] samples, double xMax) {
-        Preconditions.checkArgument(samples.length > 1  && xMax > 0);
+        Preconditions.checkArgument(samples.length > 1 && xMax > 0);
         return new Sampled(samples, xMax);
     }
 
@@ -46,6 +46,7 @@ public final class Functions {
     private record Constant(double constante) implements DoubleUnaryOperator {
         /**
          * returns the image of a given x coordinate
+         *
          * @param x the x-coordinate
          * @return the image of the given x coordinate
          */
@@ -62,6 +63,7 @@ public final class Functions {
     private record Sampled(float[] samples, double xMax) implements DoubleUnaryOperator {
         /**
          * returns the image of a given x coordinate
+         *
          * @param x the x-coordinate
          * @return the image of the given x coordinate
          */
@@ -69,18 +71,12 @@ public final class Functions {
         public double applyAsDouble(double x) {
             //create those varaibles to not calculate them twice
             int samplesLength = samples.length;
-            double lengthBetweenSamples = this.xMax / (samplesLength-1);
+            double lengthBetweenSamples = this.xMax / (samplesLength - 1);
             int precedentSampleIndex = (int) (x / lengthBetweenSamples);
-            /*if(x>xMax) return samples[samplesLength-1];
-            else if(x<0) return samples[0];
-            else {
-                lengthBetweenSamples = this.xMax / (samplesLength-1);
-                precedentSampleIndex = (int) (x / lengthBetweenSamples);
-                return Math2.interpolate(samples[precedentSampleIndex], samples[precedentSampleIndex + 1], (x-lengthBetweenSamples*precedentSampleIndex)/lengthBetweenSamples);
-            }*/
-            return (x>=xMax ? samples[samplesLength-1] :
-                    (x<=0 ? samples[0] : Math2.interpolate(samples[precedentSampleIndex], samples[precedentSampleIndex + 1],
-                            (x-lengthBetweenSamples*precedentSampleIndex)/lengthBetweenSamples)));
+            return (x >= xMax ? samples[samplesLength - 1] :
+                    (x <= 0 ? samples[0] :
+                            Math2.interpolate(samples[precedentSampleIndex], samples[precedentSampleIndex + 1],
+                                    (x - lengthBetweenSamples * precedentSampleIndex) / lengthBetweenSamples)));
         }
     }
 }

@@ -1,0 +1,36 @@
+faudra voir immuabilité, truc faire List = new Arrylist pas Arraylist = new Arraylist,
+Review code only ( voir doc apres)
+Etape 1:
+-préconditions: done
+-math2 : done
+-SwissBounds: done
+-Ch1903 : done
+-PointCh : done
+
+Etape 2 :
+-WebMercator : done
+-PointWebMercator :done
+-bits : done
+-Q28_4 : done
+-functions = done
+-attributeSet : done
+
+Etape 3 :
+-GraphNodes : done
+-GraphSectors : à revoir
+-GraphEdges : Louis
+
+E4:
+-Grpah : Louis
+-ElevationProfile :done
+-Edge : done
+-RoutePoint : done
+-Route :done
+
+E5:
+-SingleRoute : revoir
+-ElevationProfileComputer : Louis
+
+E6:
+-MultiRoute : Louis
+-RouteComputer : done

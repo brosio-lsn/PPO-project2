@@ -38,6 +38,7 @@ public record GraphNodes(IntBuffer buffer) {
      * @return the E coordinate of the node whose identity is given
      */
     public double nodeE(int nodeId) {
+        int indexInBuffer = nodeId * NODE_INTS + OFFSET_E;
         return Q28_4.asDouble(buffer.get(nodeId * NODE_INTS + OFFSET_E));
     }
 
@@ -48,7 +49,8 @@ public record GraphNodes(IntBuffer buffer) {
      * @return the N coordinate of the node whose identity is given
      */
     public double nodeN(int nodeId) {
-        return Q28_4.asDouble(buffer.get(nodeId * NODE_INTS + OFFSET_N));
+        int indexInBuffer = nodeId * NODE_INTS + OFFSET_N;
+        return Q28_4.asDouble(buffer.get(indexInBuffer));
     }
 
     /**
@@ -58,7 +60,8 @@ public record GraphNodes(IntBuffer buffer) {
      * @return the number of edges coming out of the node with given identity
      */
     public int outDegree(int nodeId) {
-        return Bits.extractUnsigned(buffer.get(nodeId * NODE_INTS + OFFSET_OUT_EDGES), 28, 4);
+        int indexInBuffer = nodeId * NODE_INTS + OFFSET_OUT_EDGES;
+        return Bits.extractUnsigned(buffer.get(indexInBuffer), 28, 4);
     }
 
     /**
@@ -70,7 +73,8 @@ public record GraphNodes(IntBuffer buffer) {
      */
     public int edgeId(int nodeId, int edgeIndex) {
         assert 0 <= edgeIndex && edgeIndex < outDegree(nodeId);
-        return Bits.extractUnsigned(buffer.get(nodeId * NODE_INTS + OFFSET_OUT_EDGES), 0, 28) + edgeIndex;
+        int indexInBuffer = nodeId * NODE_INTS + OFFSET_OUT_EDGES;
+        return Bits.extractUnsigned(buffer.get(indexInBuffer), 0, 28) + edgeIndex;
     }
 
 }

@@ -17,10 +17,6 @@ import java.util.List;
  * @author Ambroise AIGUEPERSE (341890)
  */
 
-//les secteurs de base en bidimension (avec coordonnee x et y) sont stockéS en unidimentionnel dans le buffer
-//but premier :  touver quels secteurs sont sur les extrimites du carré (tu peux le faire en prenant la taille des secteurs)
-//prendre ensuite tous les secteurs entre ces 4 secteurs (le offset sert ä acceder au premier index du byte auquel on veut acceder parmi les byte du secteur considéré
-
 /**
  * the buffer contains all the value of all attributes from all sectors
  */
@@ -47,18 +43,21 @@ public record GraphSectors(ByteBuffer buffer) {
         int yCoordinateOfTopLeftSector = Math2.clamp(0, (int)Math.ceil(((center.n()+distance)-SwissBounds.MIN_N)/SECTOR_HEIGHT), NUMBER_OF_SECTORS_ON_SIDE);
         boolean yValueIs0AlreadyCounted=false;
         boolean xValueIs0AlreadyCounted=false;
-        for(int y=yCoordinateOfBottomLeftSector; y<=yCoordinateOfTopLeftSector; ++y ) {
+        /*for(int y=yCoordinateOfBottomLeftSector; y<=yCoordinateOfTopLeftSector; ++y ) {
             for (int x = xCoordinateOfBottomLeftSector; x <= xCoordinateOfBottomRightSector; ++x) {
-                //if (y > 0) yo.add(count);
-                //int b = NUMBER_OF_SECTORS_ON_SIDE * Math2.clamp(0, (y - 1), 127) + Math2.clamp(0, (x - 1), 127);
                 //TODO let this comment : boolean to avoid the fact that some sectors are added twice ( because when you clamp with y=0 or =1, the result is 0 in both case, same for x)
                 if (!( (y==1 && yValueIs0AlreadyCounted) || (x==1 && xValueIs0AlreadyCounted)))
-                    //getSectorAtIdentity(NUMBER_OF_SECTORS_ON_SIDE * Math2.clamp(0, (y - 1), NUMBER_OF_SECTORS_ON_SIDE-1) + Math2.clamp(0, (x - 1), NUMBER_OF_SECTORS_ON_SIDE-1));
                     sectors.add(getSectorAtIdentity(NUMBER_OF_SECTORS_ON_SIDE * Math2.clamp(0, (y - 1), NUMBER_OF_SECTORS_ON_SIDE-1) + Math2.clamp(0, (x - 1), NUMBER_OF_SECTORS_ON_SIDE-1)));
                 if(x==0) xValueIs0AlreadyCounted=true;
-                    //if (y > 0)
-                    //System.out.println(NUMBER_OF_SECTORS_ON_SIDE * Math2.clamp(0, (y - 1), 127) + Math2.clamp(0, (x - 1), 127));
-                //if (y > 0) ++count;
+            }
+            if(y==0) yValueIs0AlreadyCounted=true;
+        }*/
+        for(int y=yCoordinateOfBottomLeftSector; y<=yCoordinateOfTopLeftSector; ++y ) {
+            for (int x = xCoordinateOfBottomLeftSector; x <= xCoordinateOfBottomRightSector; ++x) {
+                //TODO let this comment : boolean to avoid the fact that some sectors are added twice ( because when you clamp with y=0 or =1, the result is 0 in both case, same for x)
+                if (!( (y==1 && yValueIs0AlreadyCounted) || (x==1 && xValueIs0AlreadyCounted)))
+                    sectors.add(getSectorAtIdentity(NUMBER_OF_SECTORS_ON_SIDE * Math2.clamp(0, (y - 1), NUMBER_OF_SECTORS_ON_SIDE-1) + Math2.clamp(0, (x - 1), NUMBER_OF_SECTORS_ON_SIDE-1)));
+                if(x==0) xValueIs0AlreadyCounted=true;
             }
             if(y==0) yValueIs0AlreadyCounted=true;
         }

@@ -48,7 +48,7 @@ class RouteComputerTest {
         Graph g = Graph.loadFrom(Path.of("ch_west"));
         CostFunction cf = new CityBikeCF(g);
         RouteComputer rc = new RouteComputer(g, cf);
-        Route r = rc.bestRouteBetween(2046055, 2694240);
+        Route r = rc.bestRouteBetween(1, 2);
         long t0 = System.nanoTime();
         KmlPrinter.write("javelo.kml", r);
         System.out.printf("Itinéraire calculé en %d ms\n",

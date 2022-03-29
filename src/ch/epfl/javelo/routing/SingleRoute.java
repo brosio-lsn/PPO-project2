@@ -38,11 +38,17 @@ final public class SingleRoute implements Route{
     }
 
     @Override
+    /**
+     * {@inheritDoc}
+     */
     public int indexOfSegmentAt(double position) {
         return 0;
     }
 
     @Override
+    /**
+     * {@inheritDoc}
+     */
     public double length() {
         double length=0;
         for(Edge e : edges) length+=e.length();
@@ -50,35 +56,51 @@ final public class SingleRoute implements Route{
     }
 
     @Override
+    /**
+     * {@inheritDoc}
+     */
     public List<Edge> edges() {
         return edges;
     }
 
     @Override
+    /**
+     * {@inheritDoc}
+     */
     public List<PointCh> points() {
         List<PointCh> points= new ArrayList<PointCh>();
         for(Edge e : edges) points.add(e.fromPoint());
         points.add(edges.get(edges.size()-1).toPoint());
-        return List.copyOf(points);
+        //do not return a copy here because PointCh is immuable
+        return points;
     }
 
     @Override
+    /**
+     * {@inheritDoc}
+     */
     public PointCh pointAt(double position) {
-        //this treatment is only done here because elswhere is already done
-        position = position>this.length()? length() : (position<0? 0: position);
+        position = Math2.clamp(0, position, this.length());
         int finalIndex= binarySearchIndex(position);
         return edges.get(finalIndex).pointAt(position-nodesDistanceTable[finalIndex]);
     }
 
     @Override
+    /**
+     * {@inheritDoc}
+     */
     public int nodeClosestTo(double position) {
         int finalIndex= binarySearchIndex(position);
         Edge edge = edges.get(finalIndex);
-        return ((position-nodesDistanceTable[finalIndex])/edge.length()<=0.5 ? edge.fromNodeId() : edge.toNodeId());
+        double positionVSEgdeLengthRatio = (position-nodesDistanceTable[finalIndex])/edge.length();
+        return (positionVSEgdeLengthRatio<=0.5 ? edge.fromNodeId() : edge.toNodeId());
 
     }
 
     @Override
+    /**
+     * {@inheritDoc}
+     */
     public RoutePoint pointClosestTo(PointCh point) {
         RoutePoint routePoint = RoutePoint.NONE;
         for(int i =0; i<edges.size();++i){
@@ -91,10 +113,15 @@ final public class SingleRoute implements Route{
     }
 
     @Override
+    /**
+     * {@inheritDoc}
+     */
     public double elevationAt(double position) {
         double clampedPosition = Math2.clamp(0, position, length());
         int finalIndex= binarySearchIndex(clampedPosition);
-        return (edges.get(finalIndex).elevationAt(clampedPosition-nodesDistanceTable[finalIndex])) ;
+        Edge edgeAtPosition = edges.get(finalIndex);
+        double positionOnEdge=clampedPosition-nodesDistanceTable[finalIndex];
+        return edgeAtPosition.elevationAt(positionOnEdge);
     }
 
     /**

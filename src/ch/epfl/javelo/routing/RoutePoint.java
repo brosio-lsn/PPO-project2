@@ -7,6 +7,7 @@ import static java.lang.Double.POSITIVE_INFINITY;
 
 /**
  * Represents a point on a route.
+ *
  * @author ROCHE Louis (345620)
  * @author AIGUEPERSE Ambroise (341890)
  */
@@ -20,6 +21,7 @@ import static java.lang.Double.POSITIVE_INFINITY;
  * @param distanceToReference (double) distance to the reference.
  */
 public record RoutePoint(PointCh point, double position, double distanceToReference) {
+
     /**
      * represents an non-existent point
      */

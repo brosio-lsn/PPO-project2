@@ -4,9 +4,7 @@ import ch.epfl.javelo.Preconditions;
 import ch.epfl.javelo.data.Graph;
 import ch.epfl.javelo.projection.PointCh;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.PriorityQueue;
+import java.util.*;
 
 /**
  * represents the profile of a single or multiple itinerary
@@ -186,7 +184,6 @@ final public class RouteComputer {
                     if (d < distances[Nbis.nodeId]) {
                         distances[Nbis.nodeId] = d;
                         prédécésseurs[Nbis.nodeId] = N.nodeId;
-                        float a  = distances[Nbis.nodeId];
                         en_exploration.add(new WeightedNode(Nbis.nodeId, distances[Nbis.nodeId]+distanceToTarget(graph, graph.edgeTargetNodeId(edgeId), endNodeId)));
                     }
                     distances[N.nodeId] = Float.NEGATIVE_INFINITY;
@@ -204,14 +201,13 @@ final public class RouteComputer {
      * @return the route starting form startNodeId and ending at endNodeId with given prédécésseur list
      */
     private Route finalPath(int[] prédécésseur,int startNodeId, int endNodeId){
-        ArrayList<Edge> edges = new ArrayList<>();
+        List<Edge> edges = new ArrayList<>();
         int nodeId=endNodeId;
         int formerNodeId;
         do{
             formerNodeId= prédécésseur[nodeId];
             for(int i =0; i< graph.nodeOutDegree(formerNodeId);++i) {
                 int edgeId = graph.nodeOutEdgeId(formerNodeId, i);
-                System.out.println("yeet");
                 if(graph.edgeTargetNodeId(edgeId)==nodeId){
                     edges.add(Edge.of(graph, edgeId, formerNodeId, nodeId));
                     nodeId=formerNodeId;
@@ -219,9 +215,8 @@ final public class RouteComputer {
                 }
             }
         } while(formerNodeId != startNodeId);
-        ArrayList<Edge> edgesReversed = new ArrayList<>();
-        for(int i =edges.size()-1; i>=0;--i)edgesReversed.add(edges.get(i));
-        return new SingleRoute(edgesReversed);
+        Collections.reverse(edges);
+        return new SingleRoute(edges);
     }
 
     /**

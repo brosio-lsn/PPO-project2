@@ -62,9 +62,8 @@ public final class Math2 {
      * @throws IllegalArgumentException if min> max
      */
     public static double clamp(double min, double v, double max) {
-        //faisable en une ligne avec min et max de maths
         Preconditions.checkArgument(min <= max);
-        return (v > max ? max : ((v < min) ? min : v));
+        return (v > max ? max : (Math.max(v, min)));
     }
 
     /**
@@ -126,10 +125,10 @@ public final class Math2 {
      * @return The length of the projection of AP on AB, which is computed by the formula (AP.AB)/norm(AB)
      */
     public static double projectionLength(double aX, double aY, double bX, double bY, double pX, double pY) {
-        /*double xAP = pX - aX;
+        double xAP = pX - aX;
         double yAP = pY - aY;
         double xAB = bX - aX;
-        double yAB = bY - aY;*/
-        return (dotProduct(pX - aX, pY - aY, bX - aX, bY - aY) / norm(bX - aX, bY - aY));
+        double yAB = bY - aY;
+        return (dotProduct(xAP, yAP, xAB, yAB) / norm(xAB, yAB));
     }
 }
