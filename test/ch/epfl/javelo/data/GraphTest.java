@@ -28,6 +28,7 @@ class GraphTest {
     @Test
     void loadFromThrowsIOExceptionForIllegalPath() {
         assertThrows(IOException.class, () -> Graph.loadFrom(Path.of("kfjaejbzf")));
+        System.out.println(1>>>1);
     }
     @Test
     void loadFrom() throws IOException{
@@ -44,9 +45,13 @@ class GraphTest {
         System.out.println(osmIdBuffer.get(0));
         System.out.println(b.nodePoint(1));
         System.out.println(b.nodePoint(0));
+
         PointCh a = b.nodePoint(0);
         PointCh c = b.nodePoint(1);
+        PointCh d = b.nodePoint(2);
         System.out.println("distance : " + c.distanceTo(a));
+        System.out.println();
+        System.out.println("distance : " + c.distanceTo(d));
         System.out.println(b.nodeOutDegree(1));
         assertEquals(b.nodeCount(), osmIdBuffer.capacity());
         assertEquals(b.nodeClosestTo(new PointCh(2549212.9375, 1166183.5625), 0.1), 1);

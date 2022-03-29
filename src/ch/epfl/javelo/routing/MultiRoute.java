@@ -6,6 +6,11 @@ import ch.epfl.javelo.projection.PointCh;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents multiple itineraries
+ * @author ROCHE Louis (345620)
+ * @author AIGUEPERSE Ambroise (341890)
+ */
 public final class MultiRoute {
     private final List<Route> segments;
 
@@ -22,14 +27,14 @@ public final class MultiRoute {
      */
 
     public int indexOfSegmentAt(double position) {
+        if (position == this.length()) return edges().size() -1;
         double distance = 0;
         int index = 0;
-        while (distance < position) {
+        while (distance <= position) {
             distance += segments.get(index).length();
             index++;
-            //TODO demander que faire quand distance = position
         }
-        return segments.get(index - 1).indexOfSegmentAt(position);
+        return segments.get(index - 1).indexOfSegmentAt(position) + (index - 1);
     }
 
     /**
@@ -71,8 +76,7 @@ public final class MultiRoute {
             if (!pointRoute.contains(edge.fromPoint())) pointRoute.add(edge.fromPoint());
             if (!pointRoute.contains(edge.toPoint())) pointRoute.add(edge.toPoint());
         }
-        return List.copyOf(pointRoute);
-        //TODO check l'immuabilité ??
+        return pointRoute;
     }
 
     /**
@@ -82,7 +86,7 @@ public final class MultiRoute {
      * @return the PointCh at the given position along the itinerary.
      */
     public PointCh pointAt(double position) {
-        return edges().get(indexOfSegmentAt(position)).pointAt(position);
+        return segments.get(indexOfSegmentAt(position)).pointAt(position);
     }
 
     /**
@@ -92,7 +96,7 @@ public final class MultiRoute {
      * @return the elevation of the itinerary at the given position.
      */
     public double elevationAt(double position) {
-        return edges().get(indexOfSegmentAt(position)).elevationAt(position);
+        return segments.get(indexOfSegmentAt(position)).elevationAt(position);
     }
 
     /**
@@ -112,9 +116,13 @@ public final class MultiRoute {
      * @return the closest RoutePoint to a given point on the itinerary.
      */
     public RoutePoint pointClosestTo(PointCh point) {
+        double distance = Double.POSITIVE_INFINITY;
         RoutePoint min = RoutePoint.NONE;
         for (Route segment : segments) {
-            min = segment.pointClosestTo(point).min(min);
+            if (segment.pointAt(segment.pointClosestTo(point).position()).distanceTo(point) < distance) {
+                min = segment.pointClosestTo(point);
+                distance = segment.pointAt(segment.pointClosestTo(point).position()).distanceTo(point);
+            }
         }
         return min;
     }
