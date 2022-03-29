@@ -39,7 +39,7 @@ public record GraphNodes(IntBuffer buffer) {
      */
     public double nodeE(int nodeId) {
         int indexInBuffer = nodeId * NODE_INTS + OFFSET_E;
-        return Q28_4.asDouble(buffer.get(nodeId * NODE_INTS + OFFSET_E));
+        return Q28_4.asDouble(buffer.get(indexInBuffer));
     }
 
     /**

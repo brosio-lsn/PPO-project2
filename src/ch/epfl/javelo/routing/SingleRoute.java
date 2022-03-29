@@ -147,9 +147,8 @@ final public class SingleRoute implements Route{
     private int binarySearchIndex (double position){
         int binaryIndex= Arrays.binarySearch(nodesDistanceTable, position);
         int finalIndex;
-        if(binaryIndex == nodesDistanceTable.length-1) finalIndex=nodesDistanceTable.length-2;
+        if(binaryIndex == nodesDistanceTable.length-1 || binaryIndex == -nodesDistanceTable.length-1) finalIndex=nodesDistanceTable.length-2;
         else if(binaryIndex >=0) finalIndex = binaryIndex;
-        else if(binaryIndex == -nodesDistanceTable.length-1) finalIndex=nodesDistanceTable.length-2;
         else if(binaryIndex<-1) finalIndex=-binaryIndex-2;
         else finalIndex =0;
         return finalIndex;

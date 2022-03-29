@@ -36,66 +36,19 @@ public record GraphSectors(ByteBuffer buffer) {
      * @return the list of all sectors having an intersection with the scare
      */
     public List<Sector> sectorsInArea(PointCh center, double distance){
-        ArrayList<Sector> sectors= new ArrayList<>();
-        int xCoordinateOfBottomLeftSector = Math2.clamp(0, (int)Math.ceil(((center.e()-distance)-SwissBounds.MIN_E)/SECTOR_WIDTH), NUMBER_OF_SECTORS_ON_SIDE);
-        int xCoordinateOfBottomRightSector = Math2.clamp(0, (int)Math.ceil(((center.e()+distance)-SwissBounds.MIN_E)/SECTOR_WIDTH), NUMBER_OF_SECTORS_ON_SIDE);;
-        int yCoordinateOfBottomLeftSector = Math2.clamp(0, (int)Math.ceil(((center.n()-distance)-SwissBounds.MIN_N)/SECTOR_HEIGHT), NUMBER_OF_SECTORS_ON_SIDE);
-        int yCoordinateOfTopLeftSector = Math2.clamp(0, (int)Math.ceil(((center.n()+distance)-SwissBounds.MIN_N)/SECTOR_HEIGHT), NUMBER_OF_SECTORS_ON_SIDE);
-        boolean yValueIs0AlreadyCounted=false;
-        boolean xValueIs0AlreadyCounted=false;
-        /*for(int y=yCoordinateOfBottomLeftSector; y<=yCoordinateOfTopLeftSector; ++y ) {
+
+        List<Sector> sectors= new ArrayList<>();
+
+        int xCoordinateOfBottomLeftSector = Math2.clamp(1, (int)Math.ceil(((center.e()-distance)-SwissBounds.MIN_E)/SECTOR_WIDTH), NUMBER_OF_SECTORS_ON_SIDE);
+        int xCoordinateOfBottomRightSector = Math2.clamp(1, (int)Math.ceil(((center.e()+distance)-SwissBounds.MIN_E)/SECTOR_WIDTH), NUMBER_OF_SECTORS_ON_SIDE);;
+        int yCoordinateOfBottomLeftSector = Math2.clamp(1, (int)Math.ceil(((center.n()-distance)-SwissBounds.MIN_N)/SECTOR_HEIGHT), NUMBER_OF_SECTORS_ON_SIDE);
+        int yCoordinateOfTopLeftSector = Math2.clamp(1, (int)Math.ceil(((center.n()+distance)-SwissBounds.MIN_N)/SECTOR_HEIGHT), NUMBER_OF_SECTORS_ON_SIDE);
+
+        for(int y=yCoordinateOfBottomLeftSector; y<=yCoordinateOfTopLeftSector; ++y )
             for (int x = xCoordinateOfBottomLeftSector; x <= xCoordinateOfBottomRightSector; ++x) {
-                //TODO let this comment : boolean to avoid the fact that some sectors are added twice ( because when you clamp with y=0 or =1, the result is 0 in both case, same for x)
-                if (!( (y==1 && yValueIs0AlreadyCounted) || (x==1 && xValueIs0AlreadyCounted)))
-                    sectors.add(getSectorAtIdentity(NUMBER_OF_SECTORS_ON_SIDE * Math2.clamp(0, (y - 1), NUMBER_OF_SECTORS_ON_SIDE-1) + Math2.clamp(0, (x - 1), NUMBER_OF_SECTORS_ON_SIDE-1)));
-                if(x==0) xValueIs0AlreadyCounted=true;
+                int idOfSector = NUMBER_OF_SECTORS_ON_SIDE*(y-1)+(x-1);
+                sectors.add(getSectorAtIdentity(idOfSector));
             }
-            if(y==0) yValueIs0AlreadyCounted=true;
-        }*/
-        for(int y=yCoordinateOfBottomLeftSector; y<=yCoordinateOfTopLeftSector; ++y ) {
-            for (int x = xCoordinateOfBottomLeftSector; x <= xCoordinateOfBottomRightSector; ++x) {
-                //TODO let this comment : boolean to avoid the fact that some sectors are added twice ( because when you clamp with y=0 or =1, the result is 0 in both case, same for x)
-                if (!( (y==1 && yValueIs0AlreadyCounted) || (x==1 && xValueIs0AlreadyCounted)))
-                    sectors.add(getSectorAtIdentity(NUMBER_OF_SECTORS_ON_SIDE * Math2.clamp(0, (y - 1), NUMBER_OF_SECTORS_ON_SIDE-1) + Math2.clamp(0, (x - 1), NUMBER_OF_SECTORS_ON_SIDE-1)));
-                if(x==0) xValueIs0AlreadyCounted=true;
-            }
-            if(y==0) yValueIs0AlreadyCounted=true;
-        }
-/*        System.out.println("NOMBRE DE yeet " + count);
-        for(Integer i : yo){
-            int yeet=0;
-            System.out.println(i);
-            for(Integer y : yo){
-                if(y==i) ++yeet;
-                if(yeet>1) System.out.print(y);
-            }
-        }*/
-/*        ArrayList<Sector>se= new ArrayList<>();
-        for(Sector s : sectors)se.add(s);
-        for(Sector s : sectors) {
-            System.out.println(s.startNodeId);
-        }*/
-
-/*
-        var sec2 = sectors.stream().distinct().toList();
-
-        for(int i=0; i<sec2.size();++i) {
-            int b = 0;
-            for (int j = 0; j < se.size(); ++j){
-                if(sec2.get(i).equals(se.get(j))&& b>0) {
-                    System.out.println(se.get(j));
-                }
-                if(sec2.get(i).equals(se.get(j))&& b==0) {
-                    ++b;
-                }
-            }
-        }
-
-        System.out.println("sdffffffffff");
-        System.out.println(sec2.size());
-*/
-
-
         return sectors;
     }
 
@@ -104,11 +57,12 @@ public record GraphSectors(ByteBuffer buffer) {
      * @param identity the identity of the sector
      * @return the sector of given identity
      */
-    public Sector getSectorAtIdentity(int identity) {
+    private Sector getSectorAtIdentity(int identity) {
         //initiated startNodeId here to not calculate it twice
         //TODO ask if for startNodeId we should use extractnsigned
         int startNodeId= (buffer.getInt(identity*SECTOR_BYTES+OFFSET_IDENTITY_OF_FIRST_NODE));
-        return new Sector(startNodeId, startNodeId + Short.toUnsignedInt(buffer.getShort(identity*SECTOR_BYTES+OFFSET_NUMBER_OF_NODES)));
+        int endNodeId= startNodeId + Short.toUnsignedInt(buffer.getShort(identity*SECTOR_BYTES+OFFSET_NUMBER_OF_NODES));
+        return new Sector(startNodeId, endNodeId);
     }
 
     /**

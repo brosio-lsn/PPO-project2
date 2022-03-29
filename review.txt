@@ -1,4 +1,4 @@
-faudra voir immuabilité, truc faire List = new Arrylist pas Arraylist = new Arraylist,
+faudra voir immuabilité, truc faire List = new Arrylist pas Arraylist = new Arraylist, boucles for favoriser les forEach
 Review code only ( voir doc apres)
 Etape 1:
 -préconditions: done
@@ -17,7 +17,7 @@ Etape 2 :
 
 Etape 3 :
 -GraphNodes : done
--GraphSectors : à revoir
+-GraphSectors : done
 -GraphEdges : Louis
 
 E4:
@@ -28,7 +28,7 @@ E4:
 -Route :done
 
 E5:
--SingleRoute : revoir
+-SingleRoute : done
 -ElevationProfileComputer : Louis
 
 E6:
