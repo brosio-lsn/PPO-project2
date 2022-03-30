@@ -11,6 +11,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.DoubleUnaryOperator;
 
+import static ch.epfl.javelo.data.Attribute.HIGHWAY_MOTORWAY;
+
 public final class Graph {
     private final GraphNodes nodes;
     private final GraphSectors sectors;

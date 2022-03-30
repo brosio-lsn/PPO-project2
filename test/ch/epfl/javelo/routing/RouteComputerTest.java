@@ -48,11 +48,21 @@ class RouteComputerTest {
         Graph g = Graph.loadFrom(Path.of("ch_west"));
         CostFunction cf = new CityBikeCF(g);
         RouteComputer rc = new RouteComputer(g, cf);
-        Route r = rc.bestRouteBetween(1, 2);
-        long t0 = System.nanoTime();
-        KmlPrinter.write("javelo.kml", r);
-        System.out.printf("Itinéraire calculé en %d ms\n",
-                (System.nanoTime() - t0) / 1_000_000);
+        //Route r = rc.bestRouteBetween(1, 2);
+        //assertEquals("route containing only the edge that goes from 1 to 2", r);
+
+        int idEgeImpraticable =2795; //Highway
+        System.out.println(g.edgeAttributes(idEgeImpraticable));
+        Route r = rc.bestRouteBetween(1, g.edgeTargetNodeId(idEgeImpraticable));
+        System.out.println(osmIdBuffer.get(g.edgeTargetNodeId(idEgeImpraticable)));
+        assertEquals(null, r);
+
+        if(r!=null) {
+            long t0 = System.nanoTime();
+            KmlPrinter.write("javelo.kml", r);
+            System.out.printf("Itinéraire calculé en %d ms\n",
+                    (System.nanoTime() - t0) / 1_000_000);
+        }
     }
 
 }
