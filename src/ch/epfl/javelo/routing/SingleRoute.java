@@ -134,7 +134,7 @@ final public class SingleRoute implements Route{
         for(int i=0; i<edges.size();++i){
             lengthSum+=edges.get(i).length();
             nodesDistanceTable[i+1]=lengthSum;
-        };
+        }
         return nodesDistanceTable;
     }
 
@@ -147,6 +147,7 @@ final public class SingleRoute implements Route{
     private int binarySearchIndex (double position){
         int binaryIndex= Arrays.binarySearch(nodesDistanceTable, position);
         int finalIndex;
+        //adapting the final index depending on the result of the binarySearch
         if(binaryIndex == nodesDistanceTable.length-1 || binaryIndex == -nodesDistanceTable.length-1) finalIndex=nodesDistanceTable.length-2;
         else if(binaryIndex >=0) finalIndex = binaryIndex;
         else if(binaryIndex<-1) finalIndex=-binaryIndex-2;

@@ -48,8 +48,8 @@ class RouteComputerTest {
         Graph g = Graph.loadFrom(Path.of("ch_west"));
         CostFunction cf = new CityBikeCF(g);
         RouteComputer rc = new RouteComputer(g, cf);
-        /*Route r = rc.bestRouteBetween(1, 2);
-        assertEquals("route containing only the edge that goes from 1 to 2", r);*/
+        //Route r = rc.bestRouteBetween(1, 2);
+        //assertEquals("route containing only the edge that goes from 1 to 2", r);
 
         /*int idEgeImpraticable =2795; //Highway
         System.out.println(g.edgeAttributes(idEgeImpraticable));
