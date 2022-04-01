@@ -156,7 +156,6 @@ final public class RouteComputer {
         }
         return null;*/
         //TODO DO NOT delete FINAL A* version
-        //TODO ask question for A*
         Preconditions.checkArgument(startNodeId != endNodeId);
         record WeightedNode(int nodeId, float distance)
                 implements Comparable<WeightedNode> {
@@ -198,7 +197,7 @@ final public class RouteComputer {
     }
 
     /**
-     * reconstructs the route starting form startNodeId and ending at endNodeId with given prédécésseur list
+     * reconstructs recursively the route starting form startNodeId and ending at endNodeId with given prédécésseur list
      *
      * @param prédécésseur list where at each index corresponding to the id of a node, the id of the previous node in the path is stored
      * @param startNodeId  id of the starting node of the route
@@ -209,6 +208,8 @@ final public class RouteComputer {
         List<Edge> edges = new ArrayList<>();
         int nodeId = endNodeId;
         int formerNodeId;
+        //recursively get all the edges in the Route, starting from the last edge.
+        //the previous edge in the route is got given its toNodeId and its fromNodeId (=prédécésseur[toNodeId]
         do {
             formerNodeId = prédécésseur[nodeId];
             for (int i = 0; i < graph.nodeOutDegree(formerNodeId); ++i) {
@@ -220,6 +221,7 @@ final public class RouteComputer {
                 }
             }
         } while (formerNodeId != startNodeId);
+        //reverse the list of edges because they were added recursively from the last one
         Collections.reverse(edges);
         return new SingleRoute(edges);
     }

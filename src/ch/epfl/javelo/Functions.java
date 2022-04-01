@@ -37,7 +37,7 @@ public final class Functions {
 
     public static DoubleUnaryOperator sampled(float[] samples, double xMax) {
         Preconditions.checkArgument(samples.length > 1 && xMax > 0);
-        return new Sampled(samples, xMax);
+        return new Sampled(samples.clone(), xMax);
     }
 
     /**

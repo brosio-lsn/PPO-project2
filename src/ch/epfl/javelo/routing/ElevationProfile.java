@@ -41,7 +41,7 @@ public final class ElevationProfile {
         Preconditions.checkArgument(length>0 && elevationSamples.length>=2);
         this.length=length;
         this.elevationSamples = elevationSamples.clone();
-        stats = new DoubleSummaryStatistics();;
+        stats = new DoubleSummaryStatistics();
         for(float sample :this.elevationSamples) stats.accept(sample);
         //created here so that it isn't created multiple times
         function= Functions.sampled(this.elevationSamples, length);

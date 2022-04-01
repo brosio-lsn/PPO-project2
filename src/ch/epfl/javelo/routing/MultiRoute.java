@@ -144,12 +144,7 @@ public final class MultiRoute implements Route {
         }
         return routePointClosestTo;
     }
-    //PointCh pointClosestToOfSegment = segment.pointAt(segment.pointClosestTo(point).position());
-          /*  if (pointClosestToOfSegment.distanceTo(point) < smallestDistance) {
-                routePointClosestTo = segment.pointClosestTo(point).withPositionShiftedBy(shift);
-                smallestDistance = pointClosestToOfSegment.distanceTo(point);
-            }
-           */
+
 
     /**
      * Computes the relative position of a point on a single route given its position on the
