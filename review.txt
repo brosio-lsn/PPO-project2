@@ -1,4 +1,5 @@
 faudra voir immuabilité, truc faire List = new Arrylist pas Arraylist = new Arraylist, boucles for favoriser les forEach
+ici, ca a été check
 Review code only ( voir doc apres)
 Etape 1:
 -préconditions: done
@@ -34,3 +35,8 @@ E5:
 E6:
 -MultiRoute : Louis
 -RouteComputer : done
+
+
+QUESTIONS:
+functions : est-ce qu il faut copier sample avant de le donner
+-opti encore graph secrots(en mode je chope juste un coin et je construis les autres dans la boucle?)

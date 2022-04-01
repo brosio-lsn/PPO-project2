@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.DoubleUnaryOperator;
 
+import static ch.epfl.javelo.data.Attribute.ACCESS_PRIVATE;
 import static ch.epfl.javelo.data.Attribute.HIGHWAY_MOTORWAY;
 
 public final class Graph {
@@ -49,8 +50,17 @@ public final class Graph {
         ByteBuffer sectorsBuffer = readFile(basePath, "sectors.bin");
         LongBuffer attributesSet = readFile(basePath, "attributes.bin").asLongBuffer();
         List<AttributeSet> attributs = new ArrayList<>();
+        boolean contains=false;
         for (int i = 0; i < attributesSet.capacity(); i++) {
             attributs.add(new AttributeSet(attributesSet.get(i)));
+            if(new AttributeSet(attributesSet.get(i)).contains(HIGHWAY_MOTORWAY) ){
+                System.out.println("motorway" + i);
+                contains=true;
+            };
+            if(new AttributeSet(attributesSet.get(i)).contains(ACCESS_PRIVATE) ){
+                System.out.println("ACCESS_PRIVATE" + i);
+                contains=true;
+            };
         }
         return new Graph(new GraphNodes(nodesBuffer), new GraphSectors(sectorsBuffer), new GraphEdges(edgesBuffer,
                 profileIds, elevations), attributs);

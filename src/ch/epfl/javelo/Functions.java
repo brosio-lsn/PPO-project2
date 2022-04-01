@@ -73,10 +73,10 @@ public final class Functions {
             int samplesLength = samples.length;
             double lengthBetweenSamples = this.xMax / (samplesLength - 1);
             int precedentSampleIndex = (int) (x / lengthBetweenSamples);
-            return (x >= xMax ? samples[samplesLength - 1] :
-                    (x <= 0 ? samples[0] :
+            return (x >= xMax ? samples[samplesLength - 1] ://last sample because x is superior than Xmax
+                    (x <= 0 ? samples[0] : //first sample because x is negative
                             Math2.interpolate(samples[precedentSampleIndex], samples[precedentSampleIndex + 1],
-                                    (x - lengthBetweenSamples * precedentSampleIndex) / lengthBetweenSamples)));
+                                    (x - lengthBetweenSamples * precedentSampleIndex) / lengthBetweenSamples))); //interpolate when x is inside the interval ]0,xmanx[
         }
     }
 }
