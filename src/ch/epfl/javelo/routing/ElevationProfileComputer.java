@@ -3,9 +3,7 @@ package ch.epfl.javelo.routing;
 import ch.epfl.javelo.Math2;
 import ch.epfl.javelo.Preconditions;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * Computes the elevationProfile of an itinerary
@@ -32,13 +30,7 @@ public final class ElevationProfileComputer {
         for (int i = 0; i < samples.length; i++) {
             samples[i] = ((float) route.elevationAt(stepLength * i));
         }
-        //TODO remove this
-       /* System.out.println(route.elevationAt(0));
-        System.out.println(route.elevationAt(route.length()));
-        System.out.println(Arrays.toString(fillTheHoles(samples)));
-        */
-        //TODO clone overkill?
-        return new ElevationProfile(route.length(), fillTheHoles(samples).clone());
+        return new ElevationProfile(route.length(), fillTheHoles(samples));
     }
 
     /**
@@ -47,14 +39,12 @@ public final class ElevationProfileComputer {
      * @param samples tab to fill the NaN values in.
      * @return the filled tab with no more NaN values in it.
      */
-    //TODO mettre ça en privé
-    public static float[] fillTheHoles(float[] samples) {
+    private static float[] fillTheHoles(float[] samples) {
         float firstValidValue = Float.NaN;
         float lastValidValue = 0;
         int lastValidValueIndex = 0;
         //filling front and back holes
         for (int i = 0; i < samples.length; i++) {
-            //TODO créer une méthode pour opti ?
             if (!Float.isNaN(samples[i])) {
                 lastValidValue = samples[i];
                 lastValidValueIndex = i;

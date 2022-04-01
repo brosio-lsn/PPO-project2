@@ -1,5 +1,6 @@
 package ch.epfl.javelo.routing;
 
+import ch.epfl.javelo.Math2;
 import ch.epfl.javelo.Preconditions;
 import ch.epfl.javelo.projection.PointCh;
 
@@ -8,10 +9,11 @@ import java.util.List;
 
 /**
  * Represents multiple itineraries
+ *
  * @author ROCHE Louis (345620)
  * @author AIGUEPERSE Ambroise (341890)
  */
-public final class MultiRoute {
+public final class MultiRoute implements Route {
     private final List<Route> segments;
 
     public MultiRoute(List<Route> segments) {
@@ -27,14 +29,22 @@ public final class MultiRoute {
      */
 
     public int indexOfSegmentAt(double position) {
-        if (position == this.length()) return edges().size() -1;
-        double distance = 0;
+        double realPos = Math2.clamp(0, position, length());
+        double sumOfDistances = 0;
         int index = 0;
-        while (distance <= position) {
-            distance += segments.get(index).length();
-            index++;
+        int sumOfPreviousSegments = 0;
+        for (int i = 0; i < segments.size(); i++) {
+            if (realPos >= sumOfDistances && realPos <= sumOfDistances + segments.get(i).length()) {
+                index = i;
+                break;
+            } else sumOfDistances += segments.get(i).length();
         }
-        return segments.get(index - 1).indexOfSegmentAt(position) + (index - 1);
+        for (int i = 0; i < index; i++) {
+            Route route = segments.get(i);
+            sumOfPreviousSegments += route.indexOfSegmentAt(route.length()) + 1;
+        }
+        double relativePosition = computeRelativePositionOnSegment(index, realPos);
+        return segments.get(index).indexOfSegmentAt(relativePosition) + sumOfPreviousSegments;
     }
 
     /**
@@ -86,7 +96,10 @@ public final class MultiRoute {
      * @return the PointCh at the given position along the itinerary.
      */
     public PointCh pointAt(double position) {
-        return segments.get(indexOfSegmentAt(position)).pointAt(position);
+        double realPos = Math2.clamp(0, position, length());
+        int index = indexOfRoadAt(realPos);
+        double relativePosition = computeRelativePositionOnSegment(index, realPos);
+        return segments.get(index).pointAt(relativePosition);
     }
 
     /**
@@ -96,8 +109,12 @@ public final class MultiRoute {
      * @return the elevation of the itinerary at the given position.
      */
     public double elevationAt(double position) {
-        return segments.get(indexOfSegmentAt(position)).elevationAt(position);
+        double realPos = Math2.clamp(0, position, length());
+        int index = indexOfRoadAt(realPos);
+        double relativePosition = computeRelativePositionOnSegment(index, realPos);
+        return segments.get(index).elevationAt(relativePosition);
     }
+
 
     /**
      * Returns the identity of the node closest to a given position along the itinerary.
@@ -106,7 +123,10 @@ public final class MultiRoute {
      * @return the identity of the node closest to a given position along the itinerary.
      */
     public int nodeClosestTo(double position) {
-        return segments.get(indexOfSegmentAt(position)).nodeClosestTo(position);
+        double realPos = Math2.clamp(0, position, length());
+        int indexOfRoad = indexOfRoadAt(realPos);
+        double relativePosition = computeRelativePositionOnSegment(indexOfRoad, realPos);
+        return segments.get(indexOfRoad).nodeClosestTo(relativePosition);
     }
 
     /**
@@ -116,14 +136,52 @@ public final class MultiRoute {
      * @return the closest RoutePoint to a given point on the itinerary.
      */
     public RoutePoint pointClosestTo(PointCh point) {
-        double distance = Double.POSITIVE_INFINITY;
-        RoutePoint min = RoutePoint.NONE;
+        RoutePoint routePointClosestTo = RoutePoint.NONE;
+        double shift = 0;
         for (Route segment : segments) {
-            if (segment.pointAt(segment.pointClosestTo(point).position()).distanceTo(point) < distance) {
-                min = segment.pointClosestTo(point);
-                distance = segment.pointAt(segment.pointClosestTo(point).position()).distanceTo(point);
-            }
+            routePointClosestTo = routePointClosestTo.min(segment.pointClosestTo(point).withPositionShiftedBy(shift));
+            shift+=segment.length();
         }
-        return min;
+        return routePointClosestTo;
+    }
+    //PointCh pointClosestToOfSegment = segment.pointAt(segment.pointClosestTo(point).position());
+          /*  if (pointClosestToOfSegment.distanceTo(point) < smallestDistance) {
+                routePointClosestTo = segment.pointClosestTo(point).withPositionShiftedBy(shift);
+                smallestDistance = pointClosestToOfSegment.distanceTo(point);
+            }
+           */
+
+    /**
+     * Computes the relative position of a point on a single route given its position on the
+     * MultiRoute. Given a position on the multiRoute, which contains a list of routes,
+     * it computes the position of the point on the segment it belongs to.
+     *
+     * @param indexOfSegment index of the segment point of given position belongs to.
+     * @param position       position of the point on the route.
+     * @return given the position of a point of given position on the route it belongs to.
+     */
+    private double computeRelativePositionOnSegment(int indexOfSegment, double position) {
+        double sum = 0;
+        for (int i = 0; i < indexOfSegment; i++) {
+            sum += segments.get(i).length();
+        }
+        return position - sum;
+    }
+
+    /**
+     * Returns the index of the road in the MultiRoute's list of roads, which contains the given position.
+     *
+     * @param position given position to compute the index of the route from.
+     * @return the index of the road in the MultiRoute's list of roads, which contains the given position.
+     */
+    private int indexOfRoadAt(double position) {
+        if (position == this.length()) return segments.size() - 1;
+        int index = 0;
+        double sum = 0;
+        while (sum <= position) {
+            sum += segments.get(index).length();
+            index++;
+        }
+        return index - 1;
     }
 }

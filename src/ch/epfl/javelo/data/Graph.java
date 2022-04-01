@@ -8,6 +8,7 @@ import java.nio.*;
 import java.nio.channels.FileChannel;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.DoubleSummaryStatistics;
 import java.util.List;
 import java.util.function.DoubleUnaryOperator;
 
@@ -198,7 +199,8 @@ public final class Graph {
      * @return the Function sampling the profiles of a given edge.
      */
     public DoubleUnaryOperator edgeProfile(int edgeId) {
-        return (edges.hasProfile(edgeId) ? Functions.sampled(edges.profileSamples(edgeId), edgeLength(edgeId))
+        return (edges.hasProfile(edgeId) ?
+                Functions.sampled(edges.profileSamples(edgeId), edgeLength(edgeId))
                 : Functions.constant(Double.NaN));
     }
 }

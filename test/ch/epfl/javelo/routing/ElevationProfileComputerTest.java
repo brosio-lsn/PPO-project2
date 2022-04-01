@@ -164,7 +164,7 @@ class ElevationProfileComputerTest {
         return new SingleRoute(listePourLesRoutes);
     }
     //méthode auxiliaire
-    @Test
+  /*  @Test
     void fillTheHolesWorksWithNormalTab() {
         float[] samples = new float [] {Float.NaN, 23f, Float.NaN, 25f, Float.NaN};
         float [] samples2 = new float [] {Float.NaN, 20f, Float.NaN, Float.NaN, 23f, Float.NaN};
@@ -179,6 +179,8 @@ class ElevationProfileComputerTest {
         float [] samples = new float[]{Float.NaN, Float.NaN};
         assertArrayEquals(new float[] {0, 0}, ElevationProfileComputer.fillTheHoles(samples));
     }
+
+   */
     @Test
     void elevationProfileDoesThrowErrorOnInvalidArg() throws IOException {
         assertThrows(IllegalArgumentException.class, () -> {

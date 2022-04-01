@@ -24,21 +24,23 @@ final public class RouteComputer {
 
     /**
      * constructor of RouteComputer
-     * @param graph the graph from which the route will be created
+     *
+     * @param graph        the graph from which the route will be created
      * @param costFunction the costFunction used to calculate the shortest Route
      */
-    public RouteComputer(Graph graph, CostFunction costFunction){
-        this.graph=graph;
-        this.costFunction=costFunction;
+    public RouteComputer(Graph graph, CostFunction costFunction) {
+        this.graph = graph;
+        this.costFunction = costFunction;
     }
 
     /**
      * finds the shortest Route  between 2 nodes, weighted with the costfunction
+     *
      * @param startNodeId id of the Route's starting node
-     * @param endNodeId id of the Route's ending node
+     * @param endNodeId   id of the Route's ending node
      * @return the shortest Route  between 2 nodes, weighted with the costfunction
      */
-    public Route bestRouteBetween(int startNodeId, int endNodeId){
+    public Route bestRouteBetween(int startNodeId, int endNodeId) {
         //TODO DO NOT delete this, this is the first version of the algo
        /* Preconditions.checkArgument(startNodeId != endNodeId);
         record WeightedNode(int nodeId, float distance)
@@ -163,31 +165,33 @@ final public class RouteComputer {
                 return Float.compare(this.distance, that.distance);
             }
         }
-        float [] distances = new float[graph.nodeCount()];
-        int [] prédécésseurs  = new int[graph.nodeCount()];
+        float[] distances = new float[graph.nodeCount()];
+        int[] prédécésseurs = new int[graph.nodeCount()];
         PriorityQueue<WeightedNode> en_exploration = new PriorityQueue<>();
-        for(int i =0; i<distances.length;++i){
-            prédécésseurs[i]=0;
-            distances[i]= Float.POSITIVE_INFINITY;
+        for (int i = 0; i < distances.length; ++i) {
+            prédécésseurs[i] = 0;
+            distances[i] = Float.POSITIVE_INFINITY;
         }
-        distances[startNodeId]=0f;
-        en_exploration.add(new WeightedNode(startNodeId, distances[startNodeId]+distanceToTarget(graph, startNodeId, endNodeId)));
-        while(!en_exploration.isEmpty()) {
+        distances[startNodeId] = 0f;
+        en_exploration.add(new WeightedNode(startNodeId, distances[startNodeId] + distanceToTarget(graph, startNodeId, endNodeId)));
+        while (!en_exploration.isEmpty()) {
             WeightedNode N = en_exploration.remove();
             if (distances[N.nodeId] != Float.NEGATIVE_INFINITY) {
                 if (N.nodeId == endNodeId) return finalPath(prédécésseurs, startNodeId, endNodeId);
-                float distanceN=distances[N.nodeId];
+                float distanceN = distances[N.nodeId];
                 for (int i = 0; i < graph.nodeOutDegree(N.nodeId); ++i) {
                     int edgeId = graph.nodeOutEdgeId(N.nodeId, i);
-                    WeightedNode Nbis = new WeightedNode(graph.edgeTargetNodeId(edgeId), distances[graph.edgeTargetNodeId(edgeId)]+distanceToTarget(graph, graph.edgeTargetNodeId(edgeId), endNodeId));
-                    float d = distanceN + (float) (costFunction.costFactor(N.nodeId, edgeId)*graph.edgeLength(edgeId)) ;
+                    WeightedNode Nbis = new WeightedNode(graph.edgeTargetNodeId(edgeId)
+                            , distances[graph.edgeTargetNodeId(edgeId)] + distanceToTarget(graph, graph.edgeTargetNodeId(edgeId)
+                            , endNodeId));
+                    float d = distanceN + (float) (costFunction.costFactor(N.nodeId, edgeId) * graph.edgeLength(edgeId));
                     if (d < distances[Nbis.nodeId]) {
                         distances[Nbis.nodeId] = d;
                         prédécésseurs[Nbis.nodeId] = N.nodeId;
-                        en_exploration.add(new WeightedNode(Nbis.nodeId, distances[Nbis.nodeId]+distanceToTarget(graph, graph.edgeTargetNodeId(edgeId), endNodeId)));
+                        en_exploration.add(new WeightedNode(Nbis.nodeId, distances[Nbis.nodeId] + distanceToTarget(graph, graph.edgeTargetNodeId(edgeId), endNodeId)));
                     }
-                    distances[N.nodeId] = Float.NEGATIVE_INFINITY;
                 }
+                distances[N.nodeId] = Float.NEGATIVE_INFINITY;
             }
         }
         return null;
@@ -195,38 +199,40 @@ final public class RouteComputer {
 
     /**
      * reconstructs the route starting form startNodeId and ending at endNodeId with given prédécésseur list
+     *
      * @param prédécésseur list where at each index corresponding to the id of a node, the id of the previous node in the path is stored
-     * @param startNodeId id of the starting node of the route
-     * @param endNodeId id of the ending node of the route
+     * @param startNodeId  id of the starting node of the route
+     * @param endNodeId    id of the ending node of the route
      * @return the route starting form startNodeId and ending at endNodeId with given prédécésseur list
      */
-    private Route finalPath(int[] prédécésseur,int startNodeId, int endNodeId){
+    private Route finalPath(int[] prédécésseur, int startNodeId, int endNodeId) {
         List<Edge> edges = new ArrayList<>();
-        int nodeId=endNodeId;
+        int nodeId = endNodeId;
         int formerNodeId;
-        do{
-            formerNodeId= prédécésseur[nodeId];
-            for(int i =0; i< graph.nodeOutDegree(formerNodeId);++i) {
+        do {
+            formerNodeId = prédécésseur[nodeId];
+            for (int i = 0; i < graph.nodeOutDegree(formerNodeId); ++i) {
                 int edgeId = graph.nodeOutEdgeId(formerNodeId, i);
-                if(graph.edgeTargetNodeId(edgeId)==nodeId){
+                if (graph.edgeTargetNodeId(edgeId) == nodeId) {
                     edges.add(Edge.of(graph, edgeId, formerNodeId, nodeId));
-                    nodeId=formerNodeId;
+                    nodeId = formerNodeId;
                     break;
                 }
             }
-        } while(formerNodeId != startNodeId);
+        } while (formerNodeId != startNodeId);
         Collections.reverse(edges);
         return new SingleRoute(edges);
     }
 
     /**
      * returns the distance between the points corresponding to the nodes with given id
-     * @param graph the graph containing the nodes
-     * @param nodeId id of the first node
+     *
+     * @param graph        the graph containing the nodes
+     * @param nodeId       id of the first node
      * @param targetNodeId id of the second node
      * @return the distance between the points corresponding to the nodes with given id
      */
-    private float distanceToTarget (Graph graph, int nodeId, int targetNodeId){
+    private float distanceToTarget(Graph graph, int nodeId, int targetNodeId) {
         return (float) graph.nodePoint(nodeId).distanceTo(graph.nodePoint(targetNodeId));
     }
 }

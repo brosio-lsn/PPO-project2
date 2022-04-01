@@ -18,10 +18,10 @@ Etape 2 :
 Etape 3 :
 -GraphNodes : done
 -GraphSectors : done
--GraphEdges : Louis
+-GraphEdges : fait
 
 E4:
--Grpah : Louis
+-Grpah : fait
 -ElevationProfile :done
 -Edge : done
 -RoutePoint : done
@@ -29,7 +29,7 @@ E4:
 
 E5:
 -SingleRoute : done
--ElevationProfileComputer : Louis
+-ElevationProfileComputer : fait
 
 E6:
 -MultiRoute : Louis

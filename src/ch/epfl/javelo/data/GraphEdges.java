@@ -8,6 +8,7 @@ import ch.epfl.javelo.Q28_4;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 import java.nio.ShortBuffer;
+import java.util.List;
 
 /**
  * @author Louis ROCHE (345620)
@@ -17,33 +18,13 @@ import java.nio.ShortBuffer;
 /**
  * @param edgesBuffer contains for all edges of the graph: the direction,
  *                    the identity of the end node of the edge, the length of the edge,the positive drop and the identity of the attributs OSM set
- *@param profileIds contains for all edges : the profile type and the identity of the first sample of the profile
- *@param elevations contains all the profiles
+ * @param profileIds  contains for all edges : the profile type and the identity of the first sample of the profile
+ * @param elevations  contains all the profiles
  */
 public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuffer elevations) {
     private static final int LENGTH_OFFSET = 4;
     private static final int ELEVATIONGAIN_OFFSET = 6;
     private static final int ATTRIBUTESINDEX_OFFSET = 8;
-
-    public GraphEdges{
-       /* Preconditions.checkArgument(edgesBuffer.capacity() >= 10 && profileIds.capacity()>0);
-        int type = Bits.extractUnsigned(profileIds.get(0), 30, 2);
-        int nbOfProfiles = Math2.ceilDiv(edgesBuffer.getShort(LENGTH_OFFSET), Q28_4.ofInt(2))+1;
-        switch (type) {
-            case 1:
-                Preconditions.checkArgument(elevations.capacity() >= nbOfProfiles);
-                break;
-            case 2:
-                Preconditions.checkArgument(elevations.capacity() >= Math2.ceilDiv(nbOfProfiles, 2));
-                break;
-            case 3:
-                Preconditions.checkArgument(elevations.capacity() >= 1 + Math2.ceilDiv(nbOfProfiles-1, 4));
-        }
-
-        */
-    }
-    //TODO faire une enum pour le switch
-
     /**
      * returns whether the given edge's orientation goes in the opposite direction of the OSM way which it provides from
      *
@@ -106,21 +87,22 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
 
     public float[] profileSamples(int edgeId) {
         int nbOfProfiles = Math2.ceilDiv(edgesBuffer.getShort(edgeId * 10 + LENGTH_OFFSET),
-                Q28_4.ofInt(2))+1;
-        int type = (Bits.extractUnsigned(profileIds.get(edgeId), 30, 2));
+                Q28_4.ofInt(2)) + 1;
         int profileId = Bits.extractSigned(profileIds.get(edgeId), 0, 30);
         float[] samples = new float[nbOfProfiles];
-        float[] reverse = new float[nbOfProfiles];
+        float[] reverse;
+        profileType type = List.of(profileType.values())
+                .get(Bits.extractUnsigned(profileIds.get(edgeId), 30, 2));
         int count = 1;
         switch (type) {
-            case 0:
+            case NO_TYPE:
                 return new float[]{};
-            case 1:
+            case RAW_TYPE:
                 for (int i = 0; i < nbOfProfiles; i++) {
                     samples[i] = Q28_4.asFloat(Short.toUnsignedInt(elevations.get(profileId + i)));
                 }
                 break;
-            case 2:
+            case COMPRESSED_44:
                 samples[0] = Q28_4.asFloat(elevations.get(profileId));
                 for (int shortIndex = 1; shortIndex <= (nbOfProfiles - 1) / 2 + 1; shortIndex++) {
                     for (int sampleIndex = 1; sampleIndex >= 0; sampleIndex--) {
@@ -131,19 +113,20 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
                     }
                 }
                 break;
-            case 3:
+            case COMPRESSED_04:
                 samples[0] = Q28_4.asFloat(elevations.get(profileId));
-                for (int i = 1; i <= nbOfProfiles - 1 / 4 + 1; i += 1) {
-                    for (int j = 3; j >= 0; j--) {
+                for (int shortIndex = 1; shortIndex <= nbOfProfiles - 1 / 4 + 1; shortIndex += 1) {
+                    for (int hexIndex = 3; hexIndex >= 0; hexIndex--) {
                         if (count < nbOfProfiles)
                             samples[count] = samples[count - 1] +
-                                    Q28_4.asFloat(Bits.extractSigned(elevations.get(profileId + i), 4 * j, 4));
+                                    Q28_4.asFloat(Bits.extractSigned(elevations.get(profileId + shortIndex), 4 * hexIndex, 4));
                         ++count;
                     }
                 }
                 break;
         }
         if (isInverted(edgeId)) {
+            reverse = new float[nbOfProfiles];
             for (int i = samples.length - 1; i >= 0; i--) {
                 reverse[i] = samples[samples.length - i - 1];
             }
@@ -160,5 +143,24 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
      */
     public int attributesIndex(int edgeId) {
         return Short.toUnsignedInt(edgesBuffer.getShort(edgeId * 10 + ATTRIBUTESINDEX_OFFSET));
+    }
+
+    /**
+     * Enum for the different types a profile can have.
+     * 0 : no type
+     * 1 : raw type, uncompressed data
+     * 2 : compressed data in the Q4.4 format
+     * 3 : compressed data in the Q0.4 format
+     */
+    private enum profileType {
+        NO_TYPE(0),
+        RAW_TYPE(1),
+        COMPRESSED_44(2),
+        COMPRESSED_04(3);
+        final int profileType;
+
+        profileType(int type) {
+            this.profileType = type;
+        }
     }
 }
