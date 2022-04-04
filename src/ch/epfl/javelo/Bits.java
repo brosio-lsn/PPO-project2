@@ -1,8 +1,8 @@
 package ch.epfl.javelo;
 
-import ch.epfl.javelo.Preconditions;
-
 /**
+ * Extracts bit vectors of given sizes and lengths
+ *
  * @author Louis ROCHE (345620)
  * @author Ambroise AIGUEPERSE (341890)
  */

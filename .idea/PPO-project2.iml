@@ -10,6 +10,8 @@
       <sourceFolder url="file://$MODULE_DIR$/javelo-lausanne" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/javelo_sigchecks_3/sigcheck" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/javelo_sigchecks_4/sigcheck" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/javelo_sigchecks_5/sigcheck" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/javelo_sigchecks_6/sigcheck" isTestSource="false" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

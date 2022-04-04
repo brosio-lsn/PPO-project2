@@ -27,7 +27,7 @@ public final class MultiRoute implements Route {
      * @param position position in the route, which belongs to the segment returned.
      * @return the index of the segment at a given position.
      */
-
+    @Override
     public int indexOfSegmentAt(double position) {
         double realPos = Math2.clamp(0, position, length());
         double sumOfDistances = 0;
@@ -52,6 +52,7 @@ public final class MultiRoute implements Route {
      *
      * @return the total length of the itinerary, by summing up the length of all its edges.
      */
+    @Override
     public double length() {
         double longueur = 0;
         for (Route route : segments) {
@@ -65,13 +66,11 @@ public final class MultiRoute implements Route {
      *
      * @return the totality of the itinerary's edges.
      */
-
+    @Override
     public List<Edge> edges() {
         List<Edge> edges = new ArrayList<>();
-        for (Route route : segments) {
-            edges.addAll(route.edges());
-        }
-        return List.copyOf(edges);
+        for (Route route : segments) edges.addAll(route.edges());
+        return edges;
     }
 
     /**
@@ -79,13 +78,13 @@ public final class MultiRoute implements Route {
      *
      * @return the totality of the itinerary's points.
      */
-
+    @Override
     public List<PointCh> points() {
         List<PointCh> pointRoute = new ArrayList<>();
         for (Edge edge : edges()) {
-            if (!pointRoute.contains(edge.fromPoint())) pointRoute.add(edge.fromPoint());
-            if (!pointRoute.contains(edge.toPoint())) pointRoute.add(edge.toPoint());
+            pointRoute.add(edge.fromPoint());
         }
+        pointRoute.add(edges().get(edges().size() - 1).toPoint());
         return pointRoute;
     }
 
@@ -95,6 +94,7 @@ public final class MultiRoute implements Route {
      * @param position position to search the PointCh at.
      * @return the PointCh at the given position along the itinerary.
      */
+    @Override
     public PointCh pointAt(double position) {
         double realPos = Math2.clamp(0, position, length());
         int index = indexOfRoadAt(realPos);
@@ -108,6 +108,7 @@ public final class MultiRoute implements Route {
      * @param position position along the itinerary to get the elevation from.
      * @return the elevation of the itinerary at the given position.
      */
+    @Override
     public double elevationAt(double position) {
         double realPos = Math2.clamp(0, position, length());
         int index = indexOfRoadAt(realPos);
@@ -122,6 +123,7 @@ public final class MultiRoute implements Route {
      * @param position position to search the closest node to.
      * @return the identity of the node closest to a given position along the itinerary.
      */
+    @Override
     public int nodeClosestTo(double position) {
         double realPos = Math2.clamp(0, position, length());
         int indexOfRoad = indexOfRoadAt(realPos);
@@ -135,12 +137,13 @@ public final class MultiRoute implements Route {
      * @param point given point to find its closest RoutePoint on the itinerary.
      * @return the closest RoutePoint to a given point on the itinerary.
      */
+    @Override
     public RoutePoint pointClosestTo(PointCh point) {
         RoutePoint routePointClosestTo = RoutePoint.NONE;
         double shift = 0;
         for (Route segment : segments) {
-            routePointClosestTo = routePointClosestTo.min(segment.pointClosestTo(point).withPositionShiftedBy(shift));
-            shift+=segment.length();
+                    routePointClosestTo = routePointClosestTo.min(segment.pointClosestTo(point).withPositionShiftedBy(shift));
+            shift += segment.length();
         }
         return routePointClosestTo;
     }

@@ -40,7 +40,8 @@ public final class ElevationProfileComputer {
      * @return the filled tab with no more NaN values in it.
      */
     private static float[] fillTheHoles(float[] samples) {
-        float firstValidValue = Float.NaN;
+        float firstValidValue =Float.NaN;
+        int firstValidValueIndex=0;
         float lastValidValue = 0;
         int lastValidValueIndex = 0;
         //filling front and back holes
@@ -50,9 +51,12 @@ public final class ElevationProfileComputer {
                 lastValidValueIndex = i;
                 if (Float.isNaN(firstValidValue)) {
                     firstValidValue = samples[i];
+                    firstValidValueIndex = i;
                     Arrays.fill(samples, 0, i, firstValidValue);
+
                 }
             }
+            //faire un boucle à l'endroit et une autre à l'envers + break
         }
         if (Float.isNaN(firstValidValue)) return new float[samples.length];
         Arrays.fill(samples, lastValidValueIndex, samples.length, lastValidValue);
@@ -60,7 +64,7 @@ public final class ElevationProfileComputer {
         int beginningIndex = 0;
         int finishIndex = 0;
         boolean finishStreak = false;
-        for (int i = 0; i < samples.length - 1; i++) {
+        for (int i = firstValidValueIndex+1; i < lastValidValueIndex; i++) {
             if (Float.isNaN(samples[i])) {
                 if (!Float.isNaN(samples[i - 1])) {
                     beginningIndex = i - 1;
@@ -71,11 +75,12 @@ public final class ElevationProfileComputer {
                 }
             }
             if (finishStreak) {
-                for (int j = beginningIndex + 1; j < finishIndex; j++) {
-                    samples[j] = (float) Math2.interpolate(samples[beginningIndex], samples[finishIndex],
-                            (double) (j - beginningIndex) / ((finishIndex) - beginningIndex));
+                for (int indexInBetween = beginningIndex + 1; indexInBetween < finishIndex; indexInBetween++) {
+                    samples[indexInBetween] = (float) Math2.interpolate(samples[beginningIndex], samples[finishIndex],
+                            (double) (indexInBetween - beginningIndex) / ((finishIndex) - beginningIndex));
                 }
                 finishStreak = false;
+                i = finishIndex;
             }
         }
         return samples;

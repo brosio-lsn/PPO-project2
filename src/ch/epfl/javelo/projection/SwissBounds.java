@@ -1,7 +1,7 @@
 package ch.epfl.javelo.projection;
 
 /**
- * the bounds of Switzerland
+ * The bounds of Switzerland
  *
  * @author Ambroise Aigueperse (341890)
  * @author Louis Roche (345620)

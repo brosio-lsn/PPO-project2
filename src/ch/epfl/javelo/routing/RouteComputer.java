@@ -2,8 +2,6 @@ package ch.epfl.javelo.routing;
 
 import ch.epfl.javelo.Preconditions;
 import ch.epfl.javelo.data.Graph;
-import ch.epfl.javelo.projection.PointCh;
-
 import java.util.*;
 
 /**

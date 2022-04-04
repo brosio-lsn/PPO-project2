@@ -3,7 +3,7 @@ package ch.epfl.javelo.projection;
 import ch.epfl.javelo.Math2;
 
 /**
- * convert between WGS 84 and Web Mercator coordinates
+ * converts between WGS 84 and Web Mercator coordinates
  *
  * @author Ambroise Aigueperse (341890)
  * @author Louis Roche (345620)

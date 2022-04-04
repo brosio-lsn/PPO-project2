@@ -6,6 +6,8 @@ import ch.epfl.javelo.Preconditions;
 import static ch.epfl.javelo.projection.SwissBounds.*;
 
 /**
+ * Represents a Point in Switzerland
+ *
  * @author Louis ROCHE (345620)
  * @author Ambroise AIGUEPERSE (341890)
  */

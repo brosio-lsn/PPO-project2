@@ -2,7 +2,6 @@ package ch.epfl.javelo.data;
 
 import ch.epfl.javelo.Bits;
 import ch.epfl.javelo.Math2;
-import ch.epfl.javelo.Preconditions;
 import ch.epfl.javelo.Q28_4;
 
 import java.nio.ByteBuffer;
@@ -23,8 +22,8 @@ import java.util.List;
  */
 public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuffer elevations) {
     private static final int LENGTH_OFFSET = 4;
-    private static final int ELEVATIONGAIN_OFFSET = 6;
-    private static final int ATTRIBUTESINDEX_OFFSET = 8;
+    private static final int ELEVATION_OFFSET = 6;
+    private static final int ATTRIBUTES_OFFSET = 8;
     /**
      * returns whether the given edge's orientation goes in the opposite direction of the OSM way which it provides from
      *
@@ -65,7 +64,7 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
      */
 
     public double elevationGain(int edgeId) {
-        return Q28_4.asDouble(Short.toUnsignedInt(edgesBuffer.getShort(edgeId * 10 + ELEVATIONGAIN_OFFSET)));
+        return Q28_4.asDouble(Short.toUnsignedInt(edgesBuffer.getShort(edgeId * 10 + ELEVATION_OFFSET)));
     }
 
     /**
@@ -91,7 +90,7 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
         int profileId = Bits.extractSigned(profileIds.get(edgeId), 0, 30);
         float[] samples = new float[nbOfProfiles];
         float[] reverse;
-        profileType type = List.of(profileType.values())
+        ProfileType type = List.of(ProfileType.values())
                 .get(Bits.extractUnsigned(profileIds.get(edgeId), 30, 2));
         int count = 1;
         switch (type) {
@@ -142,7 +141,7 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
      * @return the identity of the set of attributes attached to the given edge, whose id is edgeId.
      */
     public int attributesIndex(int edgeId) {
-        return Short.toUnsignedInt(edgesBuffer.getShort(edgeId * 10 + ATTRIBUTESINDEX_OFFSET));
+        return Short.toUnsignedInt(edgesBuffer.getShort(edgeId * 10 + ATTRIBUTES_OFFSET));
     }
 
     /**
@@ -152,14 +151,14 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
      * 2 : compressed data in the Q4.4 format
      * 3 : compressed data in the Q0.4 format
      */
-    private enum profileType {
+    private enum ProfileType {
         NO_TYPE(0),
         RAW_TYPE(1),
         COMPRESSED_44(2),
         COMPRESSED_04(3);
         final int profileType;
 
-        profileType(int type) {
+        ProfileType(int type) {
             this.profileType = type;
         }
     }
