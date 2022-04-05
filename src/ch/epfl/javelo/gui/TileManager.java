@@ -45,7 +45,7 @@ public final class TileManager {
 
         }
         //TODO ?????????????? ne peut pas utiliser removeEldestEntry ?????
-        cache.removeEldestEntry;
+        //cache.removeEldestEntry;
 
-    }
+    return null;}
 }
