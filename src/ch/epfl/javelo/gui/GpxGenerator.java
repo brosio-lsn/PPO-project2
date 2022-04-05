@@ -4,6 +4,7 @@ import ch.epfl.javelo.projection.PointCh;
 import ch.epfl.javelo.routing.Edge;
 import ch.epfl.javelo.routing.ElevationProfile;
 import ch.epfl.javelo.routing.Route;
+import javafx.scene.shape.Path;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -15,9 +16,9 @@ import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
-import java.io.FileWriter;
-import java.io.Writer;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.Iterator;
 
 public final class GpxGenerator {
@@ -51,17 +52,26 @@ public final class GpxGenerator {
         Iterator<PointCh> pointChIterator = route.points().iterator();
         Iterator<Edge> edgeIterator = route.edges().iterator();
         double positionOnRtoue=0;
+        double altitude=0;
         while(pointChIterator.hasNext()) {
             Element rtept = doc.createElement("rtept");
             rte.appendChild(rtept);
             PointCh point=pointChIterator.next();
-            double lat = point.lat();
-            double lon = point.lon();
+            double lat = Math.toDegrees(point.lat());
+            double lon = Math.toDegrees(point.lon());
             //todo par default faut mettre les parentheses aux attributs je crois
-            rtept.setAttribute("lat", " \" " + lat + " \" ");
-            rtept.setAttribute("lon", " \" " + lon + " \" ");
+            rtept.setAttribute("lat", String.valueOf(lat));
+            rtept.setAttribute("lon",  String.valueOf(lon));
 
-            double altitude = profile.elevationAt(positionOnRtoue);
+            altitude = profile.elevationAt(positionOnRtoue);
+            /*if(edgeIterator.hasNext()) {
+                double altibis= edgeIterator.next().elevationAt(0);
+                try{
+                    if(altibis==0);
+                    altitude=altibis>300? altibis:altibis;
+                    altitude=altibis;
+                } catch (Exception e){}
+            }*/
             Element ele = doc.createElement("ele");
             rtept.appendChild(ele);
             ele.setTextContent(String.valueOf(altitude));
@@ -72,18 +82,17 @@ public final class GpxGenerator {
     }
 
     //todo ask si les profiles c bien des elevationProfile
-    public static void writeGpx(String fileName, Route route, ElevationProfile profile){
-        Document doc= createGpx(route, profile);
-        //todo utf8
-        try(Writer w = new FileWriter(fileName, StandardCharsets.UTF_8)){
+    public static void writeGpx(String fileName, Route route, ElevationProfile profile) throws IOException {
+        Document doc = createGpx(route, profile);
+        try (Writer writer = Files.newBufferedWriter(java.nio.file.Path.of(fileName))) {
             try {
                 Transformer transformer = TransformerFactory
                         .newDefaultInstance()
                         .newTransformer();
                 transformer.setOutputProperty(OutputKeys.INDENT, "yes");
                 transformer.transform(new DOMSource(doc),
-                        new StreamResult(w));
-            }catch (TransformerException e){
+                        new StreamResult(writer));
+            } catch (TransformerException e) {
                 throw new Error(e);
             }
         }
