@@ -41,8 +41,7 @@ public final class ElevationProfile {
         Preconditions.checkArgument(length>0 && elevationSamples.length>=2);
         this.length=length;
         this.elevationSamples = elevationSamples.clone();
-        stats = new DoubleSummaryStatistics();
-        for(float sample :this.elevationSamples) stats.accept(sample);
+        stats = initiateStats();
         //created here so that it isn't created multiple times
         function= Functions.sampled(this.elevationSamples, length);
     }
@@ -98,6 +97,12 @@ public final class ElevationProfile {
      */
     public double elevationAt(double position){
         return function.applyAsDouble(position);
+    }
+
+    private DoubleSummaryStatistics initiateStats (){
+        DoubleSummaryStatistics stats = new DoubleSummaryStatistics();
+        for(float sample :this.elevationSamples) stats.accept(sample);
+        return stats;
     }
 
 }
