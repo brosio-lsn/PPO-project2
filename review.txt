@@ -38,7 +38,8 @@ E6:
 
 
 QUESTIONS:
-grpahNodes, quand t extractUnsigned
+grpahNodes, quand t extractUnsigned ( magic nbs)
+CH1903 aussi les formules degueux (magic nbs)
 
 A faire:
 -essayer de mettre que des this.b = b dans les constructeurs (Ambroise) (done)
@@ -56,4 +57,3 @@ A faire:
 -> Garder une certaine logique de regroupement de code (toutes les méthodes privées regroupées ensemble, de même pour celles publiques, statiques etc.) Le choix du regroupement vous incombe mais il doit être consistant sur tout le projet.
 -> si fini faire ce qu Antoine a dit (pour les methodes d une ligne les dé-collapse)
 Pour Louis:
--pour la calsse etape 7 dans le constrcuteur faut que les chiffres qu il utilise soient des csts
