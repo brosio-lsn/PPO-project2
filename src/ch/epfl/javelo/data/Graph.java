@@ -15,6 +15,11 @@ import java.util.function.DoubleUnaryOperator;
 import static ch.epfl.javelo.data.Attribute.ACCESS_PRIVATE;
 import static ch.epfl.javelo.data.Attribute.HIGHWAY_MOTORWAY;
 
+/**
+ * represents a Graph
+ * @author Louis ROCHE (345620)
+ * @author Ambroise AIGUEPERSE (341890)
+ */
 public final class Graph {
     private final GraphNodes nodes;
     private final GraphSectors sectors;
@@ -22,7 +27,7 @@ public final class Graph {
     private final List<AttributeSet> attributeSets;
 
     /**
-     * Default constructor of the Graph Class.
+     * Constructor of the Graph Class.
      *
      * @param nodes          Nodes of the graph, not null.
      * @param sectors        Sectors of the graph, not null.

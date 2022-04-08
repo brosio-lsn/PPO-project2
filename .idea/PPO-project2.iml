@@ -7,7 +7,6 @@
       <sourceFolder url="file://$MODULE_DIR$/test" isTestSource="true" />
       <sourceFolder url="file://$MODULE_DIR$/javelo_sigchecks_2/sigcheck" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/javelo-lausanne" type="java-resource" />
-      <sourceFolder url="file://$MODULE_DIR$/javelo-lausanne" type="java-resource" />
       <sourceFolder url="file://$MODULE_DIR$/javelo_sigchecks_3/sigcheck" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/javelo_sigchecks_4/sigcheck" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/javelo_sigchecks_5/sigcheck" isTestSource="false" />
@@ -42,5 +41,6 @@
       </library>
     </orderEntry>
     <orderEntry type="library" name="OpenJFX 18" level="application" />
+    <orderEntry type="library" name="okokok" level="application" />
   </component>
 </module>

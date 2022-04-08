@@ -33,6 +33,8 @@ public final class Functions {
      * @param xMax    samples are covering the range from 0 to xMax
      * @return a function obtained by linear interpolation between samples,
      * * regularly spaced and covering the range from 0 to xMax
+     * @throws IllegalArgumentException if the array samples contains less than 2 elements
+     *                                  or if xMax is negative.
      */
 
     public static DoubleUnaryOperator sampled(float[] samples, double xMax) {
@@ -69,7 +71,7 @@ public final class Functions {
          */
         @Override
         public double applyAsDouble(double x) {
-            //create those varaibles to not calculate them twice
+            //create those variables to not calculate them twice
             int samplesLength = samples.length;
             double lengthBetweenSamples = this.xMax / (samplesLength - 1);
             int precedentSampleIndex = (int) (x / lengthBetweenSamples);

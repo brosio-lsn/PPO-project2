@@ -12,6 +12,9 @@ import java.util.Arrays;
  * @author AIGUEPERSE Ambroise (341890)
  */
 public final class ElevationProfileComputer {
+    /**
+     * Constructor of ElevationProfileComputer, which is private to make the class non-instantiable.
+     */
     private ElevationProfileComputer() {
     }
 
@@ -21,6 +24,7 @@ public final class ElevationProfileComputer {
      * @param route         given itinerary
      * @param maxStepLength maximum spacing between each sample
      * @return the profile along the given itinerary.
+     * @throws IllegalArgumentException if xMax is negative or null.
      */
     public static ElevationProfile elevationProfile(Route route, double maxStepLength) {
         Preconditions.checkArgument(maxStepLength > 0);
@@ -50,13 +54,13 @@ public final class ElevationProfileComputer {
                 lastValidValue = samples[i];
                 lastValidValueIndex = i;
                 if (Float.isNaN(firstValidValue)) {
+                    //we use the Float.isNaN(firstValidValue) to determine whether a non-NaN value in the samples
+                    //has been found.
                     firstValidValue = samples[i];
                     firstValidValueIndex = i;
                     Arrays.fill(samples, 0, i, firstValidValue);
-
                 }
             }
-            //faire un boucle à l'endroit et une autre à l'envers + break
         }
         if (Float.isNaN(firstValidValue)) return new float[samples.length];
         Arrays.fill(samples, lastValidValueIndex, samples.length, lastValidValue);
