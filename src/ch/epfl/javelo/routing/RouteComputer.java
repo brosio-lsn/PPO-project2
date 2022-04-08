@@ -41,39 +41,60 @@ final public class RouteComputer {
      */
     public Route bestRouteBetween(int startNodeId, int endNodeId) {
         Preconditions.checkArgument(startNodeId != endNodeId);
+
+        //record containing both the node identity and the super distance
+        // (sum of distance found by Dijkstra and distance between the node and the endNode)
         record WeightedNode(int nodeId, float distance)
                 implements Comparable<WeightedNode> {
+            /**
+             * @inheritDoc
+             * @param that the WeightedNode that is compared to the current WeightedNode
+             */
             @Override
             public int compareTo(WeightedNode that) {
                 return Float.compare(this.distance, that.distance);
             }
         }
+
         float[] distances = new float[graph.nodeCount()];
         int[] predecesseur = new int[graph.nodeCount()];
         PriorityQueue<WeightedNode> en_exploration = new PriorityQueue<>();
+
+        //initiate all distances to positive infinity
         for (int i = 0; i < distances.length; ++i) {
             predecesseur[i] = 0;
             distances[i] = Float.POSITIVE_INFINITY;
         }
+
+        //distance of the starting node is 0 and it is added to en_exploration
         distances[startNodeId] = 0f;
         en_exploration.add(new WeightedNode(startNodeId, distances[startNodeId] + distanceToTarget(graph, startNodeId, endNodeId)));
+
         while (!en_exploration.isEmpty()) {
+            //N = WeightedNode in en_exploration with minimal distance
             WeightedNode N = en_exploration.remove();
+            //if its distance is NEGATIVE_INFINITY (meaning it has already been checked), we discard it
+            //else we do the following
             if (distances[N.nodeId] != Float.NEGATIVE_INFINITY) {
                 if (N.nodeId == endNodeId) return finalPath(predecesseur, startNodeId, endNodeId);
                 float distanceN = distances[N.nodeId];
+                //for each edge coming out of N
                 for (int i = 0; i < graph.nodeOutDegree(N.nodeId); ++i) {
                     int edgeId = graph.nodeOutEdgeId(N.nodeId, i);
+                    //Nbis = end node of the considered edge
                     WeightedNode Nbis = new WeightedNode(graph.edgeTargetNodeId(edgeId)
                             , distances[graph.edgeTargetNodeId(edgeId)] + distanceToTarget(graph, graph.edgeTargetNodeId(edgeId)
                             , endNodeId));
+                    //calculate the potential new distance of Nbis
                     float d = distanceN + (float) (costFunction.costFactor(N.nodeId, edgeId) * graph.edgeLength(edgeId));
+                    //update the different Arrays and queues if the new distance to Nbis smaller than the previous one
                     if (d < distances[Nbis.nodeId]) {
                         distances[Nbis.nodeId] = d;
                         predecesseur[Nbis.nodeId] = N.nodeId;
                         en_exploration.add(new WeightedNode(Nbis.nodeId, distances[Nbis.nodeId] + distanceToTarget(graph, graph.edgeTargetNodeId(edgeId), endNodeId)));
                     }
                 }
+                //specify that the node has been visited
                 distances[N.nodeId] = Float.NEGATIVE_INFINITY;
             }
         }

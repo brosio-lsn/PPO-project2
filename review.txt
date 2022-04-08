@@ -46,7 +46,7 @@ A faire:
 -> Au niveau de la lisibilité du code, il faudrait qu’un lecteur puisse comprendre facilement ce que fait votre code :
      - Noms de variables clairs (Ambroise) (done)
      - Pas de magic numbers (IMPORTANT), tout nombre utilisé dans le code doit être mis dans une constante private static avec un nom en majuscule et des underscores (normes d’écriture java) (ambroise) (done)
-     - Modulariser au maximum le code, surtout pour les fonctions publiques assez longues, séparer en méthodes private avec des noms de méthodes, là encore assez parlants. (
+     - Modulariser au maximum le code, surtout pour les fonctions publiques assez longues, séparer en méthodes private avec des noms de méthodes, là encore assez parlants. (ambroise et louis)
       - Au niveau des boucles, favoriser les boucles for each aux for(int i..) dans la mesure du possible car plus lisibles et concises. (ambroise)(done)
       - Ne pas hésiter à commenter des parties de code que vous jugez assez compliquées.
 
