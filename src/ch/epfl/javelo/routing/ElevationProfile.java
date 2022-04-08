@@ -101,6 +101,10 @@ public final class ElevationProfile {
         return function.applyAsDouble(position);
     }
 
+    /**
+     * initiates the attribute samples
+     * @return the initiated attribute samples
+     */
     private DoubleSummaryStatistics initiateStats (){
         DoubleSummaryStatistics samples = new DoubleSummaryStatistics();
         for(float sample :this.elevationSamples) samples.accept(sample);

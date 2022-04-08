@@ -108,7 +108,6 @@ public final class GpxGenerator {
      * @param profile the elevation profile of the given Route
      * @throws IOException
      */
-    //todo ask si les profiles c bien des elevationProfile
     public static void writeGpx(String fileName, Route route, ElevationProfile profile) throws IOException {
         Document doc = createGpx(route, profile);
         try (Writer writer = Files.newBufferedWriter(java.nio.file.Path.of(fileName))) {
