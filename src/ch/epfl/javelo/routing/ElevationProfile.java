@@ -36,6 +36,8 @@ public final class ElevationProfile {
      * constructs an instance of ElevationProfile
      * @param length the length of the profile (meters)
      * @param elevationSamples altitude samples evenly distributed over the profile
+     * @throws IllegalArgumentException if the length is not positive, or if the
+     * array elevationSamples contains less than 2 elements.
      */
     public ElevationProfile(double length, float[] elevationSamples){
         Preconditions.checkArgument(length>0 && elevationSamples.length>=2);

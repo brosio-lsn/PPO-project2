@@ -8,7 +8,7 @@ import ch.epfl.javelo.projection.PointCh;
 import java.util.function.DoubleUnaryOperator;
 
 /**
- * Default constructor of an Edge.
+ * Constructor of an Edge.
  *
  * @param fromNodeId (int) id of the node the edge originates from.
  * @param toNodeId   (int) id of the node the edge goes to.

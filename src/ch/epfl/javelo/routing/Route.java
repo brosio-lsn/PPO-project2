@@ -35,7 +35,7 @@ public interface Route {
     List<Edge> edges();
 
     /**
-     * returns all the points located at the ends of the edges of the route
+     * Returns the totality of the itinerary's PointChs, which are located on the beginning and on the end of each edge.
      *
      * @return all the points located at the ends of the edges of the route
      */

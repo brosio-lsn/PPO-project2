@@ -52,7 +52,7 @@ public final class GpxGenerator {
         Iterator<PointCh> pointChIterator = route.points().iterator();
         Iterator<Edge> edgeIterator = route.edges().iterator();
         double positionOnRtoue=0;
-        double altitude=0;
+        double altitude;
         while(pointChIterator.hasNext()) {
             Element rtept = doc.createElement("rtept");
             rte.appendChild(rtept);
@@ -135,3 +135,5 @@ public final class GpxGenerator {
         return doc;
     }
 }
+
+

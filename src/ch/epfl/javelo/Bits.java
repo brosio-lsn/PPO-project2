@@ -8,7 +8,7 @@ package ch.epfl.javelo;
  */
 public final class Bits {
     /**
-     * Default constructor of the Bits class, which is private so that the class is not instanciable.
+     * Constructor of the Bits class, which is private so that the class is not instantiable.
      */
     private Bits() {
     }
@@ -23,6 +23,9 @@ public final class Bits {
      *               starting bit, and that of the ending bit.
      * @return the signed expression of the bit of length 'length' which starts at the 'start'th bit
      * from the bit vector 'value'
+     * @throws IllegalArgumentException if the length of the bit vector is not strictly positive,
+     *                                  if the start position is negative, or if the sum start + length is not within
+     *                                  the range [0, 32]
      */
     public static int extractSigned(int value, int start, int length) {
         Preconditions.checkArgument(start >= 0 && (start + length) <= 32 && length > 0);
@@ -39,6 +42,9 @@ public final class Bits {
      *               starting bit, and that of the ending bit.
      * @return the unsigned expression of the bit of length 'length' which starts at the 'start'th bit
      * from the bit vector 'value'
+     * @throws IllegalArgumentException if the length of the bit vector is not within [0, 31],
+     *                                  if the start position is negative, or if the sum start + length is not within
+     *                                  the range [0, 32]
      */
     public static int extractUnsigned(int value, int start, int length) {
         Preconditions.checkArgument(start >= 0 && (start + length) <= 32 && length < 32 && length > 0);

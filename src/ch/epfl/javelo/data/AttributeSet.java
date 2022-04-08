@@ -17,6 +17,8 @@ public record AttributeSet(long bits) {
      *
      * @param bits represents the attributes contained in the set : the index bit b of this value
      *             is 1 if and only if the attribute b is contained in the set
+     * @throws IllegalArgumentException if there exists bits in the bit vector
+     *                                  that do not correspond to any attribute.
      */
     public AttributeSet {
         Preconditions.checkArgument(bits >>> Attribute.COUNT == 0);

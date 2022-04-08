@@ -24,6 +24,7 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
     private static final int LENGTH_OFFSET = 4;
     private static final int ELEVATION_OFFSET = 6;
     private static final int ATTRIBUTES_OFFSET = 8;
+    private static final int BYTES_PER_EDGE = 10;
     /**
      * returns whether the given edge's orientation goes in the opposite direction of the OSM way which it provides from
      *
@@ -32,7 +33,7 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
      * True if so, false otherwise.
      */
     public boolean isInverted(int edgeId) {
-        return (edgesBuffer.getInt(edgeId * 10) < 0);
+        return (edgesBuffer.getInt(edgeId * BYTES_PER_EDGE) < 0);
     }
 
     /**
@@ -42,8 +43,8 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
      * @return the id of the target node of the Edge at edgeId.
      */
     public int targetNodeId(int edgeId) {
-        return (isInverted(edgeId) ? Bits.extractUnsigned(~edgesBuffer.getInt(edgeId * 10), 0, 31)
-                : Bits.extractUnsigned(edgesBuffer.getInt(edgeId * 10), 0, 31));
+        return (isInverted(edgeId) ? Bits.extractUnsigned(~edgesBuffer.getInt(edgeId * BYTES_PER_EDGE), 0, 31)
+                : Bits.extractUnsigned(edgesBuffer.getInt(edgeId * BYTES_PER_EDGE), 0, 31));
     }
 
     /**
@@ -53,7 +54,7 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
      * @return the length of the edge whose id is edgeId.
      */
     public double length(int edgeId) {
-        return Q28_4.asDouble(Short.toUnsignedInt(edgesBuffer.getShort(edgeId * 10 + LENGTH_OFFSET)));
+        return Q28_4.asDouble(Short.toUnsignedInt(edgesBuffer.getShort(edgeId * BYTES_PER_EDGE + LENGTH_OFFSET)));
     }
 
     /**
@@ -64,7 +65,7 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
      */
 
     public double elevationGain(int edgeId) {
-        return Q28_4.asDouble(Short.toUnsignedInt(edgesBuffer.getShort(edgeId * 10 + ELEVATION_OFFSET)));
+        return Q28_4.asDouble(Short.toUnsignedInt(edgesBuffer.getShort(edgeId * BYTES_PER_EDGE + ELEVATION_OFFSET)));
     }
 
     /**
@@ -85,11 +86,12 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
      */
 
     public float[] profileSamples(int edgeId) {
-        int nbOfProfiles = Math2.ceilDiv(edgesBuffer.getShort(edgeId * 10 + LENGTH_OFFSET),
+        int nbOfSamples = Math2.ceilDiv(edgesBuffer.getShort(edgeId * BYTES_PER_EDGE + LENGTH_OFFSET),
                 Q28_4.ofInt(2)) + 1;
         int profileId = Bits.extractSigned(profileIds.get(edgeId), 0, 30);
-        float[] samples = new float[nbOfProfiles];
+        float[] samples = new float[nbOfSamples];
         float[] reverse;
+        int nbOfShorts;
         ProfileType type = List.of(ProfileType.values())
                 .get(Bits.extractUnsigned(profileIds.get(edgeId), 30, 2));
         int count = 1;
@@ -97,15 +99,20 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
             case NO_TYPE:
                 return new float[]{};
             case RAW_TYPE:
-                for (int i = 0; i < nbOfProfiles; i++) {
+                for (int i = 0; i < nbOfSamples; i++) {
                     samples[i] = Q28_4.asFloat(Short.toUnsignedInt(elevations.get(profileId + i)));
                 }
                 break;
             case COMPRESSED_44:
                 samples[0] = Q28_4.asFloat(elevations.get(profileId));
-                for (int shortIndex = 1; shortIndex <= (nbOfProfiles - 1) / 2 + 1; shortIndex++) {
+                //the number of shorts a compressed profile takes is the number of samples (-1 because
+                // the first sample is not compressed) divided by the
+                //number of samples a byte can contain, and rounded up since there might exist a byte
+                //which contains only one sample.
+                nbOfShorts = Math2.ceilDiv(nbOfSamples-1, 2);
+                for (int shortIndex = 1; shortIndex <= nbOfShorts; shortIndex++) {
                     for (int sampleIndex = 1; sampleIndex >= 0; sampleIndex--) {
-                        if (count < nbOfProfiles)
+                        if (count < nbOfSamples)
                             samples[count] = samples[count - 1] +
                                     Q28_4.asFloat(Bits.extractSigned(elevations.get(profileId + shortIndex), 8 * sampleIndex, 8));
                         ++count;
@@ -114,9 +121,10 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
                 break;
             case COMPRESSED_04:
                 samples[0] = Q28_4.asFloat(elevations.get(profileId));
-                for (int shortIndex = 1; shortIndex <= nbOfProfiles - 1 / 4 + 1; shortIndex += 1) {
+                nbOfShorts = Math2.ceilDiv(nbOfSamples-1, 4);
+                for (int shortIndex = 1; shortIndex <= nbOfShorts; shortIndex += 1) {
                     for (int hexIndex = 3; hexIndex >= 0; hexIndex--) {
-                        if (count < nbOfProfiles)
+                        if (count < nbOfSamples)
                             samples[count] = samples[count - 1] +
                                     Q28_4.asFloat(Bits.extractSigned(elevations.get(profileId + shortIndex), 4 * hexIndex, 4));
                         ++count;
@@ -125,7 +133,7 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
                 break;
         }
         if (isInverted(edgeId)) {
-            reverse = new float[nbOfProfiles];
+            reverse = new float[nbOfSamples];
             for (int i = samples.length - 1; i >= 0; i--) {
                 reverse[i] = samples[samples.length - i - 1];
             }
@@ -141,7 +149,7 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
      * @return the identity of the set of attributes attached to the given edge, whose id is edgeId.
      */
     public int attributesIndex(int edgeId) {
-        return Short.toUnsignedInt(edgesBuffer.getShort(edgeId * 10 + ATTRIBUTES_OFFSET));
+        return Short.toUnsignedInt(edgesBuffer.getShort(edgeId * BYTES_PER_EDGE + ATTRIBUTES_OFFSET));
     }
 
     /**

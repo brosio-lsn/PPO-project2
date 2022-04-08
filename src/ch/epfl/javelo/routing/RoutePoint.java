@@ -14,7 +14,7 @@ import static java.lang.Double.POSITIVE_INFINITY;
 
 
 /**
- * Default RoutePoint record constructor.
+ * RoutePoint record constructor.
  *
  * @param point               (PointCh) Point in Switzerland represented by the RoutePoint
  * @param position            (double) position relative to the route.

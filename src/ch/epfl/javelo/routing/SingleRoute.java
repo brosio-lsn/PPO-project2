@@ -36,59 +36,57 @@ final public class SingleRoute implements Route{
         this.edges=List.copyOf(edges);
         nodesDistanceTable=this.createNodesDistanceTable();
     }
-
-    @Override
     /**
      * {@inheritDoc}
+     * @param position : position of the point to compute the index of segment at.
      */
+    @Override
     public int indexOfSegmentAt(double position) {
         return 0;
     }
 
-    @Override
     /**
-     * {@inheritDoc Route}
+     * {@inheritDoc}
+     *
      */
+    @Override
     public double length() {
         double length=0;
         for(Edge e : edges) length+=e.length();
         return length;
     }
-
-    @Override
     /**
      * {@inheritDoc}
      */
+    @Override
     public List<Edge> edges() {
         return edges;
     }
 
-    @Override
     /**
      * {@inheritDoc}
      */
+    @Override
     public List<PointCh> points() {
-        List<PointCh> points= new ArrayList<PointCh>();
+        List<PointCh> points= new ArrayList<>();
         for(Edge e : edges) points.add(e.fromPoint());
         points.add(edges.get(edges.size()-1).toPoint());
         //do not return a copy here because PointCh is immuable
         return points;
     }
-
-    @Override
     /**
      * {@inheritDoc}
      */
+    @Override
     public PointCh pointAt(double position) {
         position = Math2.clamp(0, position, this.length());
         int finalIndex= binarySearchIndex(position);
         return edges.get(finalIndex).pointAt(position-nodesDistanceTable[finalIndex]);
     }
-
-    @Override
     /**
      * {@inheritDoc}
      */
+    @Override
     public int nodeClosestTo(double position) {
         int finalIndex= binarySearchIndex(position);
         Edge edge = edges.get(finalIndex);
@@ -96,11 +94,10 @@ final public class SingleRoute implements Route{
         return (positionVSEgdeLengthRatio<=0.5 ? edge.fromNodeId() : edge.toNodeId());
 
     }
-
-    @Override
     /**
      * {@inheritDoc}
      */
+    @Override
     public RoutePoint pointClosestTo(PointCh point) {
         RoutePoint routePoint = RoutePoint.NONE;
         for(int i =0; i<edges.size();++i){
@@ -112,10 +109,10 @@ final public class SingleRoute implements Route{
         return routePoint;
     }
 
-    @Override
     /**
      * {@inheritDoc}
      */
+    @Override
     public double elevationAt(double position) {
         double clampedPosition = Math2.clamp(0, position, length());
         int finalIndex= binarySearchIndex(clampedPosition);

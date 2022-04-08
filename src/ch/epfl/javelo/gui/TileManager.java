@@ -37,30 +37,40 @@ public final class TileManager {
 
     public Image imageForTileAt(TileId id) throws IOException {
         String fileOfTile = url
+                .append("/")
                 .append(id.zoomLevel)
                 .append("/")
                 .append(id.xIndex)
+                .toString();
+        String imagePath = pathToRepertory + url
                 .append("/")
                 .append(id.yIndex)
-                .append(".png").
-                toString();
-        Path pathOfTile = Path.of(pathToRepertory.toString() + fileOfTile);
+                .append(".png")
+                .toString();
+        String pathOfTileFile = pathToRepertory.toString() + fileOfTile;
+        Path pathOfTile = Path.of(pathOfTileFile);
+
         if (cache.containsKey(id)) {
             return cache.get(id);
-        } else if (Files.exists(pathOfTile, LinkOption.NOFOLLOW_LINKS)) {
-            Image fileImage = new Image(pathOfTile.toString());
+        } else if (Files.exists(Path.of(imagePath), LinkOption.NOFOLLOW_LINKS)) {
+            Image fileImage = new Image(imagePath);
             cache.put(id, fileImage);
             return fileImage;
         } else {
+
             Files.createDirectories(pathOfTile);
-            URL u = new URL(serverName + fileOfTile);
+            URL u = new URL("https://" + serverName + imagePath);
             URLConnection c = u.openConnection();
             c.setRequestProperty("User-Agent", "JaVelo");
-            try (InputStream i = c.getInputStream()) {
-                OutputStream writer = new FileOutputStream(pathOfTile.toString());
-                i.transferTo(writer);
+            System.out.println(pathToRepertory + imagePath);
+            try (InputStream i = c.getInputStream();
+                 OutputStream writer = new FileOutputStream(pathToRepertory + imagePath)) {
+                 i.transferTo(writer);
             }
-            Image fileImage = new Image(pathOfTile.toString());
+            Image fileImage = new Image(pathToRepertory.resolve("%d".formatted(id.zoomLevel)
+                    ).resolve("%d".formatted(id.xIndex))
+                    .resolve("%d.png".formatted(id.yIndex) )
+                    .toString());
             cache.put(id, fileImage);
             Iterator<TileId> ite = cache.keySet().iterator();
             if (ite.hasNext()) cache.remove(ite.next());

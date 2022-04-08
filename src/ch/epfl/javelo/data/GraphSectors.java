@@ -10,6 +10,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+
 /**
  * sectors of the graph
  *
@@ -40,7 +41,7 @@ public record GraphSectors(ByteBuffer buffer) {
         List<Sector> sectors= new ArrayList<>();
 
         int xCoordinateOfBottomLeftSector = Math2.clamp(1, (int)Math.ceil(((center.e()-distance)-SwissBounds.MIN_E)/SECTOR_WIDTH), NUMBER_OF_SECTORS_ON_SIDE);
-        int xCoordinateOfBottomRightSector = Math2.clamp(1, (int)Math.ceil(((center.e()+distance)-SwissBounds.MIN_E)/SECTOR_WIDTH), NUMBER_OF_SECTORS_ON_SIDE);;
+        int xCoordinateOfBottomRightSector = Math2.clamp(1, (int)Math.ceil(((center.e()+distance)-SwissBounds.MIN_E)/SECTOR_WIDTH), NUMBER_OF_SECTORS_ON_SIDE);
         int yCoordinateOfBottomLeftSector = Math2.clamp(1, (int)Math.ceil(((center.n()-distance)-SwissBounds.MIN_N)/SECTOR_HEIGHT), NUMBER_OF_SECTORS_ON_SIDE);
         int yCoordinateOfTopLeftSector = Math2.clamp(1, (int)Math.ceil(((center.n()+distance)-SwissBounds.MIN_N)/SECTOR_HEIGHT), NUMBER_OF_SECTORS_ON_SIDE);
 
@@ -59,7 +60,6 @@ public record GraphSectors(ByteBuffer buffer) {
      */
     private Sector getSectorAtIdentity(int identity) {
         //initiated startNodeId here to not calculate it twice
-        //TODO ask if for startNodeId we should use extractnsigned
         int startNodeId= (buffer.getInt(identity*SECTOR_BYTES+OFFSET_IDENTITY_OF_FIRST_NODE));
         int endNodeId= startNodeId + Short.toUnsignedInt(buffer.getShort(identity*SECTOR_BYTES+OFFSET_NUMBER_OF_NODES));
         return new Sector(startNodeId, endNodeId);

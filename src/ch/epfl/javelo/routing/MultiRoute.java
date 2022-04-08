@@ -14,15 +14,23 @@ import java.util.List;
  * @author AIGUEPERSE Ambroise (341890)
  */
 public final class MultiRoute implements Route {
+    /**
+     * the list of routes engendering a MultiRoute
+     */
     private final List<Route> segments;
 
+    /**
+     * Constructs a MultiRoute, which is a concatenation of routes, given a list of Routes.
+     * @param segments the list of Routes used to construct a MultiRoute, not empty.
+     * @throws IllegalArgumentException if the list is empty.
+     */
     public MultiRoute(List<Route> segments) {
         Preconditions.checkArgument(!segments.isEmpty());
         this.segments = List.copyOf(segments);
     }
 
     /**
-     * Returns the index of the segment at a given position.
+     * {@inheritDoc}
      *
      * @param position position in the route, which belongs to the segment returned.
      * @return the index of the segment at a given position.
@@ -48,7 +56,7 @@ public final class MultiRoute implements Route {
     }
 
     /**
-     * Returns the total length of the itinerary
+     *{@inheritDoc}
      *
      * @return the total length of the itinerary, by summing up the length of all its edges.
      */
@@ -62,7 +70,7 @@ public final class MultiRoute implements Route {
     }
 
     /**
-     * Returns the totality of the itinerary's edges.
+     * {@inheritDoc}
      *
      * @return the totality of the itinerary's edges.
      */
@@ -74,8 +82,7 @@ public final class MultiRoute implements Route {
     }
 
     /**
-     * Returns the totality of the itinerary's points, which are located on the beginning and on the end of each edge.
-     *
+     * {@inheritDoc}
      * @return the totality of the itinerary's points.
      */
     @Override
@@ -89,7 +96,7 @@ public final class MultiRoute implements Route {
     }
 
     /**
-     * Returns the PointCh at the given position along the itinerary.
+     * {@inheritDoc}
      *
      * @param position position to search the PointCh at.
      * @return the PointCh at the given position along the itinerary.
@@ -103,7 +110,7 @@ public final class MultiRoute implements Route {
     }
 
     /**
-     * Returns the elevation of the itinerary at the given position.
+     * {@inheritDoc}
      *
      * @param position position along the itinerary to get the elevation from.
      * @return the elevation of the itinerary at the given position.
@@ -118,7 +125,7 @@ public final class MultiRoute implements Route {
 
 
     /**
-     * Returns the identity of the node closest to a given position along the itinerary.
+     * {@inheritDoc}
      *
      * @param position position to search the closest node to.
      * @return the identity of the node closest to a given position along the itinerary.
@@ -132,7 +139,7 @@ public final class MultiRoute implements Route {
     }
 
     /**
-     * Returns the RoutePoint closest to a given point on the itinerary.
+     * {@inheritDoc}
      *
      * @param point given point to find its closest RoutePoint on the itinerary.
      * @return the closest RoutePoint to a given point on the itinerary.

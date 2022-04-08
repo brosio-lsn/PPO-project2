@@ -31,7 +31,6 @@ class GraphSectorsTest {
  * @author Ambroise AIGUEPERSE (341890)
  */
 
-//TODO ASK ASSISTANT TO SEE IF RIGHT METHOD
 //les secteurs de base en bidimension (avec coordonnee x et y) sont stockéS en unidimentionnel dans le buffer
 //but premier :  touver quels secteurs sont sur les extrimites du carré (tu peux le faire en prenant la taille des secteurs)
 //prendre ensuite tous les secteurs entre ces 4 secteurs (le offset sert ä acceder au premier index du byte auquel on veut acceder parmi les byte du secteur considéré
