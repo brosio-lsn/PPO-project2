@@ -26,7 +26,7 @@ public final class ElevationProfile {
     /**
      * contains the samples (initiated in constructor to not calculate it many times)
      */
-    final private DoubleSummaryStatistics stats;
+    final private DoubleSummaryStatistics samples;
     /**
      * contains the function made of the samples (initiated in constructor to not calculate it many times)
      */
@@ -41,7 +41,7 @@ public final class ElevationProfile {
         Preconditions.checkArgument(length>0 && elevationSamples.length>=2);
         this.length=length;
         this.elevationSamples = elevationSamples.clone();
-        stats = initiateStats();
+        samples = initiateStats();
         //created here so that it isn't created multiple times
         function= Functions.sampled(this.elevationSamples, length);
     }
@@ -57,7 +57,7 @@ public final class ElevationProfile {
      * @return the minimum altitude of the profile
      */
     public double minElevation(){
-        return stats.getMin();
+        return samples.getMin();
     }
 
     /**
@@ -65,7 +65,7 @@ public final class ElevationProfile {
      * @return the maximum altitude of the profile
      */
     public double maxElevation(){
-        return stats.getMax();
+        return samples.getMax();
     }
 
     /**
@@ -100,9 +100,9 @@ public final class ElevationProfile {
     }
 
     private DoubleSummaryStatistics initiateStats (){
-        DoubleSummaryStatistics stats = new DoubleSummaryStatistics();
-        for(float sample :this.elevationSamples) stats.accept(sample);
-        return stats;
+        DoubleSummaryStatistics samples = new DoubleSummaryStatistics();
+        for(float sample :this.elevationSamples) samples.accept(sample);
+        return samples;
     }
 
 }
