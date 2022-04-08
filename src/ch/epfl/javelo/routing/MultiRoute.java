@@ -40,7 +40,7 @@ public final class MultiRoute implements Route {
         double realPos = Math2.clamp(0, position, length());
         double sumOfDistances = 0;
         int index = 0;
-        int sumOfPreviousSegments = 0;
+        int nbPreviousSegments = 0;
         for (int i = 0; i < segments.size(); i++) {
             if (realPos >= sumOfDistances && realPos <= sumOfDistances + segments.get(i).length()) {
                 index = i;
@@ -49,10 +49,10 @@ public final class MultiRoute implements Route {
         }
         for (int i = 0; i < index; i++) {
             Route route = segments.get(i);
-            sumOfPreviousSegments += route.indexOfSegmentAt(route.length()) + 1;
+            nbPreviousSegments += route.indexOfSegmentAt(route.length()) + 1;
         }
         double relativePosition = computeRelativePositionOnSegment(index, realPos);
-        return segments.get(index).indexOfSegmentAt(relativePosition) + sumOfPreviousSegments;
+        return segments.get(index).indexOfSegmentAt(relativePosition) + nbPreviousSegments;
     }
 
     /**
@@ -187,6 +187,7 @@ public final class MultiRoute implements Route {
             sum += segments.get(index).length();
             index++;
         }
+        //here we return index -1 because the method goes one segment too far.
         return index - 1;
     }
 }

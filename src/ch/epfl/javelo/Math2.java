@@ -7,6 +7,9 @@ package ch.epfl.javelo;
  * @author Ambroise AIGUEPERSE (341890)
  */
 public final class Math2 {
+    /**
+     * private constructor to make the class non instantiable
+     */
     private Math2() {
     }
 

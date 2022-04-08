@@ -27,12 +27,13 @@ public final class TileManager {
     private final Path pathToRepertory;
     private final String serverName;
     private final StringBuilder url;
-
+    private final static int CAPACITY_OF_CACHE = 100;
+    private final static float LOAD_FACTOR = 0.75f;
     public TileManager(Path pathToRepertory, String serverName) {
         this.pathToRepertory = pathToRepertory;
         this.serverName = serverName;
         url = new StringBuilder();
-        cache = new LinkedHashMap<>(100, 0.75f, true);
+        cache = new LinkedHashMap<>(CAPACITY_OF_CACHE, LOAD_FACTOR, true);
     }
 
     public Image imageForTileAt(TileId id) throws IOException {

@@ -10,6 +10,7 @@ import ch.epfl.javelo.Preconditions;
  * @author Ambroise AIGUEPERSE (341890)
  */
 
+
 public record PointWebMercator(double x, double y) {
     /**
      * Constructor of the class

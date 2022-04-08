@@ -13,6 +13,7 @@ import java.nio.IntBuffer;
  */
 
 /**
+ * Constructor of the nodes of the graph.
  * @param buffer the attributes of all the nodes of the graph
  */
 public record GraphNodes(IntBuffer buffer) {
