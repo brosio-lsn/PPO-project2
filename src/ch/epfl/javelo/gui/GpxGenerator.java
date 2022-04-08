@@ -20,11 +20,27 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Iterator;
+/**
+ * represents a route generator in GPX format
+ *
+ * @author Louis ROCHE (345620)
+ * @author Ambroise AIGUEPERSE (341890)
+ */
 
 public final class GpxGenerator {
+    /**
+     * private constructor
+     */
     private GpxGenerator(){}
 
+    /**
+     * returns the GPX document corresponding to the given Route and its elevationProfile
+     * @param route the given Route
+     * @param profile the profile of the Route
+     * @return the GPX document corresponding to the given Route and its elevationProfile
+     */
     public static Document createGpx(Route route, ElevationProfile profile){
+        //given part
         Document doc = newDocument();
 
         Element root = doc
@@ -46,41 +62,52 @@ public final class GpxGenerator {
         Element name = doc.createElement("name");
         metadata.appendChild(name);
         name.setTextContent("Route JaVelo");
-        //partie perso
+
+        //personnal implementations part
+
+        //create rte element (represents the route)
         Element rte =doc.createElement("rte");
         root.appendChild(rte);
+
+        //initiate different objects for the following while loop
         Iterator<PointCh> pointChIterator = route.points().iterator();
         Iterator<Edge> edgeIterator = route.edges().iterator();
         double positionOnRtoue=0;
-        double altitude=0;
+        double altitude;
+        Element rtept;
+
+        //append each time rtept Element (represents a point on the route)
         while(pointChIterator.hasNext()) {
-            Element rtept = doc.createElement("rtept");
+            rtept = doc.createElement("rtept");
             rte.appendChild(rtept);
+
+            //latitude and longitude attributes
             PointCh point=pointChIterator.next();
             double lat = Math.toDegrees(point.lat());
             double lon = Math.toDegrees(point.lon());
-            //todo par default faut mettre les parentheses aux attributs je crois
             rtept.setAttribute("lat", String.valueOf(lat));
             rtept.setAttribute("lon",  String.valueOf(lon));
 
+            //altitude of rtept element
             altitude = profile.elevationAt(positionOnRtoue);
-            /*if(edgeIterator.hasNext()) {
-                double altibis= edgeIterator.next().elevationAt(0);
-                try{
-                    if(altibis==0);
-                    altitude=altibis>300? altibis:altibis;
-                    altitude=altibis;
-                } catch (Exception e){}
-            }*/
             Element ele = doc.createElement("ele");
             rtept.appendChild(ele);
             ele.setTextContent(String.valueOf(altitude));
+
+            //update position on route
             if(edgeIterator.hasNext())positionOnRtoue+=edgeIterator.next().length();
         }
 
         return doc;
     }
 
+    /**
+     * writes the GPX document corresponding to the given Route and its profile, in the given file
+     * @param fileName name of the file in which the GPX document will be written
+     * @param route the given Route
+     * @param profile the elevation profile of the given Route
+     * @throws IOException
+     */
     //todo ask si les profiles c bien des elevationProfile
     public static void writeGpx(String fileName, Route route, ElevationProfile profile) throws IOException {
         Document doc = createGpx(route, profile);
@@ -98,6 +125,10 @@ public final class GpxGenerator {
         }
     }
 
+    /**
+     * creates a new, very simple, GPX Document
+     * @return a new basic GPX Document
+     */
     private static Document newDocument() {
         try {
             return DocumentBuilderFactory
@@ -109,29 +140,4 @@ public final class GpxGenerator {
         }
     }
 
-    //todo ask if static
-    private static Document createBaseDocument(){
-        Document doc = newDocument();
-
-        Element root = doc
-                .createElementNS("http://www.topografix.com/GPX/1/1",
-                        "gpx");
-        doc.appendChild(root);
-
-        root.setAttributeNS(
-                "http://www.w3.org/2001/XMLSchema-instance",
-                "xsi:schemaLocation",
-                "http://www.topografix.com/GPX/1/1 "
-                        + "http://www.topografix.com/GPX/1/1/gpx.xsd");
-        root.setAttribute("version", "1.1");
-        root.setAttribute("creator", "JaVelo");
-
-        Element metadata = doc.createElement("metadata");
-        root.appendChild(metadata);
-
-        Element name = doc.createElement("name");
-        metadata.appendChild(name);
-        name.setTextContent("Route JaVelo");
-        return doc;
-    }
 }

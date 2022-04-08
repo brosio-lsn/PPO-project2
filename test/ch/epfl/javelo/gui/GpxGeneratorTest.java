@@ -12,10 +12,15 @@ import static org.junit.jupiter.api.Assertions.*;
 class GpxGeneratorTest {
     @Test
     public void writer() throws IOException {
-        Graph g = Graph.loadFrom(Path.of("ch_west"));
+        /*Graph g = Graph.loadFrom(Path.of("ch_west"));
         CostFunction cf = new CityBikeCF(g);
         RouteComputer rc = new RouteComputer(g, cf);
         Route r = rc.bestRouteBetween(2046055, 2694240);
+        GpxGenerator.writeGpx("GpxGenerator.gpx",r, ElevationProfileComputer.elevationProfile(r, 1));*/
+        Graph g = Graph.loadFrom(Path.of("lausanne"));
+        CostFunction cf = new CityBikeCF(g);
+        RouteComputer rc = new RouteComputer(g, cf);
+        Route r = rc.bestRouteBetween(159049, 159050);
         GpxGenerator.writeGpx("GpxGenerator.gpx",r, ElevationProfileComputer.elevationProfile(r, 1));
     }
 

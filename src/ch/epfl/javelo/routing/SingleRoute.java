@@ -47,7 +47,7 @@ final public class SingleRoute implements Route{
 
     @Override
     /**
-     * {@inheritDoc Route}
+     * {@inheritDoc}
      */
     public double length() {
         double length=0;
