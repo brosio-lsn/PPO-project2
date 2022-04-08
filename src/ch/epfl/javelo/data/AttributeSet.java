@@ -55,9 +55,7 @@ public record AttributeSet(long bits) {
      * @return true if this and that share common attributes, false else.
      */
 
-    public boolean intersects(AttributeSet that) {
-        return ((this.bits & that.bits) != 0);
-    }
+    public boolean intersects(AttributeSet that) {return ((this.bits & that.bits) != 0);}
 
     /**
      * Prints the AttributeSet in such a way that each attribute in the AttributeSet is explicitly displayed.
@@ -67,8 +65,8 @@ public record AttributeSet(long bits) {
      */
     @Override
     public String toString() {
-        StringJoiner j = new StringJoiner(",", "{", "}");
-        for (Attribute a : Attribute.ALL) if (contains(a)) j.add(a.toString());
-        return j.toString();
+        StringJoiner stringJoiner = new StringJoiner(",", "{", "}");
+        for (Attribute a : Attribute.ALL) if (contains(a)) stringJoiner.add(a.toString());
+        return stringJoiner.toString();
     }
 }
