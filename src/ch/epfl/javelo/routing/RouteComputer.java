@@ -66,7 +66,7 @@ final public class RouteComputer {
             distances[i] = Float.POSITIVE_INFINITY;
         }
 
-        //distance of the starting node is 0 and it is added to en_exploration
+        //distance of the starting node is 0 and it is initially added to en_exploration
         distances[startNodeId] = 0f;
         en_exploration.add(new WeightedNode(startNodeId, distances[startNodeId] + distanceToTarget(graph, startNodeId, endNodeId)));
 
