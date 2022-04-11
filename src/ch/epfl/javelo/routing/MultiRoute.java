@@ -21,6 +21,7 @@ public final class MultiRoute implements Route {
 
     /**
      * Constructs a MultiRoute, which is a concatenation of routes, given a list of Routes.
+     *
      * @param segments the list of Routes used to construct a MultiRoute, not empty.
      * @throws IllegalArgumentException if the list is empty.
      */
@@ -56,7 +57,7 @@ public final class MultiRoute implements Route {
     }
 
     /**
-     *{@inheritDoc}
+     * {@inheritDoc}
      *
      * @return the total length of the itinerary, by summing up the length of all its edges.
      */
@@ -83,6 +84,7 @@ public final class MultiRoute implements Route {
 
     /**
      * {@inheritDoc}
+     *
      * @return the totality of the itinerary's points.
      */
     @Override
@@ -91,6 +93,7 @@ public final class MultiRoute implements Route {
         for (Edge edge : edges()) {
             pointRoute.add(edge.fromPoint());
         }
+        //adding the last point
         pointRoute.add(edges().get(edges().size() - 1).toPoint());
         return pointRoute;
     }
@@ -149,7 +152,7 @@ public final class MultiRoute implements Route {
         RoutePoint routePointClosestTo = RoutePoint.NONE;
         double shift = 0;
         for (Route segment : segments) {
-                    routePointClosestTo = routePointClosestTo.min(segment.pointClosestTo(point).withPositionShiftedBy(shift));
+            routePointClosestTo = routePointClosestTo.min(segment.pointClosestTo(point).withPositionShiftedBy(shift));
             shift += segment.length();
         }
         return routePointClosestTo;

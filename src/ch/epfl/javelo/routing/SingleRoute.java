@@ -109,8 +109,9 @@ final public class SingleRoute implements Route {
     public int nodeClosestTo(double position) {
         int finalIndex = binarySearchIndex(position);
         Edge edge = edges.get(finalIndex);
-        double positionVSEgdeLengthRatio = (position - nodesDistanceTable[finalIndex]) / edge.length();
-        return (positionVSEgdeLengthRatio <= 0.5 ? edge.fromNodeId() : edge.toNodeId());
+        double positionVSEdgeLengthRatio = (position - nodesDistanceTable[finalIndex]) / edge.length();
+        //condition on 0.5 to determine which node the position is closest to.
+        return (positionVSEdgeLengthRatio <= 0.5 ? edge.fromNodeId() : edge.toNodeId());
 
     }
 
@@ -172,7 +173,7 @@ final public class SingleRoute implements Route {
     private int binarySearchIndex(double position) {
         int binaryIndex = Arrays.binarySearch(nodesDistanceTable, position);
         int finalIndex;
-        //adapting the final index depending on the result of the binarySearch
+        //adapting the final index depending on the result of the binarySearch so that it is consistent with our array.
         if (binaryIndex == nodesDistanceTable.length - 1 || binaryIndex == -nodesDistanceTable.length - 1)
             finalIndex = nodesDistanceTable.length - 2;
         else if (binaryIndex >= 0) finalIndex = binaryIndex;

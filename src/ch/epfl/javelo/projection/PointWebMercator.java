@@ -12,7 +12,8 @@ import ch.epfl.javelo.Preconditions;
 
 
 public record PointWebMercator(double x, double y) {
-    private static int ZOOM_LEVEL_0 = 8;
+    private static final int ZOOM_LEVEL_0 = 8;
+
     /**
      * Constructor of the class
      *
@@ -67,7 +68,9 @@ public record PointWebMercator(double x, double y) {
      * @param zoomLevel the zoom level at which the coordinate will be returned
      * @return the y coordinate of the point at the given zoom level
      */
-    public double yAtZoomLevel(int zoomLevel) {return Math.scalb(y, ZOOM_LEVEL_0 + zoomLevel);}
+    public double yAtZoomLevel(int zoomLevel) {
+        return Math.scalb(y, ZOOM_LEVEL_0 + zoomLevel);
+    }
 
     /**
      * returns the longitude of the point

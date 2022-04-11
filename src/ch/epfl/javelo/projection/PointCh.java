@@ -3,7 +3,6 @@ package ch.epfl.javelo.projection;
 import ch.epfl.javelo.Math2;
 import ch.epfl.javelo.Preconditions;
 
-import static ch.epfl.javelo.projection.SwissBounds.*;
 
 /**
  * Represents a Point in Switzerland

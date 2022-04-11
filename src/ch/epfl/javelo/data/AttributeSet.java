@@ -55,7 +55,9 @@ public record AttributeSet(long bits) {
      * @return true if this and that share common attributes, false else.
      */
 
-    public boolean intersects(AttributeSet that) {return ((this.bits & that.bits) != 0);}
+    public boolean intersects(AttributeSet that) {
+        return ((this.bits & that.bits) != 0);
+    }
 
     /**
      * Prints the AttributeSet in such a way that each attribute in the AttributeSet is explicitly displayed.

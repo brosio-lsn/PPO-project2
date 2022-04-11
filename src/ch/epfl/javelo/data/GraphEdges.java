@@ -25,6 +25,7 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
     private static final int ELEVATION_OFFSET = 6;
     private static final int ATTRIBUTES_OFFSET = 8;
     private static final int BYTES_PER_EDGE = 10;
+
     /**
      * returns whether the given edge's orientation goes in the opposite direction of the OSM way which it provides from
      *
@@ -109,7 +110,7 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
                 // the first sample is not compressed) divided by the
                 //number of samples a byte can contain, and rounded up since there might exist a byte
                 //which contains only one sample.
-                nbOfShorts = Math2.ceilDiv(nbOfSamples-1, 2);
+                nbOfShorts = Math2.ceilDiv(nbOfSamples - 1, 2);
                 for (int shortIndex = 1; shortIndex <= nbOfShorts; shortIndex++) {
                     for (int sampleIndex = 1; sampleIndex >= 0; sampleIndex--) {
                         if (count < nbOfSamples)
@@ -121,7 +122,11 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
                 break;
             case COMPRESSED_04:
                 samples[0] = Q28_4.asFloat(elevations.get(profileId));
-                nbOfShorts = Math2.ceilDiv(nbOfSamples-1, 4);
+                //the number of shorts a compressed profile takes is the number of samples (-1 because
+                //the first sample is not compressed) divided by the
+                //number of samples a byte can contain, and rounded up since there might exist a byte
+                //which contains only one sample.
+                nbOfShorts = Math2.ceilDiv(nbOfSamples - 1, 4);
                 for (int shortIndex = 1; shortIndex <= nbOfShorts; shortIndex += 1) {
                     for (int hexIndex = 3; hexIndex >= 0; hexIndex--) {
                         if (count < nbOfSamples)
@@ -133,6 +138,7 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
                 break;
         }
         if (isInverted(edgeId)) {
+            //inverts the order of the samples array
             reverse = new float[nbOfSamples];
             for (int i = samples.length - 1; i >= 0; i--) {
                 reverse[i] = samples[samples.length - i - 1];

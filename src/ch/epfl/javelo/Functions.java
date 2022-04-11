@@ -45,7 +45,7 @@ public final class Functions {
     /**
      * private innerclass used for the creation of a constant function
      */
-    private record Constant(double constante) implements DoubleUnaryOperator {
+    private record Constant(double constant) implements DoubleUnaryOperator {
         /**
          * returns the image of a given x coordinate
          *
@@ -54,7 +54,7 @@ public final class Functions {
          */
         @Override
         public double applyAsDouble(double x) {
-            return this.constante;
+            return this.constant;
         }
     }
 

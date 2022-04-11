@@ -44,8 +44,8 @@ public final class ElevationProfileComputer {
      * @return the filled tab with no more NaN values in it.
      */
     private static float[] fillTheHoles(float[] samples) {
-        float firstValidValue =Float.NaN;
-        int firstValidValueIndex=0;
+        float firstValidValue = Float.NaN;
+        int firstValidValueIndex = 0;
         float lastValidValue = 0;
         int lastValidValueIndex = 0;
         //filling front and back holes
@@ -70,16 +70,17 @@ public final class ElevationProfileComputer {
 
     /**
      * fills 'holes' in between two non-NaN values by interpolating them.
-     * @param samples array to fills the holes in
+     *
+     * @param samples              array to fill the holes in
      * @param firstValidValueIndex the index of the first Non-NaN value.
-     * @param lastValidValueIndex the index of the last non-NaN value.
+     * @param lastValidValueIndex  the index of the last non-NaN value.
      * @return the filled array.
      */
     private static float[] fillMiddleHoles(float[] samples, int firstValidValueIndex, int lastValidValueIndex) {
         int beginningIndex = 0;
         int finishIndex = 0;
         boolean finishStreak = false;
-        for (int i = firstValidValueIndex+1; i < lastValidValueIndex; i++) {
+        for (int i = firstValidValueIndex + 1; i < lastValidValueIndex; i++) {
             if (Float.isNaN(samples[i])) {
                 if (!Float.isNaN(samples[i - 1])) {
                     beginningIndex = i - 1;

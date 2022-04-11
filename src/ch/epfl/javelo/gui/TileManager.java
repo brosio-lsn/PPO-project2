@@ -1,5 +1,6 @@
 package ch.epfl.javelo.gui;
 
+import ch.epfl.javelo.Preconditions;
 import javafx.scene.image.Image;
 
 import java.io.*;
@@ -14,6 +15,9 @@ import java.util.LinkedHashMap;
 public final class TileManager {
 
     public final record TileId(int zoomLevel, int xIndex, int yIndex) {
+        public TileId{
+            Preconditions.checkArgument(isValid(zoomLevel, xIndex, yIndex));
+        }
         public boolean isValid(int zoomLevel, int xIndex, int yIndex) {
             double nbOfTiles = Math.scalb(4, zoomLevel);
             return (xIndex >= 0
@@ -29,6 +33,7 @@ public final class TileManager {
     private final StringBuilder url;
     private final static int CAPACITY_OF_CACHE = 100;
     private final static float LOAD_FACTOR = 0.75f;
+
     public TileManager(Path pathToRepertory, String serverName) {
         this.pathToRepertory = pathToRepertory;
         this.serverName = serverName;
@@ -66,16 +71,16 @@ public final class TileManager {
             System.out.println(pathToRepertory + imagePath);
             try (InputStream i = c.getInputStream();
                  OutputStream writer = new FileOutputStream(pathToRepertory + imagePath)) {
-                 i.transferTo(writer);
+                i.transferTo(writer);
             }
             Image fileImage = new Image(pathToRepertory.resolve("%d".formatted(id.zoomLevel)
                     ).resolve("%d".formatted(id.xIndex))
-                    .resolve("%d.png".formatted(id.yIndex) )
+                    .resolve("%d.png".formatted(id.yIndex))
                     .toString());
             cache.put(id, fileImage);
             Iterator<TileId> ite = cache.keySet().iterator();
             if (ite.hasNext()) cache.remove(ite.next());
             return fileImage;
         }
-        }
+    }
 }

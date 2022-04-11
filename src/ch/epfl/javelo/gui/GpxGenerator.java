@@ -20,6 +20,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Iterator;
+
 /**
  * represents a route generator in GPX format
  *
@@ -31,15 +32,17 @@ public final class GpxGenerator {
     /**
      * private constructor
      */
-    private GpxGenerator(){}
+    private GpxGenerator() {
+    }
 
     /**
      * returns the GPX document corresponding to the given Route and its elevationProfile
-     * @param route the given Route
+     *
+     * @param route   the given Route
      * @param profile the profile of the Route
      * @return the GPX document corresponding to the given Route and its elevationProfile
      */
-    public static Document createGpx(Route route, ElevationProfile profile){
+    public static Document createGpx(Route route, ElevationProfile profile) {
         //given part
         Document doc = newDocument();
 
@@ -66,27 +69,27 @@ public final class GpxGenerator {
         //personnal implementations part
 
         //create rte element (represents the route)
-        Element rte =doc.createElement("rte");
+        Element rte = doc.createElement("rte");
         root.appendChild(rte);
 
         //initiate different objects for the following while loop
         Iterator<PointCh> pointChIterator = route.points().iterator();
         Iterator<Edge> edgeIterator = route.edges().iterator();
-        double positionOnRtoue=0;
+        double positionOnRtoue = 0;
         double altitude;
         Element rtept;
 
         //append each time rtept Element (represents a point on the route)
-        while(pointChIterator.hasNext()) {
+        while (pointChIterator.hasNext()) {
             rtept = doc.createElement("rtept");
             rte.appendChild(rtept);
 
             //latitude and longitude attributes
-            PointCh point=pointChIterator.next();
+            PointCh point = pointChIterator.next();
             double lat = Math.toDegrees(point.lat());
             double lon = Math.toDegrees(point.lon());
             rtept.setAttribute("lat", String.valueOf(lat));
-            rtept.setAttribute("lon",  String.valueOf(lon));
+            rtept.setAttribute("lon", String.valueOf(lon));
 
             //altitude of rtept element
             altitude = profile.elevationAt(positionOnRtoue);
@@ -95,7 +98,7 @@ public final class GpxGenerator {
             ele.setTextContent(String.valueOf(altitude));
 
             //update position on route
-            if(edgeIterator.hasNext())positionOnRtoue+=edgeIterator.next().length();
+            if (edgeIterator.hasNext()) positionOnRtoue += edgeIterator.next().length();
         }
 
         return doc;
@@ -103,9 +106,10 @@ public final class GpxGenerator {
 
     /**
      * writes the GPX document corresponding to the given Route and its profile, in the given file
+     *
      * @param fileName name of the file in which the GPX document will be written
-     * @param route the given Route
-     * @param profile the elevation profile of the given Route
+     * @param route    the given Route
+     * @param profile  the elevation profile of the given Route
      * @throws IOException
      */
     public static void writeGpx(String fileName, Route route, ElevationProfile profile) throws IOException {
@@ -126,6 +130,7 @@ public final class GpxGenerator {
 
     /**
      * creates a new, very simple, GPX Document
+     *
      * @return a new basic GPX Document
      */
     private static Document newDocument() {
