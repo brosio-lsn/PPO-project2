@@ -63,6 +63,7 @@ public record RoutePoint(PointCh point, double position, double distanceToRefere
      * are the arguments passed to min otherwise
      */
     public RoutePoint min(PointCh thatPoint, double thatPosition, double thatDistanceToReference) {
-        return this.distanceToReference <= thatDistanceToReference ? this : new RoutePoint(thatPoint, thatPosition, thatDistanceToReference);
+        return this.distanceToReference <= thatDistanceToReference ?
+                this : new RoutePoint(thatPoint, thatPosition, thatDistanceToReference);
     }
 }

@@ -11,12 +11,13 @@ public final class SwissBounds {
     /**
      * private constructor to make the class non instantiable
      */
-    private SwissBounds(){}
+    private SwissBounds() {
+    }
 
     /**
      * smallest E coordinate in switzerland
      */
-    public static final double MIN_E =2485000;
+    public static final double MIN_E = 2485000;
 
     /**
      * largest E coordinate in switzerland
@@ -36,20 +37,21 @@ public final class SwissBounds {
     /**
      * swizerland's width
      */
-    public static final double WIDTH = MAX_E-MIN_E;
+    public static final double WIDTH = MAX_E - MIN_E;
 
     /**
      * swizerland's height
      */
-    public static final double HEIGHT = MAX_N-MIN_N;
+    public static final double HEIGHT = MAX_N - MIN_N;
 
     /**
      * checks if a point is in Switzerland
+     *
      * @param e the E coordinate of the tested point
      * @param n the N coordinate of the tested point
      * @return true if the coordinates of the tested points are within Switzerland's bounds
      */
-    public static boolean containsEN(double e, double n){
-        return((e>=MIN_E && e<=MAX_E) && (n>=MIN_N && n<=MAX_N));
+    public static boolean containsEN(double e, double n) {
+        return ((e >= MIN_E && e <= MAX_E) && (n >= MIN_N && n <= MAX_N));
     }
 }

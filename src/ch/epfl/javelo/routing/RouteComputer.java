@@ -2,6 +2,7 @@ package ch.epfl.javelo.routing;
 
 import ch.epfl.javelo.Preconditions;
 import ch.epfl.javelo.data.Graph;
+
 import java.util.*;
 
 /**
@@ -37,7 +38,7 @@ final public class RouteComputer {
      * @param startNodeId id of the Route's starting node
      * @param endNodeId   id of the Route's ending node
      * @return the shortest Route  between 2 nodes, weighted with the costfunction
-     * @throws IllegalArgumentException if the starting point is the same as the destination
+     * @throws IllegalArgumentException if the starting node is the same as the destination
      */
     public Route bestRouteBetween(int startNodeId, int endNodeId) {
         Preconditions.checkArgument(startNodeId != endNodeId);
@@ -47,7 +48,7 @@ final public class RouteComputer {
         record WeightedNode(int nodeId, float distance)
                 implements Comparable<WeightedNode> {
             /**
-             * @inheritDoc
+             * {@inheritDoc}
              * @param that the WeightedNode that is compared to the current WeightedNode
              */
             @Override

@@ -44,6 +44,7 @@ public interface Route {
     /**
      * returns the point at the given position along the route
      *
+     * @param position position to compute the point at.
      * @return the point at the given position along the route
      */
     PointCh pointAt(double position);

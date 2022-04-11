@@ -8,15 +8,13 @@ import java.nio.*;
 import java.nio.channels.FileChannel;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.DoubleSummaryStatistics;
 import java.util.List;
 import java.util.function.DoubleUnaryOperator;
 
-import static ch.epfl.javelo.data.Attribute.ACCESS_PRIVATE;
-import static ch.epfl.javelo.data.Attribute.HIGHWAY_MOTORWAY;
 
 /**
  * represents a Graph
+ *
  * @author Louis ROCHE (345620)
  * @author Ambroise AIGUEPERSE (341890)
  */
@@ -121,7 +119,7 @@ public final class Graph {
     /**
      * returns the identity of the node closest to a given point, and given a radius of search.
      *
-     * @param point          (PointCh) poi  nt to search the closest node to.
+     * @param point          (PointCh) point to search the closest node to.
      * @param searchDistance (double) radius of the circle at which the node is to be searched
      * @return (int) the identity of the node closest to a given point, and given a radius of search.
      */
