@@ -41,7 +41,7 @@ public final class TileManager {
          * the number of tiles
          */
         public static boolean isValid(int zoomLevel, int xIndex, int yIndex) {
-            double nbOfTiles = Math.scalb(TILES_AT_ZOOM_0, zoomLevel);
+            double nbOfTiles = Math.pow(TILES_AT_ZOOM_0, zoomLevel);
             return (xIndex >= 0
                     && yIndex >= 0
                     && xIndex + 1 <= Math.sqrt(nbOfTiles)
@@ -92,17 +92,18 @@ public final class TileManager {
         if (cache.containsKey(id)) {
             return cache.get(id);
         } else if (Files.exists(Path.of(imagePath), LinkOption.NOFOLLOW_LINKS)) {
-            Image fileImage = new Image(imagePath);
+            imagePath = imagePath;
+            Image fileImage = new Image(Path.of(imagePath).toString());
             cache.put(id, fileImage);
             return fileImage;
         } else {
             Files.createDirectories(pathOfTile);
-            URL u = new URL("https://" + serverName + imagePath);
+            URL u = new URL("https://" + serverName + url.toString());
             URLConnection c = u.openConnection();
             c.setRequestProperty("User-Agent", "JaVelo");
             System.out.println(pathToRepertory + imagePath);
             try (InputStream i = c.getInputStream();
-                 OutputStream writer = new FileOutputStream(pathToRepertory + imagePath)) {
+                 OutputStream writer = new FileOutputStream(imagePath)) {
                 i.transferTo(writer);
             }
             Image fileImage = new Image(pathToRepertory.resolve("%d".formatted(id.zoomLevel)

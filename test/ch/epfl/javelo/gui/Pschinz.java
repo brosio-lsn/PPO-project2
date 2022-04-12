@@ -14,13 +14,16 @@ import javafx.stage.Stage;
 import java.nio.file.Path;
 import java.util.function.Consumer;
 
-public class Pschinz extends Application {
-    public static void main(String[] args) { launch(args); }
+public class Pschinz extends Application{
+    public static void main(String[] args) { launch(args);}
+
+
+
 
     @Override
     public void start(Stage primaryStage) throws Exception {
         Graph graph = Graph.loadFrom(Path.of("lausanne"));
-        Path cacheBasePath = Path.of(".");
+        Path cacheBasePath = Path.of("C:\\Users\\louis\\PPO-project2\\out\\images");
         String tileServerHost = "tile.openstreetmap.org";
         TileManager tileManager =
                 new TileManager(cacheBasePath, tileServerHost);
@@ -61,3 +64,4 @@ public class Pschinz extends Application {
         public void accept(String s) { System.out.println(s); }
     }
 }
+
