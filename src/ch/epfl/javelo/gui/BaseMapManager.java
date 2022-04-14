@@ -33,16 +33,13 @@ public final class BaseMapManager {
             assert oldS == null;
             newS.addPreLayoutPulseListener(this::redrawIfNeeded);
         });
-        int xTopLeft = (int) property.getValue().topLeft().getX();
-        int yTopLeft = (int) property.getValue().topLeft().getY();
-        int zoomLevel = property.getValue().zoomLevel();
     }
 
     public Pane pane() throws IOException {
         GraphicsContext context = canvas.getGraphicsContext2D();
         for (int x = xTopLeft / POINTS_PER_TILE; x >= 0; x--) {
             for (int y = yTopLeft / POINTS_PER_TILE; y >= 0; y--) {
-                context.drawImage(tileManager.imageForTileAt(new TileManager.TileId(zoomLevel, x, y)), xTopLeft, yTopLeft);
+                context.drawImage(tileManager.imageForTileAt(new TileManager.TileId(zoomLevel, x, y)), x, y);
             }
         }
         return pane;
@@ -51,6 +48,9 @@ public final class BaseMapManager {
     private void redrawIfNeeded() {
         if (!redrawNeeded) return;
         redrawNeeded = false;
+        xTopLeft = (int) property.getValue().topLeft().getX();
+        yTopLeft = (int) property.getValue().topLeft().getY();
+        zoomLevel = property.getValue().zoomLevel();
         redrawOnNextPulse();
     }
 
