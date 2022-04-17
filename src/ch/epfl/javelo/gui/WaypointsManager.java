@@ -83,7 +83,7 @@ public final class WaypointsManager {
         //todo demander si je dois bien setLayout en fonction des corrdonées du noeau javelo, pas du point initial
         PointWebMercator nodePointWebMercator = PointWebMercator.ofPointCh(wayPoint.point());
         group.setLayoutX(mapViewParameters.get().viewX(nodePointWebMercator));
-        group.setLayoutY(mapViewParameters.get().viewX(nodePointWebMercator));
+        group.setLayoutY(mapViewParameters.get().viewY(nodePointWebMercator));
 
         pane.getChildren().add(group);
         observableList.add(wayPoint);

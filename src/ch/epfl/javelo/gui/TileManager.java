@@ -21,7 +21,7 @@ import java.util.LinkedHashMap;
 
 public final class TileManager {
 
-    public final record TileId(int zoomLevel, int xIndex, int yIndex) {
+    public record TileId(int zoomLevel, int xIndex, int yIndex) {
         private static final int TILES_AT_ZOOM_0 = 4;
 
         /**
@@ -121,7 +121,7 @@ public final class TileManager {
         c.setRequestProperty("User-Agent", "JaVelo");
         Image fileImage;
         try (InputStream i = c.getInputStream();
-             OutputStream writer = new FileOutputStream(pathToRepertory + pathToImage)) {
+             OutputStream writer = new FileOutputStream(pathToImage)) {
             i.transferTo(writer);
             fileImage = new Image(i);
         }
