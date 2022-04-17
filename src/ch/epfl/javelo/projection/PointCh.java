@@ -11,7 +11,7 @@ import ch.epfl.javelo.Preconditions;
  * @author Ambroise AIGUEPERSE (341890)
  */
 
-public record PointCh(double e, double n) {
+public record  PointCh(double e, double n) {
     /**
      * Constructor of the class PointCh
      *

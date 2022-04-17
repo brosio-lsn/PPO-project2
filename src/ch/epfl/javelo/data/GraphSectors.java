@@ -45,7 +45,6 @@ public record GraphSectors(ByteBuffer buffer) {
         int xCoordinateOfBottomRightSector = Math2.clamp(1, (int) Math.ceil(((center.e() + distance) - SwissBounds.MIN_E) / SECTOR_WIDTH), NUMBER_OF_SECTORS_ON_SIDE);
         int yCoordinateOfBottomLeftSector = Math2.clamp(1, (int) Math.ceil(((center.n() - distance) - SwissBounds.MIN_N) / SECTOR_HEIGHT), NUMBER_OF_SECTORS_ON_SIDE);
         int yCoordinateOfTopLeftSector = Math2.clamp(1, (int) Math.ceil(((center.n() + distance) - SwissBounds.MIN_N) / SECTOR_HEIGHT), NUMBER_OF_SECTORS_ON_SIDE);
-
         for (int y = yCoordinateOfBottomLeftSector; y <= yCoordinateOfTopLeftSector; ++y)
             for (int x = xCoordinateOfBottomLeftSector; x <= xCoordinateOfBottomRightSector; ++x) {
                 int idOfSector = NUMBER_OF_SECTORS_ON_SIDE * (y - 1) + (x - 1);
