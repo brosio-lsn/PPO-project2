@@ -1,7 +1,5 @@
 package ch.epfl.javelo.gui;
 
-import ch.epfl.javelo.Math2;
-import ch.epfl.javelo.projection.PointWebMercator;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.scene.canvas.Canvas;
@@ -19,21 +17,22 @@ public final class BaseMapManager {
     private final Canvas canvas;
     private final Pane pane;
     boolean redrawNeeded;
-    private final static int POINTS_PER_TILE = 256;
+    private final static int PIXELS_PER_TILE = 256;
 
     public BaseMapManager(TileManager tileManager, WaypointsManager waypointsManager, ObjectProperty<MapViewParameters> property) {
         this.waypointsManager = waypointsManager;
         this.property = property;
         this.tileManager = tileManager;
-        canvas = new Canvas(600, 300);
+        canvas = new Canvas();
         pane = new Pane(canvas);
         canvas.sceneProperty().addListener((p, oldS, newS) -> {
             assert oldS == null;
             newS.addPreLayoutPulseListener(this::redrawIfNeeded);
         });
+        redrawOnNextPulse();
         canvas.widthProperty().bind(pane.widthProperty());
         canvas.heightProperty().bind(pane.heightProperty());
-        redrawOnNextPulse();
+        double a = canvas.getWidth();
     }
 
     public Pane pane() {
@@ -49,23 +48,24 @@ public final class BaseMapManager {
         GraphicsContext context = canvas.getGraphicsContext2D();
         Image imageToDraw;
         boolean canDraw = true;
-        System.out.println(canvas.getWidth());
-        System.out.println(canvas.getHeight());
-        for (int x = 0; x <= canvas.getWidth(); x+= POINTS_PER_TILE) {
-            for (int y = 0; y <= canvas.getHeight(); y+= POINTS_PER_TILE) {
-                int yTileIndex = Math2.ceilDiv(yTopLeft+y, POINTS_PER_TILE);
-                int xTileIndex = Math2.ceilDiv(xTopLeft+x, POINTS_PER_TILE);
+        for (int x = 0; x <= canvas.getWidth()+PIXELS_PER_TILE; x += PIXELS_PER_TILE) {
+            for (int y = 0; y <= canvas.getHeight()+PIXELS_PER_TILE; y += PIXELS_PER_TILE) {
+                int yTileIndex = (yTopLeft+y)/ PIXELS_PER_TILE;
+                int xTileIndex = (xTopLeft+x)/ PIXELS_PER_TILE;
                 try {
-                    imageToDraw = tileManager.imageForTileAt(new TileManager.TileId(zoomLevel, xTileIndex,
-                            (yTileIndex)));
+                    imageToDraw = tileManager.imageForTileAt(new TileManager.TileId(zoomLevel, xTileIndex, yTileIndex));
                 } catch (IOException e) {
                     canDraw = false;
                     break;
                 }
-                if (canDraw) context.drawImage(imageToDraw, Math2.clamp(0, x, canvas.getWidth()), Math2.clamp(0,y,canvas.getHeight()));
+                if (canDraw) {
+                    System.out.println(xTileIndex + "-" + yTileIndex);
+                    context.drawImage(imageToDraw, xTileIndex*PIXELS_PER_TILE - xTopLeft, yTileIndex*PIXELS_PER_TILE-yTopLeft);
+                }
                 canDraw = true;
             }
         }
+        redrawOnNextPulse();
     }
 
     private void redrawOnNextPulse() {

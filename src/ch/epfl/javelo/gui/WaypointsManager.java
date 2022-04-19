@@ -103,11 +103,11 @@ public final class WaypointsManager {
             Group group = createMarkerGroup();
             if(i==0) group.getStyleClass().add("first");
             //todo je check si i est superor a 0 aussi car sinon tu peux etre first et last
-            if(i==size && i>0) group.getStyleClass().add("last");
+            if(i==size-1 && i !=0) group.getStyleClass().add("last");
 
             PointWebMercator pointWebMercator = PointWebMercator.ofPointCh(wayPoint.point());
             group.setLayoutX(mapViewParameters.get().viewX(pointWebMercator));
-            group.setLayoutY(mapViewParameters.get().viewX(pointWebMercator));
+            group.setLayoutY(mapViewParameters.get().viewY(pointWebMercator));
 
             pane.getChildren().add(group);
         }
