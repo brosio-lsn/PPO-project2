@@ -103,7 +103,9 @@ public final class WaypointsManager {
             Group group = createMarkerGroup();
             if(i==0) group.getStyleClass().add("first");
             //todo je check si i est superor a 0 aussi car sinon tu peux etre first et last
-            if(i==size-1 && i !=0) group.getStyleClass().add("last");
+            else if(i==size-1 && i>0) group.getStyleClass().add("last");
+            else group.getStyleClass().add("middle");
+
 
             PointWebMercator pointWebMercator = PointWebMercator.ofPointCh(wayPoint.point());
             group.setLayoutX(mapViewParameters.get().viewX(pointWebMercator));
@@ -127,7 +129,10 @@ public final class WaypointsManager {
         interior.setContent("M0-23A1 1 0 000-29 1 1 0 000-23");
         interior.getStyleClass().add("pin_inside");
 
-        return new Group(exterior, interior);
+        Group group=new Group(exterior, interior);
+        group.getStyleClass().add("pin");
+
+        return group;
     }
 
 
