@@ -56,6 +56,7 @@ public class Pschinz extends Application{
         primaryStage.setMinHeight(300);
         primaryStage.setScene(new Scene(mainPane));
         primaryStage.show();
+
     }
 
     private static final class ErrorConsumer

@@ -3,6 +3,8 @@ package ch.epfl.javelo.gui;
 import ch.epfl.javelo.Math2;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -21,18 +23,68 @@ import javafx.scene.layout.Pane;
 
 import java.io.IOException;
 
-
+/**
+ * @author Louis ROCHE (345620)
+ * @author Ambroise AIGUEPERSE (341890)
+ */
 public final class BaseMapManager {
+    /**
+     * TileManager to be used to load each image
+     */
     private final TileManager tileManager;
+    /**
+     * WayPointsManager to be used to manage Waypoints
+     */
     private final WaypointsManager waypointsManager;
+    /**
+     * property to be used to get the parameters from which we can observe the map
+     */
     private final ObjectProperty<MapViewParameters> property;
+    /**
+     * canvas to be drawn on.
+     */
     private final Canvas canvas;
+    /**
+     * pane to put the canvas on.
+     */
     private final Pane pane;
+    /**
+     * boolean telling whether a redraw of the map is needed.
+     */
     boolean redrawNeeded;
-    EventHandler<MouseEvent> mouseDrag, mouseClick;
-    EventHandler<ScrollEvent> mouseScroll;
+    /**
+     * number of pixels per tile
+     */
     private final static int PIXELS_PER_TILE = 256;
+    /**
+     * scaling factor a zoom engenders. Zooming in of 1 level multiplies the number of tiles by 4.
+     */
+    private final static int ZOOM_SCALING_FACTOR = 4;
+    /**
+     * minimum zoom level
+     */
+    private final static int ZOOM_LEVEl_MIN = 8;
+    /**
+     * maximum zoom level
+     */
+    private final static int ZOOM_LEVEL_MAX = 19;
+    /**
+     * xTopLeft : x coordinate of the top left corner of the map
+     * yTopLeft : y coordinate of the top left corner of the map
+     * zoomLevel : zoomLevel
+     */
     private int xTopLeft, yTopLeft, zoomLevel;
+    /**
+     * property recording the coordinates of the mouse on the last event it indulged in.
+     */
+    private ObjectProperty<Point2D> mouseOnLastEvent;
+
+    /**
+     * Constructor of the BaseMapManager class.
+     * @param tileManager tileManager to be used to draw the tiles and see whether they are valid
+     * @param waypointsManager waypointsManager to be used to add/remove waypoints
+     * @param property property to use to observe the mapViewParameters.
+     */
 
     public BaseMapManager(TileManager tileManager, WaypointsManager waypointsManager, ObjectProperty<MapViewParameters> property) {
         this.waypointsManager = waypointsManager;
@@ -44,24 +96,30 @@ public final class BaseMapManager {
             assert oldS == null;
             newS.addPreLayoutPulseListener(this::redrawIfNeeded);
         });
-        redrawOnNextPulse();
         canvas.widthProperty().bind(pane.widthProperty());
-        //  canvas.widthProperty().addListener(property.addListener(redrawOnNextPulse());
-        //});
         canvas.heightProperty().bind(pane.heightProperty());
-        createHandlers();
         canvas.heightProperty().addListener((observable, oldValue, newValue) -> redrawOnNextPulse());
         canvas.widthProperty().addListener((o, oV, nV) -> redrawOnNextPulse());
+        property.addListener((o, oV, nV) -> redrawOnNextPulse());
+        mouseOnLastEvent = new SimpleObjectProperty<>();
+        createHandlers();
     }
 
+    /**
+     * returns the pane of the class
+     * @return returns the pane of the class
+     */
     public Pane pane() {
         return pane;
     }
 
+    /**
+     * redraws the canvas if it is needed - if redrawOnNextPulse() has been called
+     */
     private void redrawIfNeeded() {
-        xTopLeft = (int) property.getValue().topLeft().getX();
-        yTopLeft = (int) property.getValue().topLeft().getY();
-        zoomLevel = property.getValue().zoomLevel();
+        xTopLeft = (int) property.get().topLeft().getX();
+        yTopLeft = (int) property.get().topLeft().getY();
+        zoomLevel = property.get().zoomLevel();
         if (!redrawNeeded) return;
         redrawNeeded = false;
         GraphicsContext context = canvas.getGraphicsContext2D();
@@ -73,12 +131,12 @@ public final class BaseMapManager {
                 int xTileIndex = (xTopLeft + x) / PIXELS_PER_TILE;
                 try {
                     imageToDraw = tileManager.imageForTileAt(new TileManager.TileId(zoomLevel, xTileIndex, yTileIndex));
-                } catch (IOException e) {
+                } catch (Exception e) {
                     canDraw = false;
                     break;
                 }
                 if (canDraw) {
-                    System.out.println(xTileIndex + "-" + yTileIndex);
+                    //   System.out.println(xTileIndex + "-" + yTileIndex);
                     context.drawImage(imageToDraw, xTileIndex * PIXELS_PER_TILE - xTopLeft, yTileIndex * PIXELS_PER_TILE - yTopLeft);
                 }
                 canDraw = true;
@@ -86,42 +144,73 @@ public final class BaseMapManager {
         }
     }
 
+    /**
+     * tells the program to redraw the canvas on the next pulse - and redrawIfNeeded will do it.
+     */
     private void redrawOnNextPulse() {
         redrawNeeded = true;
         Platform.requestNextPulse();
     }
 
+    /**
+     * creates the event handlers bound to the pane, and makes them handle each event accordingly
+     * List of events :
+     * - mouse scroll -> zoom/dezoom
+     * - mouse press -> initializes the dragging of the map
+     * - mouse drag -> drags the map around
+     * - mouse release -> stops the dragging
+     * - mouse click -> puts a waypoint on the place the mouse clicked on.
+     */
     private void createHandlers() {
-        mouseScroll = new EventHandler<>() {
-            @Override
-            public void handle(ScrollEvent event) {
-                pane.setOnScroll(this);
-                zoomLevel = (int) Math2.clamp(8, zoomLevel + event.getDeltaY(), 19);
+        SimpleLongProperty minScrollTime = new SimpleLongProperty();
+        SimpleDoubleProperty zoom = new SimpleDoubleProperty(property.get().zoomLevel());
+        pane.setOnScroll(e -> {
+            long currentTime = System.currentTimeMillis();
+            if (currentTime < minScrollTime.get()) return;
+            minScrollTime.set(currentTime + 250);
+            double zoomDelta = Math.signum(e.getDeltaY());
+            double a  = zoomLevel;
+            zoomLevel = (int) Math2.clamp(ZOOM_LEVEl_MIN, zoomLevel + zoomDelta, ZOOM_LEVEL_MAX);
+            System.out.println(zoomLevel);
+            double scalingFactor = Math.pow(ZOOM_SCALING_FACTOR, zoomDelta);
+            xTopLeft *= scalingFactor;
+            yTopLeft *= scalingFactor;
+            property.set(new MapViewParameters(xTopLeft, yTopLeft, zoomLevel));
+        });
+        pane.setOnMousePressed(event -> {
+            if (mouseOnLastEvent.get() == null) mouseOnLastEvent.set(new Point2D(event.getX(), event.getY()));
+           /* if (!event.isStillSincePress()) {
+                double deltaX = -event.getX() + mouseOnLastEvent.get().getX();
+                double deltaY = -event.getY() + mouseOnLastEvent.get().getY();
+                property.set(property.get().withMinXY(xTopLeft + deltaX, yTopLeft+deltaY));
+                mouseOnLastEvent.get().add(deltaX, deltaY);
+            }
 
+            */
+        });
+        pane.setOnMouseDragged(event -> {
+            if (mouseOnLastEvent.get() == null) mouseOnLastEvent.set(new Point2D(event.getX(), event.getY()));
+            double deltaX = -event.getX() + mouseOnLastEvent.get().getX();
+            double deltaY = -event.getY() + mouseOnLastEvent.get().getY();
+            if (!event.isStillSincePress()) {
+                deltaX = -event.getX() + mouseOnLastEvent.get().getX();
+                deltaY = -event.getY() + mouseOnLastEvent.get().getY();
+                property.set(property.get().withMinXY(xTopLeft + deltaX, yTopLeft + deltaY));
             }
-        };
-        mouseDrag = new EventHandler<>() {
-            @Override
-            public void handle(MouseEvent event) {
-                pane.setOnMouseDragged(this);
-                pane.setOnMouseReleased(this);
-                SimpleObjectProperty<Point2D> mousePoint = new SimpleObjectProperty<>(new Point2D(event.getX(), event.getY()));
-                if (!event.isStillSincePress()) {
-                    double deltaX = event.getX() - mousePoint.get().getX();
-                    double deltaY = event.getY() - mousePoint.get().getY();
-                    mousePoint.get().add(deltaX, deltaY);
-                    xTopLeft += deltaX;
-                    yTopLeft += deltaY;
-                }
-            }
-        };
-        mouseClick = new EventHandler<>() {
-            @Override
-            public void handle(MouseEvent event) {
-                pane.setOnMousePressed(this);
-                waypointsManager.addWayPoint(event.getX(), event.getY());
+            mouseOnLastEvent.get().add(deltaX, deltaY);
+        });
+        pane.setOnMouseReleased(event -> {
+        });
+        pane.setOnMouseClicked(event -> {
+            if (mouseOnLastEvent.get() == null) mouseOnLastEvent.set(new Point2D(event.getX(), event.getY()));
+            if (event.isStillSincePress()) waypointsManager.addWayPoint(event.getX(), event.getY());
+        });
+    }
 
-            }
-        };
+    private void updateMouseCoordinates(double x, double y) {
+        double deltaX = x - mouseOnLastEvent.get().getX();
+        double deltaY = y - mouseOnLastEvent.get().getY();
+        mouseOnLastEvent.get().add(deltaX, deltaY);
     }
 }
+
