@@ -5,6 +5,7 @@ import ch.epfl.javelo.projection.PointWebMercator;
 import javafx.beans.property.ObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.SVGPath;
 import java.util.function.Consumer;
@@ -79,7 +80,13 @@ public final class WaypointsManager {
         WayPoint wayPoint = new WayPoint(pointWebMercator.toPointCh(), nodeId);
 
         Group group = createMarkerGroup();
-        group.getStyleClass().add("last");
+        if(observableList.size()>0) {
+            group.getStyleClass().add("last");
+            Node previousGroup = pane.getChildren().get(pane.getChildren().size()-1);
+            previousGroup.getStyleClass().remove("last");
+            previousGroup.getStyleClass().add("middle");
+        }
+        else group.getStyleClass().add("first");
         //todo demander si je dois bien setLayout en fonction des corrdonées du noeau javelo, pas du point initial
         PointWebMercator nodePointWebMercator = PointWebMercator.ofPointCh(wayPoint.point());
         group.setLayoutX(mapViewParameters.get().viewX(nodePointWebMercator));
