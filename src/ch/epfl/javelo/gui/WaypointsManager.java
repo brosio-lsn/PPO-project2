@@ -1,13 +1,21 @@
 package ch.epfl.javelo.gui;
 
 import ch.epfl.javelo.data.Graph;
+import ch.epfl.javelo.projection.PointCh;
 import ch.epfl.javelo.projection.PointWebMercator;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.SVGPath;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.function.Consumer;
 /**
  * represents a point of passage
@@ -31,7 +39,7 @@ public final class WaypointsManager {
     /**
      * the (observable) list of all waypoints
      */
-    private final ObservableList observableList;
+    private final ObservableList<WayPoint> observableList;
 
     /**
      * an object for reporting errors
@@ -43,8 +51,16 @@ public final class WaypointsManager {
      */
     private final Pane pane;
 
-    //todo immuabilité (je peux faire un copyOf dde la liste?)
+    private WayPoint movedWayPoint;
 
+    private double xBeforeDrag;
+    private double yBeforeDrag;
+
+    private ObjectProperty<Point2D> mouseOnLastEvent;
+
+    //todo immuabilité (je peux faire un copyOf dde la liste?
+    //todo voir si j ajoute les node bien (genre sur les graph node ou pas)
+    //todo magic numbers
     /**
      * constructor of WaypointsManager
      * @param graph the graph of the route
@@ -55,9 +71,19 @@ public final class WaypointsManager {
     public WaypointsManager(Graph graph, ObjectProperty<MapViewParameters> mapViewParameters, ObservableList<WayPoint> observableList, Consumer<String> errorConsumer){
         this.graph=graph;
         this.mapViewParameters=mapViewParameters;
+        mapViewParameters.addListener((property, previousV, newV) -> relocateMarkers(newV));
+
         this.observableList=observableList;
+        //TODO demander si comme ca ca passe tu connnais
+        observableList.addListener((ListChangeListener) change -> createMarkers());
+
         this.errorConsumer=errorConsumer;
-        this.pane=createPane(observableList);
+        pane=new Pane();
+        pane.setPickOnBounds(false);
+        createMarkers();
+
+        this.mouseOnLastEvent=new SimpleObjectProperty<>();
+
     }
 
     /**
@@ -79,7 +105,7 @@ public final class WaypointsManager {
         int nodeId=graph.nodeClosestTo(pointWebMercator.toPointCh(), 400);
         WayPoint wayPoint = new WayPoint(pointWebMercator.toPointCh(), nodeId);
 
-        Group group = createMarkerGroup();
+        Group group = createMarkerGroup(wayPoint);
         if(observableList.size()>0) {
             group.getStyleClass().add("last");
             Node previousGroup = pane.getChildren().get(pane.getChildren().size()-1);
@@ -88,44 +114,57 @@ public final class WaypointsManager {
         }
         else group.getStyleClass().add("first");
         //todo demander si je dois bien setLayout en fonction des corrdonées du noeau javelo, pas du point initial
-        PointWebMercator nodePointWebMercator = PointWebMercator.ofPointCh(wayPoint.point());
-        group.setLayoutX(mapViewParameters.get().viewX(nodePointWebMercator));
-        group.setLayoutY(mapViewParameters.get().viewY(nodePointWebMercator));
-
         pane.getChildren().add(group);
         observableList.add(wayPoint);
     }
 
-    /**
+/*    *//**
      * creates the pane containing all the waypoints in observableList
-     * @param observableList the (observable) list of all waypoints
      * @return the pane containing all the waypoints in observableList
-     */
-    private Pane createPane(ObservableList<WayPoint> observableList){
-        Pane pane=new Pane();
+     *//*
+    private Pane createPane(){
+        this.pane=new Pane();
+        pane.setPickOnBounds(false);
+        createMarkers();
+        return pane;
+    }*/
+
+    private void relocateMarkers(MapViewParameters mapViewParameters){
+        List<Node> markers = new ArrayList<>();
+        Iterator<WayPoint> itWaypoints = observableList.iterator();
+        Iterator<Node> itNode = pane.getChildren().iterator();
+        while(itNode.hasNext()){
+            Node node = itNode.next();
+            WayPoint wayPoint = itWaypoints.next();
+            PointWebMercator nodePointWebMercator = PointWebMercator.ofPointCh(wayPoint.point());
+            node.setLayoutX(mapViewParameters.viewX(nodePointWebMercator));
+            node.setLayoutY(mapViewParameters.viewY(nodePointWebMercator));
+            markers.add(node);
+        }
+        pane.getChildren().setAll(markers);
+    }
+
+    private void createMarkers (){
+        List<Node> markers = new ArrayList<>();
         int size = observableList.size();
         for(int i =0; i<observableList.size();++i){
             WayPoint wayPoint=observableList.get(i);
 
-            Group group = createMarkerGroup();
+            Group group = createMarkerGroup(wayPoint);
             if(i==0) group.getStyleClass().add("first");
-            //todo je check si i est superor a 0 aussi car sinon tu peux etre first et last
+                //todo je check si i est superor a 0 aussi car sinon tu peux etre first et last
             else if(i==size-1 && i!=0) group.getStyleClass().add("last");
             else group.getStyleClass().add("middle");
-            PointWebMercator pointWebMercator = PointWebMercator.ofPointCh(wayPoint.point());
-            group.setLayoutX(mapViewParameters.get().viewX(pointWebMercator));
-            group.setLayoutY(mapViewParameters.get().viewY(pointWebMercator));
-            pane.setPickOnBounds(false);
-            pane.getChildren().add(group);
+            markers.add(group);
         }
-        return pane;
+        pane.getChildren().setAll(markers);
     }
 
     /**
      * creates a regular marker group
      * @return a regular marker group
      */
-    private Group createMarkerGroup (){
+    private Group createMarkerGroup (WayPoint wayPoint){
         SVGPath exterior=new SVGPath();
         exterior.setContent("M-8-20C-5-14-2-7 0 0 2-7 5-14 8-20 20-40-20-40-8-20");
         exterior.getStyleClass().add("pin_outside");
@@ -137,6 +176,45 @@ public final class WaypointsManager {
         Group group=new Group(exterior, interior);
         group.getStyleClass().add("pin");
 
+        PointWebMercator nodePointWebMercator = PointWebMercator.ofPointCh(wayPoint.point());
+        group.setLayoutX(mapViewParameters.get().viewX(nodePointWebMercator));
+        group.setLayoutY(mapViewParameters.get().viewY(nodePointWebMercator));
+
+        group.setOnMouseClicked(event->{
+            if (event.isStillSincePress())observableList.remove(wayPoint);
+            if (event.isStillSincePress())System.out.println("deleted");
+        });
+
+        group.setOnMousePressed(event-> {
+            xBeforeDrag=group.getLayoutX();
+            yBeforeDrag=group.getLayoutY();
+            movedWayPoint=wayPoint;
+            System.out.println("pressed");
+            mouseOnLastEvent.set(new Point2D(event.getX(), event.getY()));
+        });
+
+        group.setOnMouseDragged(event-> {
+            double deltaX = event.getX() - mouseOnLastEvent.get().getX();
+            double deltaY = event.getY() - mouseOnLastEvent.get().getY();
+            group.setLayoutX(group.getLayoutX()+deltaX);
+            group.setLayoutY(group.getLayoutY()+deltaY);
+            mouseOnLastEvent.get().add(deltaX, deltaY);
+            System.out.println("dragg");
+        });
+
+        group.setOnMouseReleased(event-> {
+            if (!event.isStillSincePress()) {
+                PointCh pointCh = mapViewParameters.get().pointAt(group.getLayoutX(), group.getLayoutY()).toPointCh();
+                int nodeId = graph.nodeClosestTo(pointCh, 1000);
+                if (nodeId == -1) {
+                    System.out.println("error");
+                    group.setLayoutX(xBeforeDrag);
+                    group.setLayoutY(yBeforeDrag);
+                } else {
+                    observableList.set(observableList.indexOf(movedWayPoint), new WayPoint(pointCh, nodeId));
+                }
+            }
+        });
         return group;
     }
 
