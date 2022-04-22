@@ -51,16 +51,36 @@ public final class WaypointsManager {
      */
     private final Pane pane;
 
-    private WayPoint movedWayPoint;
+    /**
+     * search distance for node closest to, used in the method addWayPoint
+     */
+    private final static int SEARCH_DISTANCE_NODE_CLOSEST_TO_1 = 500;
 
+    /**
+     * search distance for node closest to, used when a marker is repositioned after a drag
+     */
+    private final static int SEARCH_DISTANCE_NODE_CLOSEST_TO_2 = 1000;
+
+    /**
+     * the current wayPoint that is being dragged
+     */
+    private WayPoint draggedWayPoint;
+
+    /**
+     * pre-drag x coordinate of the marker that is being dragged
+     */
     private double xBeforeDrag;
+
+    /**
+     * pre-drag y coordinate of the marker that is being dragged
+     */
     private double yBeforeDrag;
 
     private ObjectProperty<Point2D> mouseOnLastEvent;
 
     //todo immuabilité (je peux faire un copyOf dde la liste?
     //todo voir si j ajoute les node bien (genre sur les graph node ou pas)
-    //todo magic numbers
+    //todo demander que faire si on ajoute un pt dans le lac (j ai l error lancée mais j ajoute qd mm?)
     /**
      * constructor of WaypointsManager
      * @param graph the graph of the route
@@ -101,8 +121,11 @@ public final class WaypointsManager {
      */
     public void addWayPoint(double x, double y){
         PointWebMercator pointWebMercator = mapViewParameters.get().pointAt(x,y);
-        //todo demander sur piazza pour la distance, le prof a donné 400
-        int nodeId=graph.nodeClosestTo(pointWebMercator.toPointCh(), 400);
+        int nodeId=graph.nodeClosestTo(pointWebMercator.toPointCh(), SEARCH_DISTANCE_NODE_CLOSEST_TO_1);
+        if(nodeId==-1) {
+            errorConsumer.accept("Aucune route à proximité !");
+            return;
+        }
         WayPoint wayPoint = new WayPoint(pointWebMercator.toPointCh(), nodeId);
 
         Group group = createMarkerGroup(wayPoint);
@@ -129,6 +152,10 @@ public final class WaypointsManager {
         return pane;
     }*/
 
+    /**
+     * relocates the markers according to the new mapviewParameters given in argument
+     * @param mapViewParameters the new mapviewParameters
+     */
     private void relocateMarkers(MapViewParameters mapViewParameters){
         List<Node> markers = new ArrayList<>();
         Iterator<WayPoint> itWaypoints = observableList.iterator();
@@ -144,6 +171,10 @@ public final class WaypointsManager {
         pane.getChildren().setAll(markers);
     }
 
+    /**
+     * creates the markers corresponding to the waypoints contained in observableList
+     * and adds them as children to the pane
+     */
     private void createMarkers (){
         List<Node> markers = new ArrayList<>();
         int size = observableList.size();
@@ -188,7 +219,7 @@ public final class WaypointsManager {
         group.setOnMousePressed(event-> {
             xBeforeDrag=group.getLayoutX();
             yBeforeDrag=group.getLayoutY();
-            movedWayPoint=wayPoint;
+            draggedWayPoint=wayPoint;
             System.out.println("pressed");
             mouseOnLastEvent.set(new Point2D(event.getX(), event.getY()));
         });
@@ -205,13 +236,15 @@ public final class WaypointsManager {
         group.setOnMouseReleased(event-> {
             if (!event.isStillSincePress()) {
                 PointCh pointCh = mapViewParameters.get().pointAt(group.getLayoutX(), group.getLayoutY()).toPointCh();
-                int nodeId = graph.nodeClosestTo(pointCh, 1000);
+                int nodeId = graph.nodeClosestTo(pointCh, SEARCH_DISTANCE_NODE_CLOSEST_TO_2);
                 if (nodeId == -1) {
                     System.out.println("error");
                     group.setLayoutX(xBeforeDrag);
                     group.setLayoutY(yBeforeDrag);
-                } else {
-                    observableList.set(observableList.indexOf(movedWayPoint), new WayPoint(pointCh, nodeId));
+                    errorConsumer.accept("Aucune route à proximité !");
+                }
+                else {
+                    observableList.set(observableList.indexOf(draggedWayPoint), new WayPoint(pointCh, nodeId));
                 }
             }
         });
