@@ -76,11 +76,15 @@ public final class WaypointsManager {
      */
     private double yBeforeDrag;
 
+    /**
+     * property recording the coordinates of the mouse on the last event it indulged in
+     */
     private ObjectProperty<Point2D> mouseOnLastEvent;
 
     //todo immuabilité (je peux faire un copyOf dde la liste?
-    //todo voir si j ajoute les node bien (genre sur les graph node ou pas)
-    //todo demander que faire si on ajoute un pt dans le lac (j ai l error lancée mais j ajoute qd mm?)
+    //todo demander vite fait si ca va les event sur les groupes
+    //todo demander si c normal qd je fais un tt petit mvt sur un marker ca le delete
+
     /**
      * constructor of WaypointsManager
      * @param graph the graph of the route
@@ -91,19 +95,12 @@ public final class WaypointsManager {
     public WaypointsManager(Graph graph, ObjectProperty<MapViewParameters> mapViewParameters, ObservableList<WayPoint> observableList, Consumer<String> errorConsumer){
         this.graph=graph;
         this.mapViewParameters=mapViewParameters;
-        mapViewParameters.addListener((property, previousV, newV) -> relocateMarkers(newV));
-
         this.observableList=observableList;
-        //TODO demander si comme ca ca passe tu connnais
-        observableList.addListener((ListChangeListener) change -> createMarkers());
-
         this.errorConsumer=errorConsumer;
-        pane=new Pane();
-        pane.setPickOnBounds(false);
+        pane=createPane();
         createMarkers();
-
         this.mouseOnLastEvent=new SimpleObjectProperty<>();
-
+        initiateListeners();
     }
 
     /**
@@ -127,7 +124,6 @@ public final class WaypointsManager {
             return;
         }
         WayPoint wayPoint = new WayPoint(pointWebMercator.toPointCh(), nodeId);
-
         Group group = createMarkerGroup(wayPoint);
         if(observableList.size()>0) {
             group.getStyleClass().add("last");
@@ -136,21 +132,29 @@ public final class WaypointsManager {
             previousGroup.getStyleClass().add("middle");
         }
         else group.getStyleClass().add("first");
-        //todo demander si je dois bien setLayout en fonction des corrdonées du noeau javelo, pas du point initial
         pane.getChildren().add(group);
         observableList.add(wayPoint);
     }
 
-/*    *//**
-     * creates the pane containing all the waypoints in observableList
-     * @return the pane containing all the waypoints in observableList
-     *//*
+    /**
+     * creates the initial pane (used in constructor)
+      * @return the initial pane
+     */
     private Pane createPane(){
-        this.pane=new Pane();
-        pane.setPickOnBounds(false);
-        createMarkers();
-        return pane;
-    }*/
+        Pane p=new Pane();
+        p.setPickOnBounds(false);
+        return p;
+    }
+
+    /**
+     * initiates the listeners (used in constructor)
+     */
+    private void initiateListeners(){
+        mapViewParameters.addListener((property, previousV, newV) -> relocateMarkers(newV));
+
+        //TODO demander si comme ca ca passe tu connnais
+        observableList.addListener((ListChangeListener) change -> createMarkers());
+    }
 
     /**
      * relocates the markers according to the new mapviewParameters given in argument
@@ -180,7 +184,6 @@ public final class WaypointsManager {
         int size = observableList.size();
         for(int i =0; i<observableList.size();++i){
             WayPoint wayPoint=observableList.get(i);
-
             Group group = createMarkerGroup(wayPoint);
             if(i==0) group.getStyleClass().add("first");
                 //todo je check si i est superor a 0 aussi car sinon tu peux etre first et last
@@ -213,14 +216,12 @@ public final class WaypointsManager {
 
         group.setOnMouseClicked(event->{
             if (event.isStillSincePress())observableList.remove(wayPoint);
-            if (event.isStillSincePress())System.out.println("deleted");
         });
 
         group.setOnMousePressed(event-> {
             xBeforeDrag=group.getLayoutX();
             yBeforeDrag=group.getLayoutY();
             draggedWayPoint=wayPoint;
-            System.out.println("pressed");
             mouseOnLastEvent.set(new Point2D(event.getX(), event.getY()));
         });
 
@@ -230,7 +231,6 @@ public final class WaypointsManager {
             group.setLayoutX(group.getLayoutX()+deltaX);
             group.setLayoutY(group.getLayoutY()+deltaY);
             mouseOnLastEvent.get().add(deltaX, deltaY);
-            System.out.println("dragg");
         });
 
         group.setOnMouseReleased(event-> {
@@ -238,14 +238,11 @@ public final class WaypointsManager {
                 PointCh pointCh = mapViewParameters.get().pointAt(group.getLayoutX(), group.getLayoutY()).toPointCh();
                 int nodeId = graph.nodeClosestTo(pointCh, SEARCH_DISTANCE_NODE_CLOSEST_TO_2);
                 if (nodeId == -1) {
-                    System.out.println("error");
                     group.setLayoutX(xBeforeDrag);
                     group.setLayoutY(yBeforeDrag);
                     errorConsumer.accept("Aucune route à proximité !");
                 }
-                else {
-                    observableList.set(observableList.indexOf(draggedWayPoint), new WayPoint(pointCh, nodeId));
-                }
+                else observableList.set(observableList.indexOf(draggedWayPoint), new WayPoint(pointCh, nodeId));
             }
         });
         return group;
