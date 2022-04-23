@@ -125,8 +125,8 @@ public final class BaseMapManager {
         GraphicsContext context = canvas.getGraphicsContext2D();
         Image imageToDraw;
         boolean canDraw = true;
-        for (int x = 0; x <= canvas.getWidth() + PIXELS_PER_TILE; x += PIXELS_PER_TILE) {
-            for (int y = 0; y <= canvas.getHeight() + PIXELS_PER_TILE; y += PIXELS_PER_TILE) {
+        for (int x = 0; x <= canvas.getWidth() + 2*PIXELS_PER_TILE; x += PIXELS_PER_TILE) {
+            for (int y = 0; y <= canvas.getHeight() + 2*PIXELS_PER_TILE; y += PIXELS_PER_TILE) {
                 int yTileIndex = (yTopLeft + y) / PIXELS_PER_TILE;
                 int xTileIndex = (xTopLeft + x) / PIXELS_PER_TILE;
                 try {
@@ -179,14 +179,6 @@ public final class BaseMapManager {
         });
         pane.setOnMousePressed(event -> {
             if (mouseOnLastEvent.get() == null) mouseOnLastEvent.set(new Point2D(event.getX(), event.getY()));
-           /* if (!event.isStillSincePress()) {
-                double deltaX = -event.getX() + mouseOnLastEvent.get().getX();
-                double deltaY = -event.getY() + mouseOnLastEvent.get().getY();
-                property.set(property.get().withMinXY(xTopLeft + deltaX, yTopLeft+deltaY));
-                mouseOnLastEvent.get().add(deltaX, deltaY);
-            }
-
-            */
         });
         pane.setOnMouseDragged(event -> {
             if (mouseOnLastEvent.get() == null) mouseOnLastEvent.set(new Point2D(event.getX(), event.getY()));
@@ -207,10 +199,5 @@ public final class BaseMapManager {
         });
     }
 
-    private void updateMouseCoordinates(double x, double y) {
-        double deltaX = x - mouseOnLastEvent.get().getX();
-        double deltaY = y - mouseOnLastEvent.get().getY();
-        mouseOnLastEvent.get().add(deltaX, deltaY);
-    }
 }
 

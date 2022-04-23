@@ -163,9 +163,7 @@ public final class WaypointsManager {
     private void relocateMarkers(MapViewParameters mapViewParameters){
         List<Node> markers = new ArrayList<>();
         Iterator<WayPoint> itWaypoints = observableList.iterator();
-        Iterator<Node> itNode = pane.getChildren().iterator();
-        while(itNode.hasNext()){
-            Node node = itNode.next();
+        for (Node node : pane.getChildren()) {
             WayPoint wayPoint = itWaypoints.next();
             PointWebMercator nodePointWebMercator = PointWebMercator.ofPointCh(wayPoint.point());
             node.setLayoutX(mapViewParameters.viewX(nodePointWebMercator));
