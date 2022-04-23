@@ -78,6 +78,7 @@ public final class BaseMapManager {
      * property recording the coordinates of the mouse on the last event it indulged in.
      */
     private final ObjectProperty<Point2D> mouseOnLastEvent;
+    GraphicsContext context;
 
     /**
      * Constructor of the BaseMapManager class.
@@ -115,7 +116,7 @@ public final class BaseMapManager {
         zoomLevel = property.get().zoomLevel();
         if (!redrawNeeded) return;
         redrawNeeded = false;
-        GraphicsContext context = canvas.getGraphicsContext2D();
+        context = canvas.getGraphicsContext2D();
         Image imageToDraw;
         boolean canDraw = true;
         for (int x = 0; x <= canvas.getWidth() + 2*PIXELS_PER_TILE; x += PIXELS_PER_TILE) {
@@ -159,7 +160,6 @@ public final class BaseMapManager {
         SimpleLongProperty minScrollTime = new SimpleLongProperty();
         pane.setOnScroll(e -> {
             mouseOnLastEvent.set(new Point2D(e.getX(), e.getY()));
-            e.consume();
             long currentTime = System.currentTimeMillis();
             if (currentTime < minScrollTime.get()) return;
             minScrollTime.set(currentTime + 250);
@@ -175,17 +175,17 @@ public final class BaseMapManager {
         });
         pane.setOnMousePressed(event -> {
            mouseOnLastEvent.set(new Point2D(event.getX(), event.getY()));
-
         });
         pane.setOnMouseDragged(event -> {
             double deltaX = event.getX() - mouseOnLastEvent.get().getX();
             double deltaY = event.getY() - mouseOnLastEvent.get().getY();
             property.set(property.get().withMinXY(xTopLeft - deltaX, yTopLeft - deltaY));
+            mouseOnLastEvent.set(new Point2D(event.getX(), event.getY()));
         });
         pane.setOnMouseReleased(event -> {
             double deltaX = event.getX() - mouseOnLastEvent.get().getX();
             double deltaY = event.getY() - mouseOnLastEvent.get().getY();
-            mouseOnLastEvent.get().add(deltaX, deltaY);
+            mouseOnLastEvent.set(new Point2D(event.getX(), event.getY()));
         });
         pane.setOnMouseClicked(event -> {
             if (mouseOnLastEvent.get() == null) mouseOnLastEvent.set(new Point2D(event.getX(), event.getY()));
