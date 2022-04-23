@@ -116,7 +116,7 @@ public final class TileManager {
     private Image imageFromServer(TileId id, Path pathToFiles, String pathToImage) throws IOException {
         Files.createDirectories(pathToFiles);
         URL u = new URL(HTTPS + serverName + pathToImage);
-        System.out.println(pathToImage);
+       // System.out.println(pathToImage);
         URLConnection c = u.openConnection();
         c.setRequestProperty("User-Agent", "JaVelo");
         Image fileImage;

@@ -59,7 +59,7 @@ public final class BaseMapManager {
     /**
      * scaling factor a zoom engenders. Zooming in of 1 level multiplies the number of tiles by 4.
      */
-    private final static int ZOOM_SCALING_FACTOR = 4;
+    private final static int ZOOM_SCALING_FACTOR = 2;
     /**
      * minimum zoom level
      */
@@ -77,7 +77,7 @@ public final class BaseMapManager {
     /**
      * property recording the coordinates of the mouse on the last event it indulged in.
      */
-    private ObjectProperty<Point2D> mouseOnLastEvent;
+    private final ObjectProperty<Point2D> mouseOnLastEvent;
 
     /**
      * Constructor of the BaseMapManager class.
@@ -92,16 +92,9 @@ public final class BaseMapManager {
         this.tileManager = tileManager;
         canvas = new Canvas();
         pane = new Pane(canvas);
-        canvas.sceneProperty().addListener((p, oldS, newS) -> {
-            assert oldS == null;
-            newS.addPreLayoutPulseListener(this::redrawIfNeeded);
-        });
-        canvas.widthProperty().bind(pane.widthProperty());
-        canvas.heightProperty().bind(pane.heightProperty());
-        canvas.heightProperty().addListener((observable, oldValue, newValue) -> redrawOnNextPulse());
-        canvas.widthProperty().addListener((o, oV, nV) -> redrawOnNextPulse());
-        property.addListener((o, oV, nV) -> redrawOnNextPulse());
         mouseOnLastEvent = new SimpleObjectProperty<>();
+        installBindings();
+        installListeners();
         createHandlers();
     }
 
@@ -133,10 +126,11 @@ public final class BaseMapManager {
                     imageToDraw = tileManager.imageForTileAt(new TileManager.TileId(zoomLevel, xTileIndex, yTileIndex));
                 } catch (Exception e) {
                     canDraw = false;
+                    System.out.println("frero tu pousses");
                     break;
                 }
                 if (canDraw) {
-                    //   System.out.println(xTileIndex + "-" + yTileIndex);
+                    System.out.println(xTileIndex + "-" + yTileIndex + " -> coordinates :  \nx =" + (xTileIndex * PIXELS_PER_TILE-xTopLeft) + " \ny = "  +(yTileIndex * PIXELS_PER_TILE - yTopLeft));
                     context.drawImage(imageToDraw, xTileIndex * PIXELS_PER_TILE - xTopLeft, yTileIndex * PIXELS_PER_TILE - yTopLeft);
                 }
                 canDraw = true;
@@ -163,40 +157,53 @@ public final class BaseMapManager {
      */
     private void createHandlers() {
         SimpleLongProperty minScrollTime = new SimpleLongProperty();
-        SimpleDoubleProperty zoom = new SimpleDoubleProperty(property.get().zoomLevel());
         pane.setOnScroll(e -> {
+            mouseOnLastEvent.set(new Point2D(e.getX(), e.getY()));
+            e.consume();
             long currentTime = System.currentTimeMillis();
             if (currentTime < minScrollTime.get()) return;
             minScrollTime.set(currentTime + 250);
             double zoomDelta = Math.signum(e.getDeltaY());
-            double a  = zoomLevel;
             zoomLevel = (int) Math2.clamp(ZOOM_LEVEl_MIN, zoomLevel + zoomDelta, ZOOM_LEVEL_MAX);
-            System.out.println(zoomLevel);
-            double scalingFactor = Math.pow(ZOOM_SCALING_FACTOR, zoomDelta);
+            double scalingFactor = zoomDelta > 0 ? ZOOM_SCALING_FACTOR : (double)1/ZOOM_SCALING_FACTOR;
             xTopLeft *= scalingFactor;
             yTopLeft *= scalingFactor;
-            property.set(new MapViewParameters(xTopLeft, yTopLeft, zoomLevel));
+            MapViewParameters aaa = property.get();
+            System.out.println(aaa);
+            System.out.println(xTopLeft);
+            property.set(new MapViewParameters(zoomLevel, xTopLeft, yTopLeft));
         });
         pane.setOnMousePressed(event -> {
-            if (mouseOnLastEvent.get() == null) mouseOnLastEvent.set(new Point2D(event.getX(), event.getY()));
+           mouseOnLastEvent.set(new Point2D(event.getX(), event.getY()));
+
         });
         pane.setOnMouseDragged(event -> {
-            if (mouseOnLastEvent.get() == null) mouseOnLastEvent.set(new Point2D(event.getX(), event.getY()));
-            double deltaX = -event.getX() + mouseOnLastEvent.get().getX();
-            double deltaY = -event.getY() + mouseOnLastEvent.get().getY();
-            if (!event.isStillSincePress()) {
-                deltaX = -event.getX() + mouseOnLastEvent.get().getX();
-                deltaY = -event.getY() + mouseOnLastEvent.get().getY();
-                property.set(property.get().withMinXY(xTopLeft + deltaX, yTopLeft + deltaY));
-            }
-            mouseOnLastEvent.get().add(deltaX, deltaY);
+            double deltaX = event.getX() - mouseOnLastEvent.get().getX();
+            double deltaY = event.getY() - mouseOnLastEvent.get().getY();
+            property.set(property.get().withMinXY(xTopLeft - deltaX, yTopLeft - deltaY));
         });
         pane.setOnMouseReleased(event -> {
+            double deltaX = event.getX() - mouseOnLastEvent.get().getX();
+            double deltaY = event.getY() - mouseOnLastEvent.get().getY();
+            mouseOnLastEvent.get().add(deltaX, deltaY);
         });
         pane.setOnMouseClicked(event -> {
             if (mouseOnLastEvent.get() == null) mouseOnLastEvent.set(new Point2D(event.getX(), event.getY()));
             if (event.isStillSincePress()) waypointsManager.addWayPoint(event.getX(), event.getY());
         });
+    }
+    private void installBindings() {
+        canvas.widthProperty().bind(pane.widthProperty());
+        canvas.heightProperty().bind(pane.heightProperty());
+    }
+    private void installListeners(){
+        canvas.sceneProperty().addListener((p, oldS, newS) -> {
+            assert oldS == null;
+            newS.addPreLayoutPulseListener(this::redrawIfNeeded);
+        });
+        canvas.heightProperty().addListener((observable, oldValue, newValue) -> redrawOnNextPulse());
+        canvas.widthProperty().addListener((o, oV, nV) -> redrawOnNextPulse());
+        property.addListener((o, oV, nV) -> redrawOnNextPulse());
     }
 
 }
