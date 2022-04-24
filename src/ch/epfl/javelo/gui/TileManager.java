@@ -102,10 +102,6 @@ public final class TileManager {
             return imageFromServer(id, pathToFiles, imagePath);
         }
     }
-
-
-    //TODO check getAbsolutePath : alternatives possibles ?
-
     /**
      * Loads an image, which represents a Tile, from hard drive memory, then puts
      * it into the cache.
@@ -114,9 +110,12 @@ public final class TileManager {
      * @param imagePath local path to such an image.
      * @return the image representing the tile of given id from the local hard drive.
      */
-    private Image imageFromDisk(TileId id, String imagePath) {
-        Image fileImage = new Image(new File(imagePath).getAbsolutePath());
-        cache.put(id, fileImage);
+    private Image imageFromDisk(TileId id, String imagePath) throws IOException {
+        Image fileImage;
+        try (FileInputStream i = new FileInputStream(imagePath)) {
+            fileImage = new Image(i);
+            cache.put(id, fileImage);
+        }
         return fileImage;
     }
     /**
@@ -133,16 +132,14 @@ public final class TileManager {
         System.out.println("je dl" + id);
         Files.createDirectories(pathToFiles);
         URL u = new URL(HTTPS + serverName + pathToImage);
-        // System.out.println(pathToImage);
         URLConnection c = u.openConnection();
         c.setRequestProperty("User-Agent", "JaVelo");
-        Image fileImage;
         try (InputStream i = c.getInputStream();
              OutputStream writer = new FileOutputStream(pathToImage)) {
             i.transferTo(writer);
         }
         Iterator<TileId> ite = cache.keySet().iterator();
-        if (ite.hasNext() && cache.size() >100) cache.remove(ite.next());
+        if (ite.hasNext() && cache.size()==CAPACITY_OF_CACHE) cache.remove(ite.next());
         return imageFromDisk(id, pathToImage);
     }
 }

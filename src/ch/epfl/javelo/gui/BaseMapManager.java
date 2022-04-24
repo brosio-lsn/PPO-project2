@@ -171,18 +171,19 @@ public final class BaseMapManager {
             if (currentTime < minScrollTime.get()) return;
             minScrollTime.set(currentTime + 250);
             double zoomDelta = Math.signum(e.getDeltaY());
-            if (!(zoomLevel == ZOOM_LEVEL_MAX || zoomLevel == ZOOM_LEVEl_MIN)) {
+            if (!((zoomLevel == ZOOM_LEVEL_MAX && zoomDelta>0) || (zoomLevel == ZOOM_LEVEl_MIN && zoomDelta <0))) {
                 zoomLevel = (int) Math2.clamp(ZOOM_LEVEl_MIN, zoomLevel + zoomDelta, ZOOM_LEVEL_MAX);
                 double scalingFactor = zoomDelta > 0 ? ZOOM_SCALING_FACTOR : (double) 1 / ZOOM_SCALING_FACTOR;
-                xTopLeft *= scalingFactor;
-                yTopLeft *= scalingFactor;
+                xTopLeft =(int)( (xTopLeft + e.getX())*scalingFactor);
+                yTopLeft = (int)(scalingFactor*(yTopLeft + e.getY()));
                 context.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-                property.set(new MapViewParameters(zoomLevel, xTopLeft, yTopLeft));
+                property.set(new MapViewParameters(zoomLevel, xTopLeft - e.getX(), yTopLeft - e.getY()));
             }
         });
         pane.setOnMousePressed(event -> {
             mouseOnLastEvent.set(new Point2D(event.getX(), event.getY()));
         });
+        //TODO dragging not smooth at all
         pane.setOnMouseDragged(event -> {
             double deltaX = event.getX() - mouseOnLastEvent.get().getX();
             double deltaY = event.getY() - mouseOnLastEvent.get().getY();
