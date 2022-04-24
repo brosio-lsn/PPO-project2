@@ -78,13 +78,16 @@ public final class BaseMapManager {
      * property recording the coordinates of the mouse on the last event it indulged in.
      */
     private final ObjectProperty<Point2D> mouseOnLastEvent;
-    GraphicsContext context;
+    private GraphicsContext context;
+    private final int X_ITERATIONS = 4 * PIXELS_PER_TILE;
+    private final int Y_ITERATIONS = 3 * PIXELS_PER_TILE;
 
     /**
      * Constructor of the BaseMapManager class.
-     * @param tileManager tileManager to be used to draw the tiles and see whether they are valid
+     *
+     * @param tileManager      tileManager to be used to draw the tiles and see whether they are valid
      * @param waypointsManager waypointsManager to be used to add/remove waypoints
-     * @param property property to use to observe the mapViewParameters.
+     * @param property         property to use to observe the mapViewParameters.
      */
 
     public BaseMapManager(TileManager tileManager, WaypointsManager waypointsManager, ObjectProperty<MapViewParameters> property) {
@@ -101,6 +104,7 @@ public final class BaseMapManager {
 
     /**
      * returns the pane of the class
+     *
      * @return returns the pane of the class
      */
     public Pane pane() {
@@ -119,19 +123,20 @@ public final class BaseMapManager {
         context = canvas.getGraphicsContext2D();
         Image imageToDraw;
         boolean canDraw = true;
-        for (int x = 0; x <= canvas.getWidth() + 2*PIXELS_PER_TILE; x += PIXELS_PER_TILE) {
-            for (int y = 0; y <= canvas.getHeight() + 2*PIXELS_PER_TILE; y += PIXELS_PER_TILE) {
+        for (int x = 0; x <= X_ITERATIONS; x += PIXELS_PER_TILE) {
+            for (int y = 0; y <= Y_ITERATIONS; y += PIXELS_PER_TILE) {
                 int yTileIndex = (yTopLeft + y) / PIXELS_PER_TILE;
                 int xTileIndex = (xTopLeft + x) / PIXELS_PER_TILE;
                 try {
                     imageToDraw = tileManager.imageForTileAt(new TileManager.TileId(zoomLevel, xTileIndex, yTileIndex));
                 } catch (Exception e) {
                     canDraw = false;
-                    System.out.println("frero tu pousses");
+                    if (e.getClass() == NullPointerException.class) System.out.println("nullPointerException");
+                    System.out.println(e.getMessage());
                     break;
                 }
                 if (canDraw) {
-                    System.out.println(xTileIndex + "-" + yTileIndex + " -> coordinates :  \nx =" + (xTileIndex * PIXELS_PER_TILE-xTopLeft) + " \ny = "  +(yTileIndex * PIXELS_PER_TILE - yTopLeft));
+                    System.out.println(xTileIndex + "-" + yTileIndex + " -> coordinates :  \nx =" + (xTileIndex * PIXELS_PER_TILE - xTopLeft) + " \ny = " + (yTileIndex * PIXELS_PER_TILE - yTopLeft));
                     context.drawImage(imageToDraw, xTileIndex * PIXELS_PER_TILE - xTopLeft, yTileIndex * PIXELS_PER_TILE - yTopLeft);
                 }
                 canDraw = true;
@@ -160,21 +165,23 @@ public final class BaseMapManager {
         SimpleLongProperty minScrollTime = new SimpleLongProperty();
         pane.setOnScroll(e -> {
             mouseOnLastEvent.set(new Point2D(e.getX(), e.getY()));
+            double eventXCoordinate = xTopLeft + e.getX();
+            double eventYCoordinate = yTopLeft + e.getY();
             long currentTime = System.currentTimeMillis();
             if (currentTime < minScrollTime.get()) return;
             minScrollTime.set(currentTime + 250);
             double zoomDelta = Math.signum(e.getDeltaY());
-            zoomLevel = (int) Math2.clamp(ZOOM_LEVEl_MIN, zoomLevel + zoomDelta, ZOOM_LEVEL_MAX);
-            double scalingFactor = zoomDelta > 0 ? ZOOM_SCALING_FACTOR : (double)1/ZOOM_SCALING_FACTOR;
-            xTopLeft *= scalingFactor;
-            yTopLeft *= scalingFactor;
-            MapViewParameters aaa = property.get();
-            System.out.println(aaa);
-            System.out.println(xTopLeft);
-            property.set(new MapViewParameters(zoomLevel, xTopLeft, yTopLeft));
+            if (!(zoomLevel == ZOOM_LEVEL_MAX || zoomLevel == ZOOM_LEVEl_MIN)) {
+                zoomLevel = (int) Math2.clamp(ZOOM_LEVEl_MIN, zoomLevel + zoomDelta, ZOOM_LEVEL_MAX);
+                double scalingFactor = zoomDelta > 0 ? ZOOM_SCALING_FACTOR : (double) 1 / ZOOM_SCALING_FACTOR;
+                xTopLeft *= scalingFactor;
+                yTopLeft *= scalingFactor;
+                context.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+                property.set(new MapViewParameters(zoomLevel, xTopLeft, yTopLeft));
+            }
         });
         pane.setOnMousePressed(event -> {
-           mouseOnLastEvent.set(new Point2D(event.getX(), event.getY()));
+            mouseOnLastEvent.set(new Point2D(event.getX(), event.getY()));
         });
         pane.setOnMouseDragged(event -> {
             double deltaX = event.getX() - mouseOnLastEvent.get().getX();
@@ -192,11 +199,13 @@ public final class BaseMapManager {
             if (event.isStillSincePress()) waypointsManager.addWayPoint(event.getX(), event.getY());
         });
     }
+
     private void installBindings() {
         canvas.widthProperty().bind(pane.widthProperty());
         canvas.heightProperty().bind(pane.heightProperty());
     }
-    private void installListeners(){
+
+    private void installListeners() {
         canvas.sceneProperty().addListener((p, oldS, newS) -> {
             assert oldS == null;
             newS.addPreLayoutPulseListener(this::redrawIfNeeded);

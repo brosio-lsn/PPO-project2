@@ -103,33 +103,7 @@ public final class TileManager {
         }
     }
 
-    /**
-     * creates the directory to store an image which represents a Tile, downloads it
-     * from a given server address and returns it.
-     *
-     * @param id          id of the tile to download
-     * @param pathToFiles local path to create the directory in.
-     * @param pathToImage path to get the image from in the server
-     * @return the image downloaded from the server
-     * @throws IOException if there is an error in any of the paths used.
-     */
-    private Image imageFromServer(TileId id, Path pathToFiles, String pathToImage) throws IOException {
-        Files.createDirectories(pathToFiles);
-        URL u = new URL(HTTPS + serverName + pathToImage);
-       // System.out.println(pathToImage);
-        URLConnection c = u.openConnection();
-        c.setRequestProperty("User-Agent", "JaVelo");
-        Image fileImage;
-        try (InputStream i = c.getInputStream();
-             OutputStream writer = new FileOutputStream(pathToImage)) {
-            i.transferTo(writer);
-            fileImage = new Image(i);
-        }
-        cache.put(id, fileImage);
-        Iterator<TileId> ite = cache.keySet().iterator();
-        if (ite.hasNext()) cache.remove(ite.next());
-        return fileImage;
-    }
+
     //TODO check getAbsolutePath : alternatives possibles ?
 
     /**
@@ -144,5 +118,31 @@ public final class TileManager {
         Image fileImage = new Image(new File(imagePath).getAbsolutePath());
         cache.put(id, fileImage);
         return fileImage;
+    }
+    /**
+     * creates the directory to store an image which represents a Tile, downloads it
+     * from a given server address and returns it.
+     *
+     * @param id          id of the tile to download
+     * @param pathToFiles local path to create the directory in.
+     * @param pathToImage path to get the image from in the server
+     * @return the image downloaded from the server
+     * @throws IOException if there is an error in any of the paths used.
+     */
+    private Image imageFromServer(TileId id, Path pathToFiles, String pathToImage) throws IOException {
+        System.out.println("je dl" + id);
+        Files.createDirectories(pathToFiles);
+        URL u = new URL(HTTPS + serverName + pathToImage);
+        // System.out.println(pathToImage);
+        URLConnection c = u.openConnection();
+        c.setRequestProperty("User-Agent", "JaVelo");
+        Image fileImage;
+        try (InputStream i = c.getInputStream();
+             OutputStream writer = new FileOutputStream(pathToImage)) {
+            i.transferTo(writer);
+        }
+        Iterator<TileId> ite = cache.keySet().iterator();
+        if (ite.hasNext() && cache.size() >100) cache.remove(ite.next());
+        return imageFromDisk(id, pathToImage);
     }
 }
