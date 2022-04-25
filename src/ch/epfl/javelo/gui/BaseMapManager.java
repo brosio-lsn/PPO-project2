@@ -133,7 +133,7 @@ public final class BaseMapManager {
                     break;
                 }
                 if (canDraw) {
-                    System.out.println(xTileIndex + "-" + yTileIndex + " -> coordinates :  \nx =" + (xTileIndex * PIXELS_PER_TILE - xTopLeft) + " \ny = " + (yTileIndex * PIXELS_PER_TILE - yTopLeft));
+                    //System.out.println(xTileIndex + "-" + yTileIndex + " -> coordinates :  \nx =" + (xTileIndex * PIXELS_PER_TILE - xTopLeft) + " \ny = " + (yTileIndex * PIXELS_PER_TILE - yTopLeft));
                     context.drawImage(imageToDraw, xTileIndex * PIXELS_PER_TILE - xTopLeft, yTileIndex * PIXELS_PER_TILE - yTopLeft);
                 }
                 canDraw = true;
@@ -162,8 +162,6 @@ public final class BaseMapManager {
         SimpleLongProperty minScrollTime = new SimpleLongProperty();
         pane.setOnScroll(e -> {
             mouseOnLastEvent.set(new Point2D(e.getX(), e.getY()));
-            double eventXCoordinate = xTopLeft + e.getX();
-            double eventYCoordinate = yTopLeft + e.getY();
             long currentTime = System.currentTimeMillis();
             if (currentTime < minScrollTime.get()) return;
             minScrollTime.set(currentTime + 250);
@@ -179,13 +177,15 @@ public final class BaseMapManager {
         });
         pane.setOnMousePressed(event -> {
             mouseOnLastEvent.set(new Point2D(event.getX(), event.getY()));
+            System.out.println("press!");
         });
         //TODO dragging not smooth at all
         pane.setOnMouseDragged(event -> {
             double deltaX = event.getX() - mouseOnLastEvent.get().getX();
             double deltaY = event.getY() - mouseOnLastEvent.get().getY();
-            property.set(property.get().withMinXY(xTopLeft - deltaX, yTopLeft - deltaY));
+            property.set(property.get().withMinXY((double)xTopLeft - deltaX, (double)yTopLeft - deltaY));
             mouseOnLastEvent.set(new Point2D(event.getX(), event.getY()));
+            System.out.println("drag!" + event.getX() + " " + event.getY());
         });
         pane.setOnMouseReleased(event -> {
             mouseOnLastEvent.set(new Point2D(event.getX(), event.getY()));
@@ -221,6 +221,5 @@ public final class BaseMapManager {
         canvas.widthProperty().addListener((o, oV, nV) -> redrawOnNextPulse());
         property.addListener((o, oV, nV) -> redrawOnNextPulse());
     }
-
 }
 

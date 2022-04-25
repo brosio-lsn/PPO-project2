@@ -245,6 +245,4 @@ public final class WaypointsManager {
         });
         return group;
     }
-
-
 }
