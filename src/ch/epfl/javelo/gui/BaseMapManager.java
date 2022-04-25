@@ -3,25 +3,13 @@ package ch.epfl.javelo.gui;
 import ch.epfl.javelo.Math2;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleLongProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.event.Event;
-import javafx.event.EventHandler;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Button;
-import javafx.scene.effect.Light;
 import javafx.scene.image.Image;
-import javafx.scene.input.MouseDragEvent;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.Pane;
-
-import java.io.IOException;
 
 /**
  * @author Louis ROCHE (345620)
@@ -78,8 +66,17 @@ public final class BaseMapManager {
      * property recording the coordinates of the mouse on the last event it indulged in.
      */
     private final ObjectProperty<Point2D> mouseOnLastEvent;
+    /**
+     * context which will be associated with that of the canvas
+     */
     private GraphicsContext context;
+    /**
+     * Number of iterations needed to draw the image on the X-axis of the canvas
+     */
     private final int X_ITERATIONS = 4 * PIXELS_PER_TILE;
+    /**
+     * Number of iterations needed to draw the image on the Y-axis of the canvas
+     */
     private final int Y_ITERATIONS = 3 * PIXELS_PER_TILE;
 
     /**
@@ -171,11 +168,11 @@ public final class BaseMapManager {
             if (currentTime < minScrollTime.get()) return;
             minScrollTime.set(currentTime + 250);
             double zoomDelta = Math.signum(e.getDeltaY());
-            if (!((zoomLevel == ZOOM_LEVEL_MAX && zoomDelta>0) || (zoomLevel == ZOOM_LEVEl_MIN && zoomDelta <0))) {
+            if (!((zoomLevel == ZOOM_LEVEL_MAX && zoomDelta > 0) || (zoomLevel == ZOOM_LEVEl_MIN && zoomDelta < 0))) {
                 zoomLevel = (int) Math2.clamp(ZOOM_LEVEl_MIN, zoomLevel + zoomDelta, ZOOM_LEVEL_MAX);
                 double scalingFactor = zoomDelta > 0 ? ZOOM_SCALING_FACTOR : (double) 1 / ZOOM_SCALING_FACTOR;
-                xTopLeft =(int)( (xTopLeft + e.getX())*scalingFactor);
-                yTopLeft = (int)(scalingFactor*(yTopLeft + e.getY()));
+                xTopLeft = (int) ((xTopLeft + e.getX()) * scalingFactor);
+                yTopLeft = (int) (scalingFactor * (yTopLeft + e.getY()));
                 context.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
                 property.set(new MapViewParameters(zoomLevel, xTopLeft - e.getX(), yTopLeft - e.getY()));
             }
@@ -191,8 +188,6 @@ public final class BaseMapManager {
             mouseOnLastEvent.set(new Point2D(event.getX(), event.getY()));
         });
         pane.setOnMouseReleased(event -> {
-            double deltaX = event.getX() - mouseOnLastEvent.get().getX();
-            double deltaY = event.getY() - mouseOnLastEvent.get().getY();
             mouseOnLastEvent.set(new Point2D(event.getX(), event.getY()));
         });
         pane.setOnMouseClicked(event -> {
@@ -201,11 +196,22 @@ public final class BaseMapManager {
         });
     }
 
+    /**
+     * installs the required binding so that the size of the canvas fits that of the pane
+     */
     private void installBindings() {
         canvas.widthProperty().bind(pane.widthProperty());
         canvas.heightProperty().bind(pane.heightProperty());
     }
 
+    /**
+     * install the required listeners to redraw the canvas when an event happens
+     * Events that require the canvas to update itself :
+     * - the scene of the canvas has changed
+     * - the width of the canvas has changed
+     * - the height of the canvas has changed
+     * - the MapViewParameters property of this baseMapManager has changed
+     */
     private void installListeners() {
         canvas.sceneProperty().addListener((p, oldS, newS) -> {
             assert oldS == null;
