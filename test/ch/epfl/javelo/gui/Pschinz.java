@@ -2,6 +2,9 @@ package ch.epfl.javelo.gui;
 
 import ch.epfl.javelo.data.Graph;
 import ch.epfl.javelo.projection.PointCh;
+import ch.epfl.javelo.routing.CityBikeCF;
+import ch.epfl.javelo.routing.Route;
+import ch.epfl.javelo.routing.RouteComputer;
 import javafx.application.Application;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -32,12 +35,14 @@ public class Pschinz extends Application{
                 new MapViewParameters(12, 543200, 370650);
         ObjectProperty<MapViewParameters> mapViewParametersP =
                 new SimpleObjectProperty<>(mapViewParameters);
+        RouteBean bean = new RouteBean(new RouteComputer(graph, new CityBikeCF(graph)));
+        bean.waypoints = FXCollections.observableArrayList(
+                new WayPoint(new PointCh(2532697, 1152350), 159049),
+                new WayPoint(new PointCh(2538659, 1154350), 117669));
         ObservableList<WayPoint> waypoints =
-                FXCollections.observableArrayList(
-                        new WayPoint(new PointCh(2532697, 1152350), 159049),
-                        new WayPoint(new PointCh(2538659, 1154350), 117669));
+               bean.waypoints;
+        bean.setHighlightedPosition(1000);
         Consumer<String> errorConsumer = new ErrorConsumer();
-
         WaypointsManager waypointsManager =
                 new WaypointsManager(graph,
                         mapViewParametersP,
@@ -56,6 +61,7 @@ public class Pschinz extends Application{
         primaryStage.setMinHeight(300);
         primaryStage.setScene(new Scene(mainPane));
         primaryStage.show();
+
 
     }
 

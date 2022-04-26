@@ -27,7 +27,7 @@ public final class BaseMapManager {
     /**
      * property to be used to get the parameters from which we can observe the map
      */
-    private final ObjectProperty<MapViewParameters> property;
+    private final ObjectProperty<MapViewParameters> mapViewParametersProp;
     /**
      * canvas to be drawn on.
      */
@@ -61,7 +61,8 @@ public final class BaseMapManager {
      * yTopLeft : y coordinate of the top left corner of the map
      * zoomLevel : zoomLevel
      */
-    private int xTopLeft, yTopLeft, zoomLevel;
+    private double xTopLeft, yTopLeft;
+    private int zoomLevel;
     /**
      * property recording the coordinates of the mouse on the last event it indulged in.
      */
@@ -73,23 +74,25 @@ public final class BaseMapManager {
     /**
      * Number of iterations needed to draw the image on the X-axis of the canvas
      */
-    private final int X_ITERATIONS = 4 * PIXELS_PER_TILE;
+    private final int X_ITERATIONS = 2 * PIXELS_PER_TILE;
     /**
      * Number of iterations needed to draw the image on the Y-axis of the canvas
      */
-    private final int Y_ITERATIONS = 3 * PIXELS_PER_TILE;
+    private final int Y_ITERATIONS = PIXELS_PER_TILE;
+    Point2D mousePress;
+    double yTopLeftOnPress, xTopLeftOnPress;
 
     /**
      * Constructor of the BaseMapManager class.
      *
-     * @param tileManager      tileManager to be used to draw the tiles and see whether they are valid
-     * @param waypointsManager waypointsManager to be used to add/remove waypoints
-     * @param property         property to use to observe the mapViewParameters.
+     * @param tileManager           tileManager to be used to draw the tiles and see whether they are valid
+     * @param waypointsManager      waypointsManager to be used to add/remove waypoints
+     * @param mapViewParametersProp property to use to observe the mapViewParameters.
      */
 
-    public BaseMapManager(TileManager tileManager, WaypointsManager waypointsManager, ObjectProperty<MapViewParameters> property) {
+    public BaseMapManager(TileManager tileManager, WaypointsManager waypointsManager, ObjectProperty<MapViewParameters> mapViewParametersProp) {
         this.waypointsManager = waypointsManager;
-        this.property = property;
+        this.mapViewParametersProp = mapViewParametersProp;
         this.tileManager = tileManager;
         canvas = new Canvas();
         pane = new Pane(canvas);
@@ -112,18 +115,18 @@ public final class BaseMapManager {
      * redraws the canvas if it is needed - if redrawOnNextPulse() has been called
      */
     private void redrawIfNeeded() {
-        xTopLeft = (int) property.get().topLeft().getX();
-        yTopLeft = (int) property.get().topLeft().getY();
-        zoomLevel = property.get().zoomLevel();
+        xTopLeft = mapViewParametersProp.get().topLeft().getX();
+        yTopLeft = mapViewParametersProp.get().topLeft().getY();
+        zoomLevel = mapViewParametersProp.get().zoomLevel();
         if (!redrawNeeded) return;
         redrawNeeded = false;
         context = canvas.getGraphicsContext2D();
         Image imageToDraw;
         boolean canDraw = true;
-        for (int x = 0; x <= X_ITERATIONS; x += PIXELS_PER_TILE) {
-            for (int y = 0; y <= Y_ITERATIONS; y += PIXELS_PER_TILE) {
-                int yTileIndex = (yTopLeft + y) / PIXELS_PER_TILE;
-                int xTileIndex = (xTopLeft + x) / PIXELS_PER_TILE;
+        for (int x = 0; x <= canvas.getWidth() + X_ITERATIONS; x += PIXELS_PER_TILE) {
+            for (int y = 0; y <= canvas.getHeight() + Y_ITERATIONS; y += PIXELS_PER_TILE) {
+                int yTileIndex = (int) (yTopLeft + y) / PIXELS_PER_TILE;
+                int xTileIndex = (int) (xTopLeft + x) / PIXELS_PER_TILE;
                 try {
                     imageToDraw = tileManager.imageForTileAt(new TileManager.TileId(zoomLevel, xTileIndex, yTileIndex));
                 } catch (Exception e) {
@@ -159,6 +162,7 @@ public final class BaseMapManager {
      * - mouse click -> puts a waypoint on the place the mouse clicked on.
      */
     private void createHandlers() {
+
         SimpleLongProperty minScrollTime = new SimpleLongProperty();
         pane.setOnScroll(e -> {
             mouseOnLastEvent.set(new Point2D(e.getX(), e.getY()));
@@ -169,23 +173,21 @@ public final class BaseMapManager {
             if (!((zoomLevel == ZOOM_LEVEL_MAX && zoomDelta > 0) || (zoomLevel == ZOOM_LEVEl_MIN && zoomDelta < 0))) {
                 zoomLevel = (int) Math2.clamp(ZOOM_LEVEl_MIN, zoomLevel + zoomDelta, ZOOM_LEVEL_MAX);
                 double scalingFactor = zoomDelta > 0 ? ZOOM_SCALING_FACTOR : (double) 1 / ZOOM_SCALING_FACTOR;
-                xTopLeft = (int) ((xTopLeft + e.getX()) * scalingFactor);
-                yTopLeft = (int) (scalingFactor * (yTopLeft + e.getY()));
-                context.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-                property.set(new MapViewParameters(zoomLevel, xTopLeft - e.getX(), yTopLeft - e.getY()));
+                xTopLeft = ((xTopLeft + e.getX()) * scalingFactor);
+                yTopLeft = (scalingFactor * (yTopLeft + e.getY()));
+                mapViewParametersProp.set(new MapViewParameters(zoomLevel, xTopLeft - e.getX(), yTopLeft - e.getY()));
             }
         });
         pane.setOnMousePressed(event -> {
             mouseOnLastEvent.set(new Point2D(event.getX(), event.getY()));
+            xTopLeftOnPress = xTopLeft;
+            yTopLeftOnPress = yTopLeft;
             System.out.println("press!");
         });
-        //TODO dragging not smooth at all
         pane.setOnMouseDragged(event -> {
             double deltaX = event.getX() - mouseOnLastEvent.get().getX();
             double deltaY = event.getY() - mouseOnLastEvent.get().getY();
-            property.set(property.get().withMinXY((double)xTopLeft - deltaX, (double)yTopLeft - deltaY));
-            mouseOnLastEvent.set(new Point2D(event.getX(), event.getY()));
-            System.out.println("drag!" + event.getX() + " " + event.getY());
+            mapViewParametersProp.set(mapViewParametersProp.get().withMinXY(xTopLeftOnPress - deltaX, yTopLeftOnPress - deltaY));
         });
         pane.setOnMouseReleased(event -> {
             mouseOnLastEvent.set(new Point2D(event.getX(), event.getY()));
@@ -219,7 +221,7 @@ public final class BaseMapManager {
         });
         canvas.heightProperty().addListener((observable, oldValue, newValue) -> redrawOnNextPulse());
         canvas.widthProperty().addListener((o, oV, nV) -> redrawOnNextPulse());
-        property.addListener((o, oV, nV) -> redrawOnNextPulse());
+        mapViewParametersProp.addListener((o, oV, nV) -> redrawOnNextPulse());
     }
 }
 
