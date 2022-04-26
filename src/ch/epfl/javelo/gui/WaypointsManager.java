@@ -81,10 +81,6 @@ public final class WaypointsManager {
      */
     private ObjectProperty<Point2D> mouseOnLastEvent;
 
-    //todo immuabilité (je peux faire un copyOf dde la liste?
-    //todo demander vite fait si ca va les event sur les groupes
-    //todo demander si c normal qd je fais un tt petit mvt sur un marker ca le delete
-
     /**
      * constructor of WaypointsManager
      * @param graph the graph of the route
@@ -151,9 +147,7 @@ public final class WaypointsManager {
      */
     private void initiateListeners(){
         mapViewParameters.addListener((property, previousV, newV) -> relocateMarkers(newV));
-
-        //TODO demander si comme ca ca passe tu connnais
-        observableList.addListener((ListChangeListener) change -> createMarkers());
+        observableList.addListener((ListChangeListener<WayPoint>) c -> createMarkers());
     }
 
     /**
@@ -184,7 +178,6 @@ public final class WaypointsManager {
             WayPoint wayPoint=observableList.get(i);
             Group group = createMarkerGroup(wayPoint);
             if(i==0) group.getStyleClass().add("first");
-                //todo je check si i est superor a 0 aussi car sinon tu peux etre first et last
             else if(i==size-1 && i!=0) group.getStyleClass().add("last");
             else group.getStyleClass().add("middle");
             markers.add(group);
