@@ -20,7 +20,7 @@ class GpxGeneratorTest {
         Graph g = Graph.loadFrom(Path.of("lausanne"));
         CostFunction cf = new CityBikeCF(g);
         RouteComputer rc = new RouteComputer(g, cf);
-        Route r = rc.bestRouteBetween(159049, 159050);
+        Route r = rc.bestRouteBetween(159049, 117669);
         GpxGenerator.writeGpx("GpxGenerator.gpx",r, ElevationProfileComputer.elevationProfile(r, 1));
     }
 
