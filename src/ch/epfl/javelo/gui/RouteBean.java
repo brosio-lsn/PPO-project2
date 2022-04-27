@@ -2,14 +2,14 @@ package ch.epfl.javelo.gui;
 
 import ch.epfl.javelo.Math2;
 import ch.epfl.javelo.routing.*;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.*;
+import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.util.Pair;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -25,7 +25,7 @@ public final class RouteBean {
     /**
      * itinerary linking all the waypoints on the map.
      */
-    private ObjectProperty<Route> route;
+    private final ObjectProperty<Route> route;
     /**
      * highlighted position draw by a circle on the itinerary
      */
@@ -33,7 +33,7 @@ public final class RouteBean {
     /**
      * elevationProfile of the route.
      */
-    private ObjectProperty<ElevationProfile> elevationProfile;
+    private final ObjectProperty<ElevationProfile> elevationProfile;
     /**
      * Cache used to avoid repetitive computations of the best itineraries between two points.
      */
@@ -58,9 +58,63 @@ public final class RouteBean {
     public RouteBean(RouteComputer routeComputer) {
         this.routeComputer = routeComputer;
         bestRouteCache = new LinkedHashMap<>(INITIAL_CAPACITY, LOAD_FACTOR, ELDEST_ACCES);
+        route = new SimpleObjectProperty<>();
+        waypoints = FXCollections.observableArrayList();
+        elevationProfile = new SimpleObjectProperty<>();
+        highlightedPosition = new SimpleDoubleProperty();
+        theRoutes = new ArrayList<>();
         installListeners();
     }
 
+    /**
+     * installs the listener on the list of waypoints, and makes it so the program reacts
+     * to any change it might have.
+     */
+    private void installListeners() {
+        waypoints.addListener((ListChangeListener<WayPoint>) c -> updateWaypointsList());
+    }
+
+    private void updateWaypointsList() {
+        theRoutes.clear();
+        if (waypoints.size() >= 2) {
+            for (int i = 0; i < waypoints.size() - 1; i++) {
+                int nodeIdOfFirstWaypoint = waypoints.get(i).closestNodeId();
+                int nodeIdOfSecondWaypoint = waypoints.get(i + 1).closestNodeId();
+                if (!(bestRouteCache.containsKey(new Pair<>(nodeIdOfFirstWaypoint, nodeIdOfSecondWaypoint))
+                        || bestRouteCache.containsKey(new Pair<>(nodeIdOfSecondWaypoint, nodeIdOfFirstWaypoint)))) {
+                    Route bestRouteBetween = routeComputer.bestRouteBetween(nodeIdOfFirstWaypoint, nodeIdOfSecondWaypoint);
+                    if (bestRouteBetween == null) {
+                        nullifyProperties();
+                        break;
+                    }
+                    bestRouteCache.put(new Pair<>(nodeIdOfFirstWaypoint, nodeIdOfSecondWaypoint), bestRouteBetween);
+                }
+                theRoutes.add(bestRouteCache.getOrDefault(new Pair<>(nodeIdOfFirstWaypoint, nodeIdOfSecondWaypoint),
+                        bestRouteCache.get(new Pair<>(nodeIdOfSecondWaypoint, nodeIdOfFirstWaypoint))));
+            }
+            route.set(new MultiRoute(theRoutes));
+            computeElevationProfile();
+        } else {
+            System.out.println(waypoints.size());
+            nullifyProperties();
+        }
+    }
+
+    /**
+     * Nullifies the properties of this bean in case the list of waypoints cannot compute a route.
+     */
+    private void nullifyProperties() {
+        route.set(null);
+        highlightedPosition.set(Double.NaN);
+        elevationProfile.set(null);
+    }
+
+    /**
+     * Computes the elevation profile of the updated route.
+     */
+    private void computeElevationProfile() {
+        elevationProfile.set(ElevationProfileComputer.elevationProfile(route.get(), 5));
+    }
     /**
      * returns the highlightedPositionProperty of this routeBean.
      *
@@ -85,8 +139,22 @@ public final class RouteBean {
      * @param position position on the route to set the highlighted position at.
      */
     public void setHighlightedPosition(double position) {
-        highlightedPosition.set(Math2.clamp(0, position, route.get().length()));
+        if (route.get() != null) highlightedPosition.set(Math2.clamp(0, position, route.get().length()));
+        System.out.println(highlightedPosition);
     }
+
+    public void addWaypoint(WayPoint w) {
+        if (waypoints != null)
+            waypoints.add(w);
+    }
+
+    public void addAllWaypoints(Collection<WayPoint> w) {
+        for (WayPoint wayPoint : w) {
+            addWaypoint(wayPoint);
+            System.out.println(waypoints.size());
+        }
+    }
+
 
     /**
      * Returns the itinerary between all the waypoints in the list of waypoints. It is on read only so that it cannot
@@ -107,53 +175,5 @@ public final class RouteBean {
      */
     public ReadOnlyObjectProperty<ElevationProfile> elevationProfile() {
         return elevationProfile;
-    }
-
-    /**
-     * installs the listener on the list of waypoints, and makes it so the program reacts
-     * to any change it might have.
-     */
-    private void installListeners() {
-        waypoints.addListener((ListChangeListener<WayPoint>) c -> {
-            theRoutes.clear();
-            if (waypoints.size() >= 2) {
-                for (int i = 0; i < waypoints.size() - 1; i++) {
-                    int nodeIdOfFirstWaypoint = waypoints.get(i).closestNodeId();
-                    int nodeIdOfSecondWaypoint = waypoints.get(i + 1).closestNodeId();
-                    if (!(bestRouteCache.containsKey(new Pair<>(nodeIdOfFirstWaypoint, nodeIdOfSecondWaypoint))
-                            || bestRouteCache.containsKey(new Pair<>(nodeIdOfSecondWaypoint, nodeIdOfFirstWaypoint)))) {
-                        Route bestRouteBetween = routeComputer.bestRouteBetween(nodeIdOfFirstWaypoint, nodeIdOfSecondWaypoint);
-                        if (bestRouteBetween == null) {
-                            nullifyProperties();
-                            break;
-                        }
-                        bestRouteCache.put(new Pair<>(nodeIdOfFirstWaypoint, nodeIdOfSecondWaypoint), bestRouteBetween);
-                    }
-                    theRoutes.add(bestRouteCache.getOrDefault(new Pair<>(nodeIdOfFirstWaypoint, nodeIdOfSecondWaypoint),
-                            bestRouteCache.get(new Pair<>(nodeIdOfSecondWaypoint, nodeIdOfFirstWaypoint))));
-                }
-                route.set(new MultiRoute(theRoutes));
-                computeElevationProfile();
-            } else {
-                nullifyProperties();
-            }
-        });
-
-    }
-
-    /**
-     * Nullifies the properties of this bean in case the list of waypoints cannot compute a route.
-     */
-    private void nullifyProperties() {
-        route = null;
-        highlightedPosition.set(Double.NaN);
-        elevationProfile = null;
-    }
-
-    /**
-     * Computes the elevation profile of the updated route.
-     */
-    private void computeElevationProfile() {
-        elevationProfile.set(ElevationProfileComputer.elevationProfile(route.get(), 5));
     }
 }
