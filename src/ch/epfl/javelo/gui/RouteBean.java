@@ -8,10 +8,7 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.util.Pair;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.LinkedHashMap;
-import java.util.List;
+import java.util.*;
 
 public final class RouteBean {
     /**
@@ -104,6 +101,8 @@ public final class RouteBean {
      * Nullifies the properties of this bean in case the list of waypoints cannot compute a route.
      */
     private void nullifyProperties() {
+        System.out.println("je nullifie");
+        theRoutes.clear();
         route.set(null);
         highlightedPosition.set(Double.NaN);
         elevationProfile.set(null);
@@ -115,6 +114,7 @@ public final class RouteBean {
     private void computeElevationProfile() {
         elevationProfile.set(ElevationProfileComputer.elevationProfile(route.get(), 5));
     }
+
     /**
      * returns the highlightedPositionProperty of this routeBean.
      *

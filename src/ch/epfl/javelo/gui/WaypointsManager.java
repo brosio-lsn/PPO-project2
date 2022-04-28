@@ -100,11 +100,46 @@ public final class WaypointsManager {
     }
 
     /**
+     * creates the markers corresponding to the waypoints contained in observableList
+     * and adds them as children to the pane
+     */
+    private void createMarkers (){
+        List<Node> markers = new ArrayList<>();
+        int size = observableList.size();
+        for(int i =0; i<size;++i){
+            WayPoint wayPoint=observableList.get(i);
+            Group group = createMarkerGroup(wayPoint);
+            if(i==0) group.getStyleClass().add("first");
+            else if(i==size-1) group.getStyleClass().add("last");
+            else group.getStyleClass().add("middle");
+            markers.add(group);
+        }
+        pane.getChildren().setAll(markers);
+    }
+    /**
+     * creates the initial pane (used in constructor)
+     * @return the initial pane
+     */
+    private Pane createPane(){
+        Pane p=new Pane();
+        p.setPickOnBounds(false);
+        return p;
+    }
+
+    /**
      * returns the pane containing all the wayPoints
      * @return the pane containing all the wayPoints
      */
     public Pane pane(){
         return pane;
+    }
+
+    /**
+     * initiates the listeners (used in constructor)
+     */
+    private void initiateListeners(){
+        mapViewParameters.addListener((property, previousV, newV) -> relocateMarkers(newV));
+        observableList.addListener((ListChangeListener<WayPoint>) c -> createMarkers());
     }
 
     /**
@@ -129,26 +164,8 @@ public final class WaypointsManager {
         }
         else group.getStyleClass().add("first");
         pane.getChildren().add(group);
-        observableList.add(wayPoint);
     }
 
-    /**
-     * creates the initial pane (used in constructor)
-      * @return the initial pane
-     */
-    private Pane createPane(){
-        Pane p=new Pane();
-        p.setPickOnBounds(false);
-        return p;
-    }
-
-    /**
-     * initiates the listeners (used in constructor)
-     */
-    private void initiateListeners(){
-        mapViewParameters.addListener((property, previousV, newV) -> relocateMarkers(newV));
-        observableList.addListener((ListChangeListener<WayPoint>) c -> createMarkers());
-    }
 
     /**
      * relocates the markers according to the new mapviewParameters given in argument
@@ -163,24 +180,6 @@ public final class WaypointsManager {
             node.setLayoutX(mapViewParameters.viewX(nodePointWebMercator));
             node.setLayoutY(mapViewParameters.viewY(nodePointWebMercator));
             markers.add(node);
-        }
-        pane.getChildren().setAll(markers);
-    }
-
-    /**
-     * creates the markers corresponding to the waypoints contained in observableList
-     * and adds them as children to the pane
-     */
-    private void createMarkers (){
-        List<Node> markers = new ArrayList<>();
-        int size = observableList.size();
-        for(int i =0; i<observableList.size();++i){
-            WayPoint wayPoint=observableList.get(i);
-            Group group = createMarkerGroup(wayPoint);
-            if(i==0) group.getStyleClass().add("first");
-            else if(i==size-1 && i!=0) group.getStyleClass().add("last");
-            else group.getStyleClass().add("middle");
-            markers.add(group);
         }
         pane.getChildren().setAll(markers);
     }

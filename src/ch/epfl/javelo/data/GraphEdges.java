@@ -25,6 +25,8 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
     private static final int ELEVATION_OFFSET = 6;
     private static final int ATTRIBUTES_OFFSET = 8;
     private static final int BYTES_PER_EDGE = 10;
+    private static final int SAMPLES_PER_SHORT_44 = 2;
+    private static final int SAMPLES_PER_SHORT_04 = 4;
 
     /**
      * returns whether the given edge's orientation goes in the opposite direction of the OSM way which it provides from
@@ -91,11 +93,8 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
                 Q28_4.ofInt(2)) + 1;
         int profileId = Bits.extractSigned(profileIds.get(edgeId), 0, 30);
         float[] samples = new float[nbOfSamples];
-        float[] reverse;
-        int nbOfShorts;
         ProfileType type = List.of(ProfileType.values())
                 .get(Bits.extractUnsigned(profileIds.get(edgeId), 30, 2));
-        int count = 1;
         switch (type) {
             case NO_TYPE:
                 return new float[]{};
@@ -106,44 +105,19 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
                 break;
             case COMPRESSED_44:
                 samples[0] = Q28_4.asFloat(elevations.get(profileId));
-                //the number of shorts a compressed profile takes is the number of samples (-1 because
-                // the first sample is not compressed) divided by the
-                //number of samples a byte can contain, and rounded up since there might exist a byte
-                //which contains only one sample.
-                nbOfShorts = Math2.ceilDiv(nbOfSamples - 1, 2);
-                for (int shortIndex = 1; shortIndex <= nbOfShorts; shortIndex++) {
-                    for (int sampleIndex = 1; sampleIndex >= 0; sampleIndex--) {
-                        if (count < nbOfSamples)
-                            samples[count] = samples[count - 1] +
-                                    Q28_4.asFloat(Bits.extractSigned(elevations.get(profileId + shortIndex), 8 * sampleIndex, 8));
-                        ++count;
-                    }
-                }
+                createSamples(nbOfSamples, SAMPLES_PER_SHORT_44, profileId, samples);
                 break;
             case COMPRESSED_04:
                 samples[0] = Q28_4.asFloat(elevations.get(profileId));
-                //the number of shorts a compressed profile takes is the number of samples (-1 because
-                //the first sample is not compressed) divided by the
-                //number of samples a byte can contain, and rounded up since there might exist a byte
-                //which contains only one sample.
-                nbOfShorts = Math2.ceilDiv(nbOfSamples - 1, 4);
-                for (int shortIndex = 1; shortIndex <= nbOfShorts; shortIndex += 1) {
-                    for (int hexIndex = 3; hexIndex >= 0; hexIndex--) {
-                        if (count < nbOfSamples)
-                            samples[count] = samples[count - 1] +
-                                    Q28_4.asFloat(Bits.extractSigned(elevations.get(profileId + shortIndex), 4 * hexIndex, 4));
-                        ++count;
-                    }
-                }
-                break;
+                createSamples(nbOfSamples, SAMPLES_PER_SHORT_04, profileId, samples);
         }
         if (isInverted(edgeId)) {
             //inverts the order of the samples array
-            reverse = new float[nbOfSamples];
-            for (int i = samples.length - 1; i >= 0; i--) {
-                reverse[i] = samples[samples.length - i - 1];
+            for (int i =(samples.length - 1)/2; i >= 0; i--) {
+                float swap = samples[i];
+                samples[i] = samples[samples.length - i - 1];
+                samples[samples.length - i - 1] = swap;
             }
-            return reverse;
         }
         return samples;
     }
@@ -174,6 +148,31 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
 
         ProfileType(int type) {
             this.profileType = type;
+        }
+    }
+
+    /**
+     *
+     * @param nbOfSamples
+     * @param samplesPerShort
+     * @param profileId
+     * @param samples
+     */
+    private void createSamples(int nbOfSamples, int samplesPerShort, int profileId, float[] samples) {
+        int count = 1;
+        samples[0] = Q28_4.asFloat(elevations.get(profileId));
+        //the number of shorts a compressed profile takes is the number of samples (-1 because
+        //the first sample is not compressed) divided by the
+        //number of samples a byte can contain, and rounded up since there might exist a byte
+        //which contains only one sample.
+        int nbOfShorts = Math2.ceilDiv(nbOfSamples - 1, samplesPerShort);
+        for (int shortIndex = 1; shortIndex <= nbOfShorts; shortIndex += 1) {
+            for (int hexIndex = samplesPerShort-1; hexIndex >= 0; hexIndex--) {
+                if (count < nbOfSamples)
+                    samples[count] = samples[count - 1] +
+                            Q28_4.asFloat(Bits.extractSigned(elevations.get(profileId + shortIndex), Short.SIZE/samplesPerShort * hexIndex, Short.SIZE/samplesPerShort));
+                ++count;
+            }
         }
     }
 }

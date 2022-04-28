@@ -123,20 +123,17 @@ public final class BaseMapManager {
         context = canvas.getGraphicsContext2D();
         Image imageToDraw;
         boolean canDraw = true;
-        for (int x = 0; x <= canvas.getWidth() + X_ITERATIONS; x += PIXELS_PER_TILE) {
-            for (int y = 0; y <= canvas.getHeight() + Y_ITERATIONS; y += PIXELS_PER_TILE) {
-                int yTileIndex = (int) (yTopLeft + y) / PIXELS_PER_TILE;
-                int xTileIndex = (int) (xTopLeft + x) / PIXELS_PER_TILE;
+        for (int xOnCanvas = 0; xOnCanvas <= canvas.getWidth() + X_ITERATIONS; xOnCanvas += PIXELS_PER_TILE) {
+            for (int yOnCanvas = 0; yOnCanvas <= canvas.getHeight() + Y_ITERATIONS; yOnCanvas += PIXELS_PER_TILE) {
+                int yTileIndex = (int) (yTopLeft + yOnCanvas) / PIXELS_PER_TILE;
+                int xTileIndex = (int) (xTopLeft + xOnCanvas) / PIXELS_PER_TILE;
                 try {
                     imageToDraw = tileManager.imageForTileAt(new TileManager.TileId(zoomLevel, xTileIndex, yTileIndex));
                 } catch (Exception e) {
                     canDraw = false;
-                    if (e.getClass() == NullPointerException.class) System.out.println("nullPointerException");
-                    System.out.println(e.getMessage());
                     break;
                 }
                 if (canDraw) {
-                    //System.out.println(xTileIndex + "-" + yTileIndex + " -> coordinates :  \nx =" + (xTileIndex * PIXELS_PER_TILE - xTopLeft) + " \ny = " + (yTileIndex * PIXELS_PER_TILE - yTopLeft));
                     context.drawImage(imageToDraw, xTileIndex * PIXELS_PER_TILE - xTopLeft, yTileIndex * PIXELS_PER_TILE - yTopLeft);
                 }
                 canDraw = true;
@@ -182,7 +179,6 @@ public final class BaseMapManager {
             mouseOnLastEvent.set(new Point2D(event.getX(), event.getY()));
             xTopLeftOnPress = xTopLeft;
             yTopLeftOnPress = yTopLeft;
-            System.out.println("press!");
         });
         pane.setOnMouseDragged(event -> {
             double deltaX = event.getX() - mouseOnLastEvent.get().getX();

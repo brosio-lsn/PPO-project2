@@ -28,8 +28,8 @@ public final class Bits {
      *                                  the range [0, 32]
      */
     public static int extractSigned(int value, int start, int length) {
-        Preconditions.checkArgument(start >= 0 && (start + length) <= 32 && length > 0);
-        return (value << (32 - (start + length))) >> (32 - length);
+        Preconditions.checkArgument(start >= 0 && (start + length) <= Integer.SIZE && length > 0);
+        return (value << (Integer.SIZE - (start + length))) >> (Integer.SIZE - length);
     }
 
     /**
@@ -47,7 +47,7 @@ public final class Bits {
      *                                  the range [0, 32]
      */
     public static int extractUnsigned(int value, int start, int length) {
-        Preconditions.checkArgument(start >= 0 && (start + length) <= 32 && length < 32 && length > 0);
-        return (value << (32 - (start + length)) >>> (32 - length));
+        Preconditions.checkArgument(start >= 0 && (start + length) <= Integer.SIZE && length < Integer.SIZE && length > 0);
+        return (value << (Integer.SIZE - (start + length)) >>> (Integer.SIZE - length));
     }
 }
