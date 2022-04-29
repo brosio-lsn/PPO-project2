@@ -100,6 +100,7 @@ public final class RouteManager {
         int i = 0;
         polyline.getPoints().clear();
         //todo demander si j itere sur la bonne chose
+        //todo fix si property route is null
         for (PointCh pointCh : routeBean.route().get().points()) {
             arrayWithCoordinates[i] = mapViewParameters.get().viewX(PointWebMercator.ofPointCh(pointCh));
             ++i;
@@ -113,9 +114,12 @@ public final class RouteManager {
      * positions the circle based on the highlighted position on the route
      */
     private void positionCircle() {
-        PointCh pointCh = routeBean.route().get().pointAt(routeBean.highlightedPosition());
-        circle.setLayoutX(mapViewParameters.get().viewX(PointWebMercator.ofPointCh(pointCh)));
-        circle.setLayoutY(mapViewParameters.get().viewY(PointWebMercator.ofPointCh(pointCh)));
+        if(routeBean.route().get()!=null) {
+            PointCh pointCh = routeBean.route().get().pointAt(routeBean.highlightedPosition());
+            circle.setLayoutX(mapViewParameters.get().viewX(PointWebMercator.ofPointCh(pointCh)));
+            circle.setLayoutY(mapViewParameters.get().viewY(PointWebMercator.ofPointCh(pointCh)));
+        }
+        else System.out.println("r is null");
     }
 
     /**

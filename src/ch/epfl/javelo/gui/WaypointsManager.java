@@ -164,6 +164,9 @@ public final class WaypointsManager {
         }
         else group.getStyleClass().add("first");
         pane.getChildren().add(group);
+        System.out.println(observableList.size());
+        observableList.add(wayPoint);
+
     }
 
 
