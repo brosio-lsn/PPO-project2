@@ -1,7 +1,6 @@
 package ch.epfl.javelo.gui;
 
 import ch.epfl.javelo.Math2;
-import ch.epfl.javelo.projection.WebMercator;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleLongProperty;
@@ -80,7 +79,7 @@ public final class BaseMapManager {
      * Number of iterations needed to draw the image on the Y-axis of the canvas
      */
     private final int Y_ITERATIONS = PIXELS_PER_TILE;
-
+    Point2D mousePress;
     double yTopLeftOnPress, xTopLeftOnPress;
 
     /**
@@ -116,24 +115,30 @@ public final class BaseMapManager {
      * redraws the canvas if it is needed - if redrawOnNextPulse() has been called
      */
     private void redrawIfNeeded() {
-        if (!redrawNeeded) return;
-        redrawNeeded = false;
         xTopLeft = mapViewParametersProp.get().topLeft().getX();
         yTopLeft = mapViewParametersProp.get().topLeft().getY();
         zoomLevel = mapViewParametersProp.get().zoomLevel();
+        if (!redrawNeeded) return;
+        redrawNeeded = false;
         context = canvas.getGraphicsContext2D();
         Image imageToDraw;
+        boolean canDraw = true;
         for (int xOnCanvas = 0; xOnCanvas <= canvas.getWidth() + X_ITERATIONS; xOnCanvas += PIXELS_PER_TILE) {
             for (int yOnCanvas = 0; yOnCanvas <= canvas.getHeight() + Y_ITERATIONS; yOnCanvas += PIXELS_PER_TILE) {
                 int yTileIndex = (int) (yTopLeft + yOnCanvas) / PIXELS_PER_TILE;
                 int xTileIndex = (int) (xTopLeft + xOnCanvas) / PIXELS_PER_TILE;
+
                 try {
                     imageToDraw = tileManager.imageForTileAt(new TileManager.TileId(zoomLevel, xTileIndex, yTileIndex));
                 } catch (Exception e) {
+                    canDraw = false;
                     System.out.println(e.getMessage());
-                    continue;
+                    break;
                 }
-                context.drawImage(imageToDraw, xTileIndex * PIXELS_PER_TILE - xTopLeft, yTileIndex * PIXELS_PER_TILE - yTopLeft);
+                if (canDraw) {
+                    context.drawImage(imageToDraw, xTileIndex * PIXELS_PER_TILE - xTopLeft, yTileIndex * PIXELS_PER_TILE - yTopLeft);
+                }
+                canDraw = true;
             }
         }
     }
@@ -166,7 +171,7 @@ public final class BaseMapManager {
             double zoomDelta = Math.signum(e.getDeltaY());
             if (!((zoomLevel == ZOOM_LEVEL_MAX && zoomDelta > 0) || (zoomLevel == ZOOM_LEVEl_MIN && zoomDelta < 0))) {
                 zoomLevel = (int) Math2.clamp(ZOOM_LEVEl_MIN, zoomLevel + zoomDelta, ZOOM_LEVEL_MAX);
-                double scalingFactor = Math.scalb(ZOOM_SCALING_FACTOR, (int)zoomDelta);
+                double scalingFactor = zoomDelta > 0 ? ZOOM_SCALING_FACTOR : (double) 1 / ZOOM_SCALING_FACTOR;
                 xTopLeft = ((xTopLeft + e.getX()) * scalingFactor);
                 yTopLeft = (scalingFactor * (yTopLeft + e.getY()));
                 mapViewParametersProp.set(new MapViewParameters(zoomLevel, xTopLeft - e.getX(), yTopLeft - e.getY()));
