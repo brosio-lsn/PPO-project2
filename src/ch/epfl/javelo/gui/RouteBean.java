@@ -107,7 +107,6 @@ public final class RouteBean {
         System.out.println("je nullifie");
         theRoutes.clear();
         route.set(null);
-        //highlightedPosition.set(Double.NaN);
         elevationProfile.set(null);
     }
 
