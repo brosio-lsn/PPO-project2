@@ -2,6 +2,7 @@ package ch.epfl.javelo.gui;
 
 import ch.epfl.javelo.projection.PointCh;
 import ch.epfl.javelo.projection.PointWebMercator;
+import com.sun.security.jgss.GSSUtil;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Point2D;
@@ -143,23 +144,29 @@ public final class RouteManager {
             }
             if (!alreadyAWayPoint) {
                 PointWebMercator pointWebMercator = mapViewParameters.get().pointAt(point2D.getX(), point2D.getY());
-                int indexOfSegmentOfHightlightedPosition = routeBean.route().get().indexOfSegmentAt(routeBean.highlightedPosition());
-                routeBean.waypoints.add(indexOfSegmentOfHightlightedPosition+1, new WayPoint(pointWebMercator.toPointCh(), nodeId));
+                routeBean.waypoints.add(new WayPoint(pointWebMercator.toPointCh(), nodeId));
             }
         });
 
         mapViewParameters.addListener((property, previousV, newV) -> {
             if (previousV.zoomLevel() != newV.zoomLevel()) {
+
+                polyline.setLayoutX(0);
+                polyline.setLayoutY(0);
+                System.out.println(polyline.getLayoutX() + "before");
                 createPointsCoordinates();
+                System.out.println(polyline.getLayoutX());
             }
-            if (!previousV.topLeft().equals(newV.topLeft())) {
-                //todo demander si on doit faire une varaiable a l exterieur pour deltaX et deltaY
+            else if (!previousV.topLeft().equals(newV.topLeft())) {
+                System.out.println(polyline.getLayoutX() + "before");
                 double deltaX = newV.topLeft().getX() - previousV.topLeft().getX();
                 double deltaY = newV.topLeft().getY() - previousV.topLeft().getY();
                 polyline.setLayoutX(polyline.getLayoutX() - deltaX);
-                polyline.setLayoutY(polyline.getLayoutY()  - deltaY);
+                polyline.setLayoutY(polyline.getLayoutY() - deltaY);
+                System.out.println(polyline.getLayoutX());
+
             }
-            oldLayout.set(new Point2D(polyline.getLayoutX(), polyline.getLayoutY()));
+
 
             positionCircle();
         });
