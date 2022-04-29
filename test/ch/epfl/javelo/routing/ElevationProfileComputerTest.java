@@ -70,10 +70,10 @@ class ElevationProfileComputerTest {
         List<float[]> lesTableaux = new ArrayList<>();
         float[][] lesEdges = new float[5][];
         double[] longueurs = new double[5];
-        lesEdges[0] = new float[]{2f, 3F, 3f};
-        longueurs[0] = 4;
+        lesEdges[0] = new float[]{2f, Float.NaN, Float.NaN, Float.NaN};
+        longueurs[0] = 5;
         lesTableaux.add(lesEdges[0]);
-        lesEdges[1] = new float[]{Float.NaN, Float.NaN, Float.NaN, Float.NaN};
+        /*lesEdges[1] = new float[]{Float.NaN, Float.NaN, Float.NaN, Float.NaN};
         longueurs[1] = 6;
         lesTableaux.add(lesEdges[1]);
         lesEdges[2] = new float[]{3f, 4f, 2f};
@@ -122,8 +122,10 @@ class ElevationProfileComputerTest {
         lesEdges[4] = new float[]{Float.NaN, Float.NaN, Float.NaN, Float.NaN};
         longueurs[4] = 6;
         lesTableaux.add(lesEdges[4]);
+
+         */
         ElevationProfile weakActual2 = ElevationProfileComputer.elevationProfile(routeCreator(lesTableaux, longueurs), 0.001);
-        ElevationProfile bigBossExpected2 = new ElevationProfile(26.0, new float[]{2f, 2f, 2f, 2f, 3f, 3f, 3f, 3f, 3f, 4f, 2f, 2f, 2f, 2f});
+        ElevationProfile bigBossExpected2 = new ElevationProfile(5, new float[]{2f, 2f, 2f, 2f, 2f});
         elevationTests(bigBossExpected2, weakActual2);
 
     }

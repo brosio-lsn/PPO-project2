@@ -9,8 +9,6 @@ import ch.epfl.javelo.Preconditions;
  * @author Louis ROCHE (345620)
  * @author Ambroise AIGUEPERSE (341890)
  */
-
-
 public record PointWebMercator(double x, double y) {
     private static final int ZOOM_LEVEL_0 = 8;
 
@@ -63,7 +61,7 @@ public record PointWebMercator(double x, double y) {
     }
 
     /**
-     * retruns the y coordinate of the point at the given zoom level
+     * returns the y coordinate of the point at the given zoom level
      *
      * @param zoomLevel the zoom level at which the coordinate will be returned
      * @return the y coordinate of the point at the given zoom level

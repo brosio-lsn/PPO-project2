@@ -1,5 +1,7 @@
 package ch.epfl.javelo;
 
+import java.time.OffsetTime;
+
 /**
  * convert numbers between the Q28.4 representation
  * and other representations
@@ -8,6 +10,7 @@ package ch.epfl.javelo;
  * @author Ambroise AIGUEPERSE (341890)
  */
 public final class Q28_4 {
+    public static final int OFFSET = 4;
     /**
      * private constructor to make the class non instantiable
      */
@@ -21,7 +24,7 @@ public final class Q28_4 {
      * @return the Q28.4 value corresponding to the given integer
      */
     public static int ofInt(int i) {
-        return i << 4;
+        return i << OFFSET;
     }
 
     /**
@@ -31,7 +34,7 @@ public final class Q28_4 {
      * @return the double value equal to the given Q28.4 value
      */
     public static double asDouble(int q28_4) {
-        return Math.scalb((double) q28_4, -4);
+        return Math.scalb((double) q28_4, -OFFSET);
     }
 
     /**
@@ -41,6 +44,6 @@ public final class Q28_4 {
      * @return the float value equal to the given Q28.4 value
      */
     public static float asFloat(int q28_4) {
-        return Math.scalb(q28_4, -4);
+        return Math.scalb(q28_4, -OFFSET);
     }
 }

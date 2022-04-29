@@ -1,5 +1,6 @@
 package ch.epfl.javelo;
 
+import java.util.Arrays;
 import java.util.function.DoubleUnaryOperator;
 
 /**
@@ -62,7 +63,7 @@ public final class Functions {
     /**
      * private inner record used for the creation of a function with linear interpolation
      */
-    private record Sampled(float[] samples, double xMax) implements DoubleUnaryOperator {
+    private final record Sampled(float[] samples, double xMax) implements DoubleUnaryOperator {
         /**
          * returns the image of a given x coordinate
          *

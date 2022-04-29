@@ -36,7 +36,9 @@ public record RoutePoint(PointCh point, double position, double distanceToRefere
      * is offset by the given difference (positive of negative)
      */
     public RoutePoint withPositionShiftedBy(double positionDifference) {
-        return new RoutePoint(this.point, this.position + positionDifference, this.distanceToReference);
+        return (positionDifference == 0)
+                ? this
+                : new RoutePoint(this.point, this.position + positionDifference, this.distanceToReference);
     }
 
     /**

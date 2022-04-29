@@ -76,7 +76,7 @@ public final class Math2 {
      * @return the argument of the hyperbolic sine that equals to x.
      */
     public static double asinh(double x) {
-        return Math.log(x + Math.sqrt(1 + Math.pow(x, 2)));
+        return Math.log(x + Math.hypot(1, x));
     }
 
     /**

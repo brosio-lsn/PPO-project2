@@ -32,7 +32,7 @@ public record AttributeSet(long bits) {
      */
     public static AttributeSet of(Attribute... attributes) {
         long bits = 0;
-        for (Attribute a : attributes) bits = bits | 1L << a.ordinal();
+        for (Attribute a : attributes) bits |= 1L << a.ordinal();
         return new AttributeSet(bits);
     }
 
@@ -43,7 +43,6 @@ public record AttributeSet(long bits) {
      * @return true if the attribute is contained in this AttributeSet, false otherwise.
      */
     public boolean contains(Attribute attribute) {
-        //mask initiated here to not calculate 2 times
         long mask = 1L << attribute.ordinal();
         return ((this.bits & mask) == mask);
     }
