@@ -127,20 +127,17 @@ public final class Graph {
         List<GraphSectors.Sector> sectorsNearby = sectors.sectorsInArea(point, searchDistance);
         List<PointCh> candidates = new ArrayList<>();
         List<Integer> indexLists = new ArrayList<>();
-        for (GraphSectors.Sector secteurs : sectorsNearby) {
-            if (!(secteurs.startNodeId() == 0 && secteurs.endNodeId() == 0)) {
-                for (int i = secteurs.startNodeId(); i < secteurs.endNodeId(); ++i) {
-                    candidates.add(nodePoint(i));
-                    indexLists.add(i);
-                }
-            }
-        }
         int index = -1;
         double minDistance = Math.pow(searchDistance, 2);
-        for (int i = 0; i < candidates.size(); i++) {
-            if (candidates.get(i).squaredDistanceTo(point) <= minDistance) {
-                index = indexLists.get(i);
-                minDistance = candidates.get(i).squaredDistanceTo(point);
+        for (GraphSectors.Sector secteurs : sectorsNearby) {
+            for (int i = secteurs.startNodeId(); i < secteurs.endNodeId(); ++i) {
+                candidates.add(nodePoint(i));
+                indexLists.add(i);
+                //TODO nommer la variable candidates.indexOf(i) - nodePoint(i)
+                if (candidates.get(candidates.indexOf(nodePoint(i))).squaredDistanceTo(point) <= minDistance) {
+                    index = indexLists.get(indexLists.indexOf(i));
+                    minDistance = candidates.get(candidates.indexOf(nodePoint(i))).squaredDistanceTo(point);
+                }
             }
         }
         return index;

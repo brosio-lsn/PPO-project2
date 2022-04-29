@@ -74,6 +74,7 @@ public final class RouteBean {
     private void updateWaypointsList() {
         theRoutes.clear();
         if (waypoints.size() >= 2) {
+            double length;
             for (int i = 0; i < waypoints.size() - 1; i++) {
                 int nodeIdOfFirstWaypoint = waypoints.get(i).closestNodeId();
                 int nodeIdOfSecondWaypoint = waypoints.get(i + 1).closestNodeId();
@@ -82,12 +83,14 @@ public final class RouteBean {
                     Route bestRouteBetween = routeComputer.bestRouteBetween(nodeIdOfFirstWaypoint, nodeIdOfSecondWaypoint);
                     if (bestRouteBetween == null) {
                         nullifyProperties();
-                        break;
+                        System.out.println("On ne peut pas passer par là !");
+                        return;
                     }
                     bestRouteCache.put(new Pair<>(nodeIdOfFirstWaypoint, nodeIdOfSecondWaypoint), bestRouteBetween);
                 }
                 theRoutes.add(bestRouteCache.getOrDefault(new Pair<>(nodeIdOfFirstWaypoint, nodeIdOfSecondWaypoint),
                         bestRouteCache.get(new Pair<>(nodeIdOfSecondWaypoint, nodeIdOfFirstWaypoint))));
+
             }
             route.set(new MultiRoute(theRoutes));
             computeElevationProfile();
@@ -104,7 +107,7 @@ public final class RouteBean {
         System.out.println("je nullifie");
         theRoutes.clear();
         route.set(null);
-        highlightedPosition.set(Double.NaN);
+        //highlightedPosition.set(Double.NaN);
         elevationProfile.set(null);
     }
 
