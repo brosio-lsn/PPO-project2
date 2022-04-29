@@ -143,22 +143,23 @@ public final class RouteManager {
             }
             if (!alreadyAWayPoint) {
                 PointWebMercator pointWebMercator = mapViewParameters.get().pointAt(point2D.getX(), point2D.getY());
-                routeBean.waypoints.add(new WayPoint(pointWebMercator.toPointCh(), nodeId));
+                int indexOfSegmentOfHightlightedPosition = routeBean.route().get().indexOfSegmentAt(routeBean.highlightedPosition());
+                routeBean.waypoints.add(indexOfSegmentOfHightlightedPosition+1, new WayPoint(pointWebMercator.toPointCh(), nodeId));
             }
         });
 
         mapViewParameters.addListener((property, previousV, newV) -> {
-            if (!previousV.topLeft().equals(newV.topLeft())) {
-                double deltaX = newV.topLeft().getX() - previousV.topLeft().getX();
-                double deltaY = newV.topLeft().getY() - previousV.topLeft().getY();
-                polyline.setLayoutX(oldLayout.get().getX() - deltaX);
-                polyline.setLayoutY(oldLayout.get().getY() - deltaY);
-            }
-            oldLayout.set(new Point2D(polyline.getLayoutX(), polyline.getLayoutY()));
-
             if (previousV.zoomLevel() != newV.zoomLevel()) {
                 createPointsCoordinates();
             }
+            if (!previousV.topLeft().equals(newV.topLeft())) {
+                //todo demander si on doit faire une varaiable a l exterieur pour deltaX et deltaY
+                double deltaX = newV.topLeft().getX() - previousV.topLeft().getX();
+                double deltaY = newV.topLeft().getY() - previousV.topLeft().getY();
+                polyline.setLayoutX(polyline.getLayoutX() - deltaX);
+                polyline.setLayoutY(polyline.getLayoutY()  - deltaY);
+            }
+            oldLayout.set(new Point2D(polyline.getLayoutX(), polyline.getLayoutY()));
 
             positionCircle();
         });
