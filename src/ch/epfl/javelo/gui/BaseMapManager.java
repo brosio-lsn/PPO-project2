@@ -79,8 +79,8 @@ public final class BaseMapManager {
      * Number of iterations needed to draw the image on the Y-axis of the canvas
      */
     private final int Y_ITERATIONS = PIXELS_PER_TILE;
-    Point2D mousePress;
-    double yTopLeftOnPress, xTopLeftOnPress;
+
+    private double yTopLeftOnPress, xTopLeftOnPress;
 
     /**
      * Constructor of the BaseMapManager class.
@@ -122,11 +122,13 @@ public final class BaseMapManager {
         redrawNeeded = false;
         context = canvas.getGraphicsContext2D();
         Image imageToDraw;
+        System.out.println("width: " + canvas.getWidth() + " height :" + canvas.getHeight());
         boolean canDraw = true;
         for (int xOnCanvas = 0; xOnCanvas <= canvas.getWidth() + X_ITERATIONS; xOnCanvas += PIXELS_PER_TILE) {
             for (int yOnCanvas = 0; yOnCanvas <= canvas.getHeight() + Y_ITERATIONS; yOnCanvas += PIXELS_PER_TILE) {
                 int yTileIndex = (int) (yTopLeft + yOnCanvas) / PIXELS_PER_TILE;
                 int xTileIndex = (int) (xTopLeft + xOnCanvas) / PIXELS_PER_TILE;
+                System.out.println("width: " + canvas.getWidth() + " height :" + canvas.getHeight());
 
                 try {
                     imageToDraw = tileManager.imageForTileAt(new TileManager.TileId(zoomLevel, xTileIndex, yTileIndex));
