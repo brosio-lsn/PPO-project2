@@ -22,7 +22,18 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 class ElevationProfileComputerTest {
     @Test
     void elevationProfileComputerThrowsWithZeroMaxStepLength() {
+
+        String format = "Longueur : %.1f km" +
+                "     Montée : %.0f m" +
+                "     Descente : %.0f m" +
+                "     Altitude : de %.0f m à %.0f m";
+        System.out.println(String.format(format, 1f,
+                2f,
+                3f,
+                4f,
+                5f));
         assertThrows(IllegalArgumentException.class, () -> elevationProfile(new FakeRoute(), 0));
+
     }
 
     @Test

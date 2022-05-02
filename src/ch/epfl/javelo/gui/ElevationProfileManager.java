@@ -13,6 +13,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Path;
 import javafx.scene.shape.Polygon;
+import javafx.scene.text.Text;
 
 public final class ElevationProfileManager {
     private final ObjectProperty<ElevationProfile> elevationProfile;
@@ -24,6 +25,7 @@ public final class ElevationProfileManager {
     private final Line line;
     private final Polygon profile;
     private final Group texts;
+    private final Text stats;
 
     public ElevationProfileManager(ObjectProperty<ElevationProfile> elevationProfile, DoubleProperty position) {
         this.elevationProfile = elevationProfile;
@@ -35,9 +37,10 @@ public final class ElevationProfileManager {
         this.profile = new Polygon(pane.getWidth(), pane.getHeight());
         this.texts = new Group();
         this.line = new Line();
+        this.stats=new Text();
         borderPane.setBottom(vbox);
         borderPane.setCenter(pane);
-
+        setLabels();
         drawRectangle();
     }
 
@@ -60,5 +63,25 @@ public final class ElevationProfileManager {
     private void drawRectangle() {
         Insets insets = new Insets(10, 10, 20, 40);
 
+    }
+
+    private void setLabels(){
+        borderPane.getStylesheets().add("elevation_profile.css");
+        vbox.setId("profile_data");
+        grid.setId("grid");
+        profile.setId("profile");
+    }
+
+    private String stats(){
+        //todo a voir si pb que les methodes retournent des double
+        String format = "Longueur : %.1f km" +
+                "     Montée : %.0f m" +
+                "     Descente : %.0f m" +
+                "     Altitude : de %.0f m à %.0f m";
+        return String.format(format, elevationProfile.get().length(),
+                elevationProfile.get().totalAscent(),
+                elevationProfile.get().totalDescent(),
+                elevationProfile.get().minElevation(),
+                elevationProfile.get().minElevation());
     }
 }

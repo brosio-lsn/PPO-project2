@@ -97,6 +97,7 @@ public final class WaypointsManager {
         createMarkers();
         this.mouseOnLastEvent=new SimpleObjectProperty<>();
         initiateListeners();
+        errorConsumer.accept("errer");
     }
 
     /**

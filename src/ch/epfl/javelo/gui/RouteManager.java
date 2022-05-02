@@ -2,6 +2,7 @@ package ch.epfl.javelo.gui;
 
 import ch.epfl.javelo.projection.PointCh;
 import ch.epfl.javelo.projection.PointWebMercator;
+import ch.epfl.javelo.routing.Route;
 import com.sun.security.jgss.GSSUtil;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -60,8 +61,8 @@ public final class RouteManager {
         this.errorConsumer = errorConsumer;
         polyline = new Polyline();
         circle = new Circle();
-        setEvents();
         createPane();
+        setEvents();
     }
 
     /**
@@ -83,13 +84,10 @@ public final class RouteManager {
         polyline.setId("route");
         circle.setId("highlight");
         circle.setRadius(5);
-        //check this because route might be initially null
-        if (routeBean.route().get() != null) {
-            createPointsCoordinates();
-            positionCircle();
-        }
         pane.getChildren().add(polyline);
         pane.getChildren().add(circle);
+        createPointsCoordinates();
+        positionCircle();
     }
 
     /**
@@ -97,18 +95,25 @@ public final class RouteManager {
      * it should go through
      */
     private void createPointsCoordinates() {
-        Double[] arrayWithCoordinates = new Double[routeBean.route().get().points().size() * 2];
-        int i = 0;
-        polyline.getPoints().clear();
-        //todo demander si j itere sur la bonne chose
-        //todo fix si property route is null
-        for (PointCh pointCh : routeBean.route().get().points()) {
-            arrayWithCoordinates[i] = mapViewParameters.get().viewX(PointWebMercator.ofPointCh(pointCh));
-            ++i;
-            arrayWithCoordinates[i] = mapViewParameters.get().viewY(PointWebMercator.ofPointCh(pointCh));
-            ++i;
+        Route route = routeBean.route().get();
+        if(route!=null) {
+            polyline.setLayoutX(0);
+            polyline.setLayoutY(0);
+            Double[] arrayWithCoordinates = new Double[routeBean.route().get().points().size() * 2];
+            polyline.getPoints().clear();
+            //didn't use a for i loop for more flexibility (in case the list implementation of list changed,
+            //with the iterator the complexity wouldn't be increased)
+            int i = 0;
+            for (PointCh pointCh : routeBean.route().get().points()) {
+                arrayWithCoordinates[i] = mapViewParameters.get().viewX(PointWebMercator.ofPointCh(pointCh));
+                ++i;
+                arrayWithCoordinates[i] = mapViewParameters.get().viewY(PointWebMercator.ofPointCh(pointCh));
+                ++i;
+            }
+            polyline.getPoints().addAll(arrayWithCoordinates);
+            polyline.setVisible(true);
         }
-        polyline.getPoints().addAll(arrayWithCoordinates);
+        else polyline.setVisible(false);
     }
 
     /**
@@ -119,8 +124,9 @@ public final class RouteManager {
             PointCh pointCh = routeBean.route().get().pointAt(routeBean.highlightedPosition());
             circle.setLayoutX(mapViewParameters.get().viewX(PointWebMercator.ofPointCh(pointCh)));
             circle.setLayoutY(mapViewParameters.get().viewY(PointWebMercator.ofPointCh(pointCh)));
+            circle.setVisible(true);
         }
-        else System.out.println("r is null");
+        else circle.setVisible(false);
     }
 
     /**
@@ -129,60 +135,41 @@ public final class RouteManager {
      * highlighted position on the route)
      */
     private void setEvents() {
-        ObjectProperty<Point2D> oldLayout = new SimpleObjectProperty<>(new Point2D(polyline.getLayoutX(),polyline.getLayoutY()));
         circle.setOnMouseClicked(event -> {
-            //TODO demander si y a mieux a faire que iterer comme ca
             Point2D point2D = circle.localToParent(event.getX(), event.getY());
             int nodeId = routeBean.route().get().nodeClosestTo(routeBean.highlightedPosition());
             boolean alreadyAWayPoint = false;
-            for (WayPoint wayPoint : routeBean.waypoints) {
+            for (WayPoint wayPoint : routeBean.waypoints)
                 if (wayPoint.closestNodeId() == nodeId) {
                     errorConsumer.accept("Un point de passage est déjà présent à cet endroit !");
                     alreadyAWayPoint = true;
                     break;
                 }
-            }
             if (!alreadyAWayPoint) {
                 PointWebMercator pointWebMercator = mapViewParameters.get().pointAt(point2D.getX(), point2D.getY());
-                routeBean.waypoints.add(new WayPoint(pointWebMercator.toPointCh(), nodeId));
+                int indexOfSegmentAtHightlightedPosition = routeBean.route().get().indexOfSegmentAt(routeBean.highlightedPosition());
+                routeBean.waypoints.add(indexOfSegmentAtHightlightedPosition+1, new WayPoint(pointWebMercator.toPointCh(), nodeId));
             }
         });
 
         mapViewParameters.addListener((property, previousV, newV) -> {
-            if (previousV.zoomLevel() != newV.zoomLevel()) {
-
-                polyline.setLayoutX(0);
-                polyline.setLayoutY(0);
-                System.out.println(polyline.getLayoutX() + "before");
+            if (previousV.zoomLevel() != newV.zoomLevel())
                 createPointsCoordinates();
-                System.out.println(polyline.getLayoutX());
-            }
-            else if (!previousV.topLeft().equals(newV.topLeft())) {
-                System.out.println(polyline.getLayoutX() + "before");
+            else {
+                //todo mieux de mettre def des attributs en dehors?
                 double deltaX = newV.topLeft().getX() - previousV.topLeft().getX();
                 double deltaY = newV.topLeft().getY() - previousV.topLeft().getY();
                 polyline.setLayoutX(polyline.getLayoutX() - deltaX);
                 polyline.setLayoutY(polyline.getLayoutY() - deltaY);
-                System.out.println(polyline.getLayoutX());
-
             }
-
-
             positionCircle();
         });
 
         routeBean.highlightedPosition.addListener((property, previousV, newV) -> positionCircle());
 
         routeBean.route().addListener((property, previousV, newV) -> {
-            if (newV == null) {
-                polyline.setVisible(false);
-                circle.setVisible(false);
-            } else {
-                polyline.setVisible(true);
-                circle.setVisible(true);
                 positionCircle();
                 createPointsCoordinates();
-            }
         });
     }
 

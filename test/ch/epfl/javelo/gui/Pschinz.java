@@ -11,6 +11,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Scene;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
@@ -53,6 +54,7 @@ public class Pschinz extends Application{
                         waypointsManager,
                         mapViewParametersP);
 
+        Pane p = waypointsManager.pane();
         StackPane mainPane =
                 new StackPane(baseMapManager.pane(),
                         waypointsManager.pane(), manager.pane());
