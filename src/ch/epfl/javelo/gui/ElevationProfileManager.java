@@ -98,6 +98,7 @@ public final class ElevationProfileManager {
             points[j]= pointToAdd.getY();
             ++j;
         }
+        //todo reste  a ajouter les points du bas!!
     }
 
     private void setLabels(){
