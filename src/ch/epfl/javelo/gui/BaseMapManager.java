@@ -115,6 +115,7 @@ public final class BaseMapManager {
      * redraws the canvas if it is needed - if redrawOnNextPulse() has been called
      */
     private void redrawIfNeeded() {
+        System.out.println("PANE IS : " +pane.getWidth());
         xTopLeft = mapViewParametersProp.get().topLeft().getX();
         yTopLeft = mapViewParametersProp.get().topLeft().getY();
         zoomLevel = mapViewParametersProp.get().zoomLevel();
@@ -122,7 +123,7 @@ public final class BaseMapManager {
         redrawNeeded = false;
         context = canvas.getGraphicsContext2D();
         Image imageToDraw;
-        System.out.println("width: " + canvas.getWidth() + " height :" + canvas.getHeight());
+        //System.out.println("width: " + canvas.getWidth() + " height :" + canvas.getHeight());
         boolean canDraw = true;
         for (int xOnCanvas = 0; xOnCanvas <= canvas.getWidth() + X_ITERATIONS; xOnCanvas += PIXELS_PER_TILE) {
             for (int yOnCanvas = 0; yOnCanvas <= canvas.getHeight() + Y_ITERATIONS; yOnCanvas += PIXELS_PER_TILE) {

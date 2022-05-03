@@ -40,6 +40,7 @@ public final class ElevationProfileManager {
     private static final int RIGHT_PIXELS = 10;
     private static final double MOUSE_NOT_IN_RECTANGLE = Double.NaN;
     private final Insets insets;
+    private boolean bindingsDone;
 
     public ElevationProfileManager(ObjectProperty<ElevationProfile> elevationProfile, DoubleProperty position) throws NonInvertibleTransformException {
         this.elevationProfile = elevationProfile;
@@ -52,6 +53,10 @@ public final class ElevationProfileManager {
         this.texts = new Group();
         this.line = new Line();
         this.stats=new Text();
+        pane.getChildren().add(profile);
+        pane.getChildren().add(grid);
+        pane.getChildren().add(texts);
+        pane.getChildren().add(line);
         borderPane.setBottom(vbox);
         borderPane.setCenter(pane);
         worldToScreen = new SimpleObjectProperty<>();
@@ -59,11 +64,9 @@ public final class ElevationProfileManager {
         mousePositionOnProfileProperty = new SimpleDoubleProperty();
         rectangle = new SimpleObjectProperty<>();
         insets = new Insets(TOP_PIXELS, RIGHT_PIXELS, BOTTOM_PIXELS, LEFT_PIXELS);
+        bindingsDone=false;
         setLabels();
-        createTransformations();
         setEvents();
-        setBindings();
-        drawRectangle();
     }
 
 
@@ -75,27 +78,32 @@ public final class ElevationProfileManager {
         return mousePositionOnProfileProperty;
     }
 
-    private void drawRectangle() {
-        double rectangle_width = pane.getWidth()-insets.getLeft()-insets.getRight();
-        double rectangle_height= pane.getHeight()-insets.getBottom()-insets.getTop();
-        rectangle.set(new Rectangle2D(insets.getLeft(), insets.getBottom(), rectangle_width, rectangle_height));
-        //todo demander cast étrange
-        int numberOfTopPoints = (int)rectangle.get().getWidth();
-        int numberOfBottomPoints = 2;
-        Double[] points = new Double[(numberOfBottomPoints+numberOfTopPoints)*2];
-        //todo regarder excpetions ( diviser par 0)
-        double stepLength = elevationProfile.get().length()/(numberOfBottomPoints-1);
-        int j=0;
-        for(int i =0; i<numberOfTopPoints;++i){
-            double positionOnProfile = stepLength*(i);
-            double elevationAtPositionOnProfile = elevationProfile.get().elevationAt(positionOnProfile);
-            Point2D pointToAdd = worldToScreen.get().transform(positionOnProfile, elevationAtPositionOnProfile);
-            points[j] = pointToAdd.getX();
-            ++j;
-            points[j]= pointToAdd.getY();
-            ++j;
+    private void drawPolygone() {
+        if (rectangle.get().getHeight() != 0 && rectangle.get().getWidth() != 0) {
+            //todo demander cast étrange
+            int numberOfTopPoints = (int) rectangle.get().getWidth();
+            int numberOfBottomPoints = 2;
+            Double[] points = new Double[(numberOfBottomPoints + numberOfTopPoints) * 2];
+            //todo regarder excpetions ( diviser par 0)
+            double stepLength = elevationProfile.get().length() / (numberOfBottomPoints - 1);
+            int j = 0;
+            for (int i = 0; i < numberOfTopPoints; ++i) {
+                double positionOnProfile = stepLength * (i);
+                double elevationAtPositionOnProfile = elevationProfile.get().elevationAt(positionOnProfile);
+                Point2D pointToAdd = worldToScreen.get().transform(positionOnProfile, elevationAtPositionOnProfile);
+                points[j] = pointToAdd.getX();
+                ++j;
+                points[j] = pointToAdd.getY();
+                ++j;
+            }
+            points[points.length - 4] = insets.getLeft();
+            points[points.length - 3] = insets.getTop() + rectangle.get().getHeight();
+            points[points.length - 2] = insets.getLeft() + rectangle.get().getWidth();
+            points[points.length - 1] = insets.getTop() + rectangle.get().getHeight();
+
+            profile.getPoints().clear();
+            profile.getPoints().addAll(points);
         }
-        //todo reste  a ajouter les points du bas!!
     }
 
     private void setLabels(){
@@ -118,27 +126,75 @@ public final class ElevationProfileManager {
                 elevationProfile.get().maxElevation());
     }
 
-    private void setEvents(){
-        pane.setOnMouseMoved(event -> mousePositionOnProfileProperty.set(screenToWorld.get().transform(event.getX(), event.getY()).getX()));
+    private void setEvents() {
+        pane.setOnMouseMoved(event -> {if(screenToWorld.get()!=null) mousePositionOnProfileProperty.set(screenToWorld.get().transform(event.getX(), event.getY()).getX());});
         pane.setOnMouseExited(event -> mousePositionOnProfileProperty.set(MOUSE_NOT_IN_RECTANGLE));
+        borderPane.heightProperty().addListener((property, previousV, newV) -> {
+            System.out.println("called");
+            System.out.println("bp width "+borderPane.getWidth());
+            System.out.println("pane width "+pane.getWidth());
+            System.out.println("bp height "+borderPane.getHeight());
+            System.out.println("pane height "+pane.getHeight());
+            if (borderPane.getHeight() != 0 && borderPane.getWidth() != 0) {
+                double a = borderPane.getHeight();
+                double rectangle_width = borderPane.getWidth() - insets.getLeft() - insets.getRight();
+                double rectangle_height = borderPane.getHeight() - insets.getBottom() - insets.getTop();
+                if(rectangle_height>0 && rectangle_height>0) {
+                    rectangle.set(new Rectangle2D(insets.getLeft(), insets.getBottom(), rectangle_width, rectangle_height));
+                    createTransformations();
+                    System.out.println(worldToScreen.get().transform(0,633));
+                    //drawPolygone();
+                    //if (!bindingsDone) setBindings();
+                }
+            }
+        });
+        borderPane.widthProperty().addListener((property, previousV, newV) -> {
+            System.out.println("called");
+            System.out.println("bp width "+borderPane.getWidth());
+            System.out.println("pane width "+pane.getWidth());
+            System.out.println("bp height "+borderPane.getHeight());
+            System.out.println("pane height "+pane.getHeight());
+            if (borderPane.getHeight() != 0 && borderPane.getWidth() != 0) {
+                double a = borderPane.getHeight();
+                double rectangle_width = borderPane.getWidth() - insets.getLeft() - insets.getRight();
+                double rectangle_height = borderPane.getHeight() - insets.getBottom() - insets.getTop();
+                if(rectangle_height>0 && rectangle_height>0) {
+                    rectangle.set(new Rectangle2D(insets.getLeft(), insets.getBottom(), rectangle_width, rectangle_height));
+                    createTransformations();
+                    System.out.println(worldToScreen.get().transform(0,633));
+                    //drawPolygone();
+                    //if (!bindingsDone) setBindings();
+                }
+            }
+        });
     }
 
-    private void createTransformations () throws NonInvertibleTransformException {
-        Affine affine = new Affine();
-        affine.prependTranslation(0, -elevationProfile.get().maxElevation());
-        affine.prependScale(pane.getWidth()/elevationProfile.get().length(), -pane.getWidth()/elevationProfile.get().length());
-        affine.prependTranslation(LEFT_PIXELS,TOP_PIXELS);
-        worldToScreen.set(affine);
-        screenToWorld.set(affine.createInverse());
+    private void createTransformations () {
+        if (pane.getWidth() != 0 && pane.getHeight() != 0) {
+            Affine affine = new Affine();
+            affine.prependTranslation(0, -elevationProfile.get().maxElevation());
+            affine.prependScale(rectangle.get().getWidth() / elevationProfile.get().length(), -rectangle.get().getHeight() / (elevationProfile.get().maxElevation()-elevationProfile.get().minElevation()));
+            //affine.prependScale(600/elevationProfile.get().length(), -300/elevationProfile.get().length());
+            affine.prependTranslation(LEFT_PIXELS, TOP_PIXELS);
+            worldToScreen.set(affine);
+            try {
+                screenToWorld.set(affine.createInverse());
+            }catch (NonInvertibleTransformException e){
+                System.out.println(e.getMessage());
+            }
+        }
     }
 
     private void setBindings(){
         //todo ask if bindings are fine
-        double elevationAtPosition = elevationProfile.get().elevationAt(position.doubleValue());
-        double x_screen_coordinate_at_position = worldToScreen.get().transform(position.doubleValue(), elevationAtPosition).getX();
-        line.layoutXProperty().bind(Bindings.createDoubleBinding(()-> x_screen_coordinate_at_position,position));
-        line.startYProperty().bind(Bindings.select(rectangle , "minY"));
-        line.endYProperty().bind(Bindings.select(rectangle , "maxY"));
-        line.visibleProperty().bind(Bindings.greaterThan(0, position));
+        if(worldToScreen.get()!=null) {
+            bindingsDone=true;
+            double elevationAtPosition = elevationProfile.get().elevationAt(position.doubleValue());
+            double x_screen_coordinate_at_position = worldToScreen.get().transform(position.doubleValue(), elevationAtPosition).getX();
+            line.layoutXProperty().bind(Bindings.createDoubleBinding(() -> x_screen_coordinate_at_position, position));
+            line.startYProperty().bind(Bindings.select(rectangle, "minY"));
+            line.endYProperty().bind(Bindings.select(rectangle, "maxY"));
+            line.visibleProperty().bind(Bindings.greaterThan(0, position));
+        }
     }
 }
