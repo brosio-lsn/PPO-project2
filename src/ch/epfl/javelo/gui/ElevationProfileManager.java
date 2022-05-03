@@ -4,6 +4,7 @@ import ch.epfl.javelo.routing.ElevationProfile;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.*;
 import javafx.geometry.Insets;
+import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
 import javafx.scene.layout.BorderPane;
@@ -45,7 +46,7 @@ public final class ElevationProfileManager {
         this.vbox = new VBox();
         this.borderPane = new BorderPane();
         this.grid = new Path();
-        this.profile = new Polygon(pane.getWidth(), pane.getHeight());
+        this.profile = new Polygon();
         this.texts = new Group();
         this.line = new Line();
         this.stats=new Text();
@@ -80,7 +81,23 @@ public final class ElevationProfileManager {
 
     private void drawRectangle() {
         Insets insets = new Insets(TOP_PIXELS, RIGHT_PIXELS, BOTTOM_PIXELS, LEFT_PIXELS);
-
+        //rectangle.set(new Rectangle2D());
+        //todo demander cast étrange
+        int numberOfTopPoints = (int)rectangle.get().getWidth();
+        int numberOfBottomPoints = 2;
+        Double[] points = new Double[(numberOfBottomPoints+numberOfTopPoints)*2];
+        //todo regarder excpetions ( diviser par 0)
+        double stepLength = elevationProfile.get().length()/(numberOfBottomPoints-1);
+        int j=0;
+        for(int i =0; i<numberOfTopPoints;++i){
+            double positionOnProfile = stepLength*(i);
+            double elevationAtPositionOnProfile = elevationProfile.get().elevationAt(positionOnProfile);
+            Point2D pointToAdd = worldToScreen.get().transform(positionOnProfile, elevationAtPositionOnProfile);
+            points[j] = pointToAdd.getX();
+            ++j;
+            points[j]= pointToAdd.getY();
+            ++j;
+        }
     }
 
     private void setLabels(){
