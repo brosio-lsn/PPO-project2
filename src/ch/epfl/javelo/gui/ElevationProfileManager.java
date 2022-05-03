@@ -7,6 +7,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
+import javafx.scene.canvas.Canvas;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -38,6 +39,7 @@ public final class ElevationProfileManager {
     private static final int BOTTOM_PIXELS = 20;
     private static final int RIGHT_PIXELS = 10;
     private static final double MOUSE_NOT_IN_RECTANGLE = Double.NaN;
+    private final Insets insets;
 
     public ElevationProfileManager(ObjectProperty<ElevationProfile> elevationProfile, DoubleProperty position) throws NonInvertibleTransformException {
         this.elevationProfile = elevationProfile;
@@ -56,20 +58,14 @@ public final class ElevationProfileManager {
         screenToWorld=new SimpleObjectProperty<>();
         mousePositionOnProfileProperty = new SimpleDoubleProperty();
         rectangle = new SimpleObjectProperty<>();
+        insets = new Insets(TOP_PIXELS, RIGHT_PIXELS, BOTTOM_PIXELS, LEFT_PIXELS);
         setLabels();
-        drawRectangle();
         createTransformations();
         setEvents();
         setBindings();
+        drawRectangle();
     }
 
-    public ReadOnlyObjectProperty<ElevationProfile> elevationProfileProperty() {
-        return elevationProfile;
-    }
-
-    public ReadOnlyDoubleProperty positionProperty() {
-        return position;
-    }
 
     public Pane pane() {
         return borderPane;
@@ -80,8 +76,9 @@ public final class ElevationProfileManager {
     }
 
     private void drawRectangle() {
-        Insets insets = new Insets(TOP_PIXELS, RIGHT_PIXELS, BOTTOM_PIXELS, LEFT_PIXELS);
-        //rectangle.set(new Rectangle2D());
+        double rectangle_width = pane.getWidth()-insets.getLeft()-insets.getRight();
+        double rectangle_height= pane.getHeight()-insets.getBottom()-insets.getTop();
+        rectangle.set(new Rectangle2D(insets.getLeft(), insets.getBottom(), rectangle_width, rectangle_height));
         //todo demander cast étrange
         int numberOfTopPoints = (int)rectangle.get().getWidth();
         int numberOfBottomPoints = 2;

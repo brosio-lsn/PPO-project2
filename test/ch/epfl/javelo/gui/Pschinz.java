@@ -54,7 +54,6 @@ public class Pschinz extends Application{
                         waypointsManager,
                         mapViewParametersP);
 
-        Pane p = waypointsManager.pane();
         StackPane mainPane =
                 new StackPane(baseMapManager.pane(),
                         waypointsManager.pane(), manager.pane());
