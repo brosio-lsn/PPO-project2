@@ -42,9 +42,11 @@ public final class ElevationProfileManager {
     private final Insets insets;
     private boolean bindingsDone;
 
-    public ElevationProfileManager(ObjectProperty<ElevationProfile> elevationProfile, DoubleProperty position) throws NonInvertibleTransformException {
+    public ElevationProfileManager(ObjectProperty<ElevationProfile> elevationProfile, DoubleProperty position) {
         this.elevationProfile = elevationProfile;
         this.position = position;
+        System.out.println(position.doubleValue());
+        position.addListener((p,v,n)-> System.out.println(position.doubleValue()));
         this.pane = new Pane();
         this.vbox = new VBox();
         this.borderPane = new BorderPane();
@@ -85,23 +87,20 @@ public final class ElevationProfileManager {
             int numberOfBottomPoints = 2;
             Double[] points = new Double[(numberOfBottomPoints + numberOfTopPoints) * 2];
             //todo regarder excpetions ( diviser par 0)
-            double stepLength = elevationProfile.get().length() / (numberOfBottomPoints - 1);
+            double stepLength = elevationProfile.get().length() / (numberOfTopPoints - 1);
             int j = 0;
             for (int i = 0; i < numberOfTopPoints; ++i) {
                 double positionOnProfile = stepLength * (i);
                 double elevationAtPositionOnProfile = elevationProfile.get().elevationAt(positionOnProfile);
-                //System.out.println(positionOnProfile + " , " +elevationAtPositionOnProfile);
                 Point2D pointToAdd = worldToScreen.get().transform(positionOnProfile, elevationAtPositionOnProfile);
                 points[j] = pointToAdd.getX();
-                //System.out.println(pointToAdd.getX() + " , "+pointToAdd.getY());
-                //System.out.println("******************");
                 ++j;
                 points[j] = pointToAdd.getY();
                 ++j;
             }
-            points[points.length - 4] = insets.getLeft();
+            points[points.length - 4] = insets.getLeft() + rectangle.get().getWidth();
             points[points.length - 3] = insets.getTop() + rectangle.get().getHeight();
-            points[points.length - 2] = insets.getLeft() + rectangle.get().getWidth();
+            points[points.length - 2] = insets.getLeft();
             points[points.length - 1] = insets.getTop() + rectangle.get().getHeight();
 
             profile.getPoints().clear();
@@ -143,8 +142,8 @@ public final class ElevationProfileManager {
                 double rectangle_width = pane.getWidth() - insets.getLeft() - insets.getRight();
                 double rectangle_height = pane.getHeight() - insets.getBottom() - insets.getTop();
                 if(rectangle_height>0 && rectangle_height>0) {
-                    rectangle.set(new Rectangle2D(insets.getLeft(), insets.getBottom(), rectangle_width, rectangle_height));
-                    //if (!bindingsDone) setBindings();
+                    rectangle.set(new Rectangle2D(insets.getLeft(), insets.getTop(), rectangle_width, rectangle_height));
+                    if (!bindingsDone) setBindings();
                 }
             }
         });
@@ -160,7 +159,7 @@ public final class ElevationProfileManager {
                 double rectangle_height = pane.getHeight() - insets.getBottom() - insets.getTop();
                 if(rectangle_height>0 && rectangle_height>0) {
                     rectangle.set(new Rectangle2D(insets.getLeft(), insets.getBottom(), rectangle_width, rectangle_height));
-                    //if (!bindingsDone) setBindings();
+                    if (!bindingsDone) setBindings();
                 }
             }
         });
@@ -171,12 +170,10 @@ public final class ElevationProfileManager {
 
     private void createTransformations () {
         if (pane.getWidth() != 0 && pane.getHeight() != 0) {
-            System.out.println("w" + pane.getWidth());
-            System.out.println("h"+ pane.getHeight());
             Affine affine = new Affine();
             affine.prependTranslation(0, -elevationProfile.get().maxElevation());
             affine.prependScale(rectangle.get().getWidth() / elevationProfile.get().length(),
-                    (rectangle.get().getMaxY()-rectangle.get().getMinX())/ (-elevationProfile.get().maxElevation()+elevationProfile.get().minElevation()));
+                    (rectangle.get().getHeight())/ (-elevationProfile.get().maxElevation()+elevationProfile.get().minElevation()));
             affine.prependTranslation(rectangle.get().getMinX(), rectangle.get().getMinY());
             worldToScreen.set(affine);
             try {
@@ -185,19 +182,22 @@ public final class ElevationProfileManager {
                 System.out.println(e.getMessage());
             }
         }
-        System.out.println(worldToScreen.get().transform(0,663));
+        System.out.println(worldToScreen.get().transform(0,376));
+        //System.out.println(elevationProfile.get().length());
     }
 
     private void setBindings(){
         //todo ask if bindings are fine
         if(worldToScreen.get()!=null) {
             bindingsDone=true;
-            double elevationAtPosition = elevationProfile.get().elevationAt(position.doubleValue());
-            double x_screen_coordinate_at_position = worldToScreen.get().transform(position.doubleValue(), elevationAtPosition).getX();
-            line.layoutXProperty().bind(Bindings.createDoubleBinding(() -> x_screen_coordinate_at_position, position));
+            System.out.println(position.doubleValue());
+            /*double elevationAtPosition = elevationProfile.get().elevationAt(position.doubleValue());
+            double x_screen_coordinate_at_position = worldToScreen.get().transform(position.doubleValue(), elevationAtPosition).getX();*/
+            line.layoutXProperty().bind(Bindings.createDoubleBinding(() ->worldToScreen.get().transform(position.doubleValue(), elevationProfile.get().elevationAt(position.doubleValue())).getX()
+                    , position));
             line.startYProperty().bind(Bindings.select(rectangle, "minY"));
             line.endYProperty().bind(Bindings.select(rectangle, "maxY"));
-            line.visibleProperty().bind(Bindings.greaterThan(0, position));
+            line.visibleProperty().bind(Bindings.greaterThan(position, 0));
         }
     }
 }
