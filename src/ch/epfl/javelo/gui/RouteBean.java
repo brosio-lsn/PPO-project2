@@ -11,14 +11,20 @@ import javafx.util.Pair;
 import java.util.*;
 
 public final class RouteBean {
+    private static final int MAX_STEP_LENGTH = 5;
     /**
      * routeComputer to use to compute the itineraries between the multiple waypoints.
      */
     private final RouteComputer routeComputer;
+
+    public ObservableList<WayPoint> getWaypoints() {
+        return waypoints;
+    }
+
     /**
      * list of waypoints to compute the itinerary between.
      */
-    public ObservableList<WayPoint> waypoints;
+    private final ObservableList<WayPoint> waypoints;
     /**
      * itinerary linking all the waypoints on the map.
      */
@@ -74,7 +80,6 @@ public final class RouteBean {
     private void updateWaypointsList() {
         theRoutes.clear();
         if (waypoints.size() >= 2) {
-            double length;
             for (int i = 0; i < waypoints.size() - 1; i++) {
                 int nodeIdOfFirstWaypoint = waypoints.get(i).closestNodeId();
                 int nodeIdOfSecondWaypoint = waypoints.get(i + 1).closestNodeId();
@@ -114,7 +119,7 @@ public final class RouteBean {
      * Computes the elevation profile of the updated route.
      */
     private void computeElevationProfile() {
-        elevationProfile.set(ElevationProfileComputer.elevationProfile(route.get(), 5));
+        elevationProfile.set(ElevationProfileComputer.elevationProfile(route.get(), MAX_STEP_LENGTH));
     }
 
     /**

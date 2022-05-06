@@ -138,7 +138,7 @@ public final class RouteManager {
             Point2D point2D = circle.localToParent(event.getX(), event.getY());
             int nodeId = routeBean.route().get().nodeClosestTo(routeBean.highlightedPosition());
             boolean alreadyAWayPoint = false;
-            for (WayPoint wayPoint : routeBean.waypoints)
+            for (WayPoint wayPoint : routeBean.getWaypoints())
                 if (wayPoint.closestNodeId() == nodeId) {
                     errorConsumer.accept("Un point de passage est déjà présent à cet endroit !");
                     alreadyAWayPoint = true;
@@ -147,7 +147,7 @@ public final class RouteManager {
             if (!alreadyAWayPoint) {
                 PointWebMercator pointWebMercator = mapViewParameters.get().pointAt(point2D.getX(), point2D.getY());
                 int indexOfSegmentAtHightlightedPosition = routeBean.route().get().indexOfSegmentAt(routeBean.highlightedPosition());
-                routeBean.waypoints.add(indexOfSegmentAtHightlightedPosition+1, new WayPoint(pointWebMercator.toPointCh(), nodeId));
+                routeBean.getWaypoints().add(indexOfSegmentAtHightlightedPosition+1, new WayPoint(pointWebMercator.toPointCh(), nodeId));
             }
         });
 

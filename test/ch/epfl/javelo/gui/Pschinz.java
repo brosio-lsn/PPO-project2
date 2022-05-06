@@ -40,7 +40,7 @@ public class Pschinz extends Application{
         bean.addAllWaypoints(FXCollections.observableArrayList(
                 new WayPoint(new PointCh(2532697, 1152350), 159049),
                 new WayPoint(new PointCh(2538659, 1154350), 117669)));
-        ObservableList<WayPoint> waypoints = bean.waypoints;
+        ObservableList<WayPoint> waypoints = bean.getWaypoints();
         bean.setHighlightedPosition(1000);
         RouteManager manager = new RouteManager(bean, mapViewParametersP, new ErrorConsumer());
         Consumer<String> errorConsumer = new ErrorConsumer();

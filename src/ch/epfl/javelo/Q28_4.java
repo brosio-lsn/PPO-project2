@@ -10,7 +10,7 @@ import java.time.OffsetTime;
  * @author Ambroise AIGUEPERSE (341890)
  */
 public final class Q28_4 {
-    public static final int OFFSET = 4;
+    private static final int OFFSET = 4;
     /**
      * private constructor to make the class non instantiable
      */
