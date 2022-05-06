@@ -189,78 +189,80 @@ public final class ElevationProfileManager {
     //TODO ABSOLUMENT MODULARISER CA OMG PTDRR
 
     private void createGrid() {
-        grid.getElements().clear();
-        texts.getChildren().clear();
-        //determining the horizontal steps used
-        double lengthWorld = elevationProfile.get().length();
-        double heightWorld = elevationProfile.get().maxElevation() - elevationProfile.get().minElevation();
-        double widthOfRectangle = rectangle.get().getWidth();
-        double heightOfRectangle = rectangle.get().getHeight();
-        double stepInScreenPosition = Integer.MAX_VALUE;
-        int stepInWorldPosition = 0;
-        int nbOfVertiLines = 0;
-        for (int posStep : POS_STEPS) {
-            nbOfVertiLines = (int) (lengthWorld / posStep);
-            double distanceBetweenLines = worldToScreen.get().deltaTransform(posStep, 0).getX();
-            if (distanceBetweenLines >= HORIZONTAL_DISTANCE_MIN) {
-                stepInWorldPosition = posStep;
-                stepInScreenPosition = distanceBetweenLines;
-                System.out.println(stepInScreenPosition);
-                break;
+        if (rectangle.get() != null) {
+            grid.getElements().clear();
+            texts.getChildren().clear();
+            //determining the horizontal steps used
+            double lengthWorld = elevationProfile.get().length();
+            double heightWorld = elevationProfile.get().maxElevation() - elevationProfile.get().minElevation();
+            double widthOfRectangle = rectangle.get().getWidth();
+            double heightOfRectangle = rectangle.get().getHeight();
+            double stepInScreenPosition = Integer.MAX_VALUE;
+            int stepInWorldPosition = 0;
+            int nbOfVertiLines = 0;
+            for (int posStep : POS_STEPS) {
+                nbOfVertiLines = (int) (lengthWorld / posStep);
+                double distanceBetweenLines = worldToScreen.get().deltaTransform(posStep, 0).getX();
+                if (distanceBetweenLines >= HORIZONTAL_DISTANCE_MIN) {
+                    stepInWorldPosition = posStep;
+                    stepInScreenPosition = distanceBetweenLines;
+                    System.out.println(stepInScreenPosition);
+                    break;
+                }
             }
-        }
-        if (stepInScreenPosition == Integer.MAX_VALUE) {
-            stepInWorldPosition = POS_STEPS[POS_STEPS.length - 1];
-            stepInScreenPosition = worldToScreen.get().deltaTransform(stepInWorldPosition, 0).getX();
-        }
-        List<PathElement> positionLines = new ArrayList<>();
-        double heightOfLine = worldToScreen.get().deltaTransform(0, -heightWorld).getY();
-        for (int i = 0; i <= nbOfVertiLines; i++) {
-            positionLines.add(new MoveTo(LEFT_PIXELS + stepInScreenPosition * i, heightOfRectangle+TOP_PIXELS));
-            positionLines.add(new LineTo(LEFT_PIXELS + stepInScreenPosition * i, heightOfRectangle - heightOfLine+TOP_PIXELS));
-            //TODO nommage de constantes
-            Text label = new Text(String.valueOf((int)(stepInWorldPosition * i)/1000));
-            label.textOriginProperty().set(VPos.TOP);
-            label.relocate(LEFT_PIXELS + stepInScreenPosition*i, rectangle.get().getHeight()+TOP_PIXELS);
-            label.prefWidth(0);
-            label.setFont(new Font("Avenir", FONT_SIZE));
-            texts.getChildren().add(label);
-        }
-        grid.getElements().addAll(positionLines);
-        int nbOfHoriLines = 0;
-        int stepInWorldElevation = 0;
-        double stepInScreenElevation = Integer.MAX_VALUE;
-        for (int eleStep : ELE_STEPS) {
-            nbOfHoriLines = Math2.ceilDiv((int)heightWorld, eleStep);
-            double distance = worldToScreen.get().deltaTransform(0, -eleStep).getY();
-            if (distance >= VERTICAL_DISTANCE_MIN) {
-                stepInWorldElevation = eleStep;
-                stepInScreenElevation = distance;
-                break;
+            if (stepInScreenPosition == Integer.MAX_VALUE) {
+                stepInWorldPosition = POS_STEPS[POS_STEPS.length - 1];
+                stepInScreenPosition = worldToScreen.get().deltaTransform(stepInWorldPosition, 0).getX();
             }
-        }
-        if (stepInScreenElevation == Integer.MAX_VALUE) {
-            stepInWorldElevation = POS_STEPS[POS_STEPS.length - 1];
-            stepInScreenElevation = worldToScreen.get().deltaTransform(0, -stepInWorldElevation).getY();
-        }
-        double minElevation = elevationProfile.get().minElevation();
-        int closestStepToMinHeight = Math2.ceilDiv((int)minElevation, stepInWorldElevation) * stepInWorldElevation;
-        double delta = -worldToScreen.get().deltaTransform(0, (Math2.ceilDiv( (int)minElevation,  stepInWorldElevation) * stepInWorldElevation - minElevation)).getY();
-        List<PathElement> elevationLines = new ArrayList<>();
-        for (int i = 0; i < nbOfHoriLines; i++) {
-            double yCoordinateOfLine = rectangle.get().getHeight() - stepInScreenElevation * i - delta+TOP_PIXELS;
-            if (!(yCoordinateOfLine < heightOfRectangle - heightOfLine)) {
-                elevationLines.add(new MoveTo(LEFT_PIXELS, yCoordinateOfLine));
-                elevationLines.add(new LineTo(widthOfRectangle + LEFT_PIXELS, yCoordinateOfLine));
-                Text label = new Text(String.valueOf((int)(stepInWorldElevation * i + closestStepToMinHeight)));
-                label.textOriginProperty().set(VPos.CENTER);
-                label.prefWidth(0);
-                label.setFont(new Font("Avenir", 10));
+            List<PathElement> positionLines = new ArrayList<>();
+            double heightOfLine = worldToScreen.get().deltaTransform(0, -heightWorld).getY();
+            for (int i = 0; i <= nbOfVertiLines; i++) {
+                positionLines.add(new MoveTo(LEFT_PIXELS + stepInScreenPosition * i, heightOfRectangle + TOP_PIXELS));
+                positionLines.add(new LineTo(LEFT_PIXELS + stepInScreenPosition * i, heightOfRectangle - heightOfLine + TOP_PIXELS));
                 //TODO nommage de constantes
-                label.relocate(label.getLayoutBounds().getWidth()+2, yCoordinateOfLine-label.getLayoutBounds().getHeight()/2);
+                Text label = new Text(String.valueOf((stepInWorldPosition * i) / 1000));
+                label.textOriginProperty().set(VPos.TOP);
+                label.relocate(LEFT_PIXELS + stepInScreenPosition * i, rectangle.get().getHeight() + TOP_PIXELS);
+                label.prefWidth(0);
+                label.setFont(new Font("Avenir", FONT_SIZE));
                 texts.getChildren().add(label);
             }
+            grid.getElements().addAll(positionLines);
+            int nbOfHoriLines = 0;
+            int stepInWorldElevation = 0;
+            double stepInScreenElevation = Integer.MAX_VALUE;
+            for (int eleStep : ELE_STEPS) {
+                nbOfHoriLines = Math2.ceilDiv((int) heightWorld, eleStep);
+                double distance = worldToScreen.get().deltaTransform(0, -eleStep).getY();
+                if (distance >= VERTICAL_DISTANCE_MIN) {
+                    stepInWorldElevation = eleStep;
+                    stepInScreenElevation = distance;
+                    break;
+                }
+            }
+            if (stepInScreenElevation == Integer.MAX_VALUE) {
+                stepInWorldElevation = POS_STEPS[POS_STEPS.length - 1];
+                stepInScreenElevation = worldToScreen.get().deltaTransform(0, -stepInWorldElevation).getY();
+            }
+            double minElevation = elevationProfile.get().minElevation();
+            int closestStepToMinHeight = Math2.ceilDiv((int) minElevation, stepInWorldElevation) * stepInWorldElevation;
+            double delta = -worldToScreen.get().deltaTransform(0, (Math2.ceilDiv((int) minElevation, stepInWorldElevation) * stepInWorldElevation - minElevation)).getY();
+            List<PathElement> elevationLines = new ArrayList<>();
+            for (int i = 0; i < nbOfHoriLines; i++) {
+                double yCoordinateOfLine = rectangle.get().getHeight() - stepInScreenElevation * i - delta + TOP_PIXELS;
+                if (!(yCoordinateOfLine < heightOfRectangle - heightOfLine)) {
+                    elevationLines.add(new MoveTo(LEFT_PIXELS, yCoordinateOfLine));
+                    elevationLines.add(new LineTo(widthOfRectangle + LEFT_PIXELS, yCoordinateOfLine));
+                    Text label = new Text(String.valueOf((int) (stepInWorldElevation * i + closestStepToMinHeight)));
+                    label.textOriginProperty().set(VPos.CENTER);
+                    label.prefWidth(0);
+                    label.setFont(new Font("Avenir", 10));
+                    //TODO nommage de constantes
+                    label.relocate(label.getLayoutBounds().getWidth() + 2, yCoordinateOfLine - label.getLayoutBounds().getHeight() / 2);
+                    texts.getChildren().add(label);
+                }
+            }
+            grid.getElements().addAll(elevationLines);
         }
-        grid.getElements().addAll(elevationLines);
     }
 }
