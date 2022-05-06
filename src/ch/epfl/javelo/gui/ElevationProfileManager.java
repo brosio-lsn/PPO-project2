@@ -130,22 +130,10 @@ public final class ElevationProfileManager {
         pane.setOnMouseMoved(event -> {if(screenToWorld.get()!=null) mousePositionOnProfileProperty.set(screenToWorld.get().transform(event.getX(), event.getY()).getX());});
         pane.setOnMouseExited(event -> mousePositionOnProfileProperty.set(MOUSE_NOT_IN_RECTANGLE));
         pane.heightProperty().addListener((property, previousV, newV) -> {
-                double a = pane.getHeight();
-                double rectangle_width = pane.getWidth() - insets.getLeft() - insets.getRight();
-                double rectangle_height = pane.getHeight() - insets.getBottom() - insets.getTop();
-                if(rectangle_height>0 && rectangle_height>0) {
-                    rectangle.set(new Rectangle2D(insets.getLeft(), insets.getTop(), rectangle_width, rectangle_height));
-                    if (!bindingsDone) setBindings();
-                }
+            widthAndHeightlistenerContent();
         });
         pane.widthProperty().addListener((property, previousV, newV) -> {
-                double a = borderPane.getHeight();
-                double rectangle_width = pane.getWidth() - insets.getLeft() - insets.getRight();
-                double rectangle_height = pane.getHeight() - insets.getBottom() - insets.getTop();
-                if(rectangle_height>0 && rectangle_height>0) {
-                    rectangle.set(new Rectangle2D(insets.getLeft(), insets.getBottom(), rectangle_width, rectangle_height));
-                    if (!bindingsDone) setBindings();
-                }
+            widthAndHeightlistenerContent();
         });
         rectangle.addListener((property, previousV, newV)-> createTransformations());
 
@@ -174,5 +162,14 @@ public final class ElevationProfileManager {
             line.startYProperty().bind(Bindings.select(rectangle, "minY"));
             line.endYProperty().bind(Bindings.select(rectangle, "maxY"));
             line.visibleProperty().bind(Bindings.greaterThan(position, 0).and(Bindings.lessThan(position,elevationProfile.get().length())));
+    }
+
+    private void widthAndHeightlistenerContent (){
+        double rectangle_width = pane.getWidth() - insets.getLeft() - insets.getRight();
+        double rectangle_height = pane.getHeight() - insets.getBottom() - insets.getTop();
+        if(rectangle_height>0 && rectangle_height>0) {
+            rectangle.set(new Rectangle2D(insets.getLeft(), insets.getTop(), rectangle_width, rectangle_height));
+            if (!bindingsDone) setBindings();
+        }
     }
 }
