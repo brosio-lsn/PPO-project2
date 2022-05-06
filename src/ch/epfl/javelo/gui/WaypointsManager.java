@@ -3,6 +3,7 @@ package ch.epfl.javelo.gui;
 import ch.epfl.javelo.data.Graph;
 import ch.epfl.javelo.projection.PointCh;
 import ch.epfl.javelo.projection.PointWebMercator;
+import ch.epfl.javelo.projection.SwissBounds;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ListChangeListener;
@@ -231,7 +232,8 @@ public final class WaypointsManager {
         group.setOnMouseReleased(event-> {
             if (!event.isStillSincePress()) {
                 PointCh pointCh = mapViewParameters.get().pointAt(group.getLayoutX(), group.getLayoutY()).toPointCh();
-                int nodeId = graph.nodeClosestTo(pointCh, SEARCH_DISTANCE_NODE_CLOSEST_TO_2);
+                int nodeId=-1;
+                if (pointCh!=null)nodeId= graph.nodeClosestTo(pointCh, SEARCH_DISTANCE_NODE_CLOSEST_TO_2);
                 if (nodeId == -1) {
                     group.setLayoutX(xBeforeDrag);
                     group.setLayoutY(yBeforeDrag);

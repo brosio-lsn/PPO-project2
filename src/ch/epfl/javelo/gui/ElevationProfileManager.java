@@ -93,29 +93,29 @@ public final class ElevationProfileManager {
     }
 
     private void drawPolygone() {
-        //todo demander cast étrange
-        int numberOfTopPoints = (int) rectangle.get().getWidth();
-        int numberOfBottomPoints = 2;
-        Double[] points = new Double[(numberOfBottomPoints + numberOfTopPoints) * 2];
-        //todo regarder excpetions ( diviser par 0)
-        double stepLength = elevationProfile.get().length() / (numberOfTopPoints - 1);
-        int j = 0;
-        for (int i = 0; i < numberOfTopPoints; ++i) {
-            double positionOnProfile = stepLength * (i);
-            double elevationAtPositionOnProfile = elevationProfile.get().elevationAt(positionOnProfile);
-            Point2D pointToAdd = worldToScreen.get().transform(positionOnProfile, elevationAtPositionOnProfile);
-            points[j] = pointToAdd.getX();
-            ++j;
-            points[j] = pointToAdd.getY();
-            ++j;
-        }
-        points[points.length - 4] = insets.getLeft() + rectangle.get().getWidth();
-        points[points.length - 3] = insets.getTop() + rectangle.get().getHeight();
-        points[points.length - 2] = insets.getLeft();
-        points[points.length - 1] = insets.getTop() + rectangle.get().getHeight();
+            //todo demander cast étrange
+            int numberOfTopPoints = (int) rectangle.get().getWidth();
+            int numberOfBottomPoints = 2;
+            Double[] points = new Double[(numberOfBottomPoints + numberOfTopPoints) * 2];
+            //todo regarder excpetions ( diviser par 0)
+            double stepLength = elevationProfile.get().length() / (numberOfTopPoints - 1);
+            int j = 0;
+            for (int i = 0; i < numberOfTopPoints; ++i) {
+                double positionOnProfile = stepLength * (i);
+                double elevationAtPositionOnProfile = elevationProfile.get().elevationAt(positionOnProfile);
+                Point2D pointToAdd = worldToScreen.get().transform(positionOnProfile, elevationAtPositionOnProfile);
+                points[j] = pointToAdd.getX();
+                ++j;
+                points[j] = pointToAdd.getY();
+                ++j;
+            }
+            points[points.length - 4] = insets.getLeft() + rectangle.get().getWidth();
+            points[points.length - 3] = insets.getTop() + rectangle.get().getHeight();
+            points[points.length - 2] = insets.getLeft();
+            points[points.length - 1] = insets.getTop() + rectangle.get().getHeight();
 
-        profile.getPoints().clear();
-        profile.getPoints().addAll(points);
+            profile.getPoints().clear();
+            profile.getPoints().addAll(points);
     }
 
     private void setLabels(){
@@ -155,17 +155,17 @@ public final class ElevationProfileManager {
     }
 
     private void createTransformations () {
-        Affine affine = new Affine();
-        affine.prependTranslation(0, -elevationProfile.get().maxElevation());
-        affine.prependScale(rectangle.get().getWidth() / elevationProfile.get().length(),
-                (rectangle.get().getHeight())/ (-elevationProfile.get().maxElevation()+elevationProfile.get().minElevation()));
-        affine.prependTranslation(rectangle.get().getMinX(), rectangle.get().getMinY());
-        worldToScreen.set(affine);
-        try {
-            screenToWorld.set(affine.createInverse());
-        }catch (NonInvertibleTransformException e){
-            System.out.println(e.getMessage());
-        }
+            Affine affine = new Affine();
+            affine.prependTranslation(0, -elevationProfile.get().maxElevation());
+            affine.prependScale(rectangle.get().getWidth() / elevationProfile.get().length(),
+                    (rectangle.get().getHeight())/ (-elevationProfile.get().maxElevation()+elevationProfile.get().minElevation()));
+            affine.prependTranslation(rectangle.get().getMinX(), rectangle.get().getMinY());
+            worldToScreen.set(affine);
+            try {
+                screenToWorld.set(affine.createInverse());
+            }catch (NonInvertibleTransformException e){
+                System.out.println(e.getMessage());
+            }
     }
 
     private void setBindings(){
