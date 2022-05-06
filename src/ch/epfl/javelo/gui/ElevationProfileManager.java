@@ -47,9 +47,11 @@ public final class ElevationProfileManager {
     private static final int[] ELE_STEPS =
             {5, 10, 20, 25, 50, 100, 200, 250, 500, 1_000};
 
-    public ElevationProfileManager(ObjectProperty<ElevationProfile> elevationProfile, DoubleProperty position) throws NonInvertibleTransformException {
+    public ElevationProfileManager(ObjectProperty<ElevationProfile> elevationProfile, DoubleProperty position) {
         this.elevationProfile = elevationProfile;
         this.position = position;
+        System.out.println(position.doubleValue());
+        position.addListener((p,v,n)-> System.out.println(position.doubleValue()));
         this.pane = new Pane();
         this.vbox = new VBox();
         this.borderPane = new BorderPane();
@@ -85,7 +87,6 @@ public final class ElevationProfileManager {
     }
 
     private void drawPolygone() {
-        if (rectangle.get().getHeight() != 0 && rectangle.get().getWidth() != 0) {
             //todo demander cast étrange
             int numberOfTopPoints = (int) rectangle.get().getWidth();
             int numberOfBottomPoints = 2;
@@ -102,14 +103,13 @@ public final class ElevationProfileManager {
                 points[j] = pointToAdd.getY();
                 ++j;
             }
-            points[points.length - 4] = insets.getLeft() + rectangle.get().getWidth();
-            points[points.length - 3] = rectangle.get().getHeight();
-            points[points.length - 2] = insets.getLeft();
-            points[points.length - 1] = rectangle.get().getHeight();
+            points[points.length - 4] = insets.getLeft();
+            points[points.length - 3] = insets.getTop() + rectangle.get().getHeight();
+            points[points.length - 2] = insets.getLeft() + rectangle.get().getWidth();
+            points[points.length - 1] = insets.getTop() + rectangle.get().getHeight();
 
             profile.getPoints().clear();
             profile.getPoints().addAll(points);
-        }
     }
 
     private void setLabels() {
@@ -138,61 +138,55 @@ public final class ElevationProfileManager {
                 mousePositionOnProfileProperty.set(screenToWorld.get().transform(event.getX(), event.getY()).getX());
         });
         pane.setOnMouseExited(event -> mousePositionOnProfileProperty.set(MOUSE_NOT_IN_RECTANGLE));
-        pane.heightProperty().addListener((property, previousV, newV) -> {
-/*            System.out.println("called");
+        borderPane.heightProperty().addListener((property, previousV, newV) -> {
+            System.out.println("called");
             System.out.println("bp width "+borderPane.getWidth());
             System.out.println("pane width "+pane.getWidth());
             System.out.println("bp height "+borderPane.getHeight());
-            System.out.println("pane height "+pane.getHeight());*/
-            if (pane.getHeight() != 0 && pane.getWidth() != 0) {
-                double a = pane.getHeight();
-                double rectangle_width = pane.getWidth() - insets.getLeft() - insets.getRight();
-                double rectangle_height = pane.getHeight() - insets.getBottom() - insets.getTop();
-                if (rectangle_height > 0 && rectangle_width > 0) {
-                    rectangle.set(new Rectangle2D(insets.getLeft(), insets.getBottom(), rectangle_width, rectangle_height));
-                    if (!bindingsDone) setBindings();
-                    createGrid();
-                }
-            }
-        });
-        pane.widthProperty().addListener((property, previousV, newV) -> {
-/*            System.out.println("called");
-            System.out.println("bp width "+borderPane.getWidth());
-            System.out.println("pane width "+pane.getWidth());
-            System.out.println("bp height "+borderPane.getHeight());
-            System.out.println("pane height "+pane.getHeight());*/
-            if (pane.getHeight() != 0 && pane.getWidth() != 0) {
-                System.out.println("hehehe");
+            System.out.println("pane height "+pane.getHeight());
+            if (borderPane.getHeight() != 0 && borderPane.getWidth() != 0) {
                 double a = borderPane.getHeight();
-                double rectangle_width = pane.getWidth() - insets.getLeft() - insets.getRight();
-                double rectangle_height = pane.getHeight() - insets.getBottom() - insets.getTop();
-                if (rectangle_width > 0 && rectangle_height > 0) {
-                    System.out.println("weshWidth");
+                double rectangle_width = borderPane.getWidth() - insets.getLeft() - insets.getRight();
+                double rectangle_height = borderPane.getHeight() - insets.getBottom() - insets.getTop();
+                if(rectangle_height>0 && rectangle_height>0) {
                     rectangle.set(new Rectangle2D(insets.getLeft(), insets.getBottom(), rectangle_width, rectangle_height));
-                    if (!bindingsDone) setBindings();
-                    createGrid();
+                    createTransformations();
+                    System.out.println(worldToScreen.get().transform(0,633));
+                    //drawPolygone();
+                    //if (!bindingsDone) setBindings();
+                }
+        });
+        borderPane.widthProperty().addListener((property, previousV, newV) -> {
+            System.out.println("called");
+            System.out.println("bp width "+borderPane.getWidth());
+            System.out.println("pane width "+pane.getWidth());
+            System.out.println("bp height "+borderPane.getHeight());
+            System.out.println("pane height "+pane.getHeight());
+            if (borderPane.getHeight() != 0 && borderPane.getWidth() != 0) {
+                double a = borderPane.getHeight();
+                double rectangle_width = borderPane.getWidth() - insets.getLeft() - insets.getRight();
+                double rectangle_height = borderPane.getHeight() - insets.getBottom() - insets.getTop();
+                if(rectangle_height>0 && rectangle_height>0) {
+                    rectangle.set(new Rectangle2D(insets.getLeft(), insets.getBottom(), rectangle_width, rectangle_height));
+                    createTransformations();
+                    System.out.println(worldToScreen.get().transform(0,633));
+                    //drawPolygone();
+                    //if (!bindingsDone) setBindings();
                 }
             }
-
         });
-        rectangle.addListener((property, previousV, newV) -> createTransformations());
+        rectangle.addListener((property, previousV, newV)-> createTransformations());
 
-        worldToScreen.addListener((property, previousV, newV) -> {
-            drawPolygone();
-            stats.setText(stats());
-
-        });
+        worldToScreen.addListener((property, previousV, newV)-> drawPolygone());
     }
 
-    private void createTransformations() {
+    private void createTransformations () {
         if (pane.getWidth() != 0 && pane.getHeight() != 0) {
-            System.out.println("w" + pane.getWidth());
-            System.out.println("h" + pane.getHeight());
             Affine affine = new Affine();
             affine.prependTranslation(0, -elevationProfile.get().maxElevation());
-            affine.prependScale(rectangle.get().getWidth() / elevationProfile.get().length(),
-                    (rectangle.get().getMaxY() - rectangle.get().getMinX()) / (-elevationProfile.get().maxElevation() + elevationProfile.get().minElevation()));
-            affine.prependTranslation(rectangle.get().getMinX(), rectangle.get().getMinY());
+            affine.prependScale(rectangle.get().getWidth() / elevationProfile.get().length(), -rectangle.get().getHeight() / (elevationProfile.get().maxElevation()-elevationProfile.get().minElevation()));
+            //affine.prependScale(600/elevationProfile.get().length(), -300/elevationProfile.get().length());
+            affine.prependTranslation(LEFT_PIXELS, TOP_PIXELS);
             worldToScreen.set(affine);
             try {
                 screenToWorld.set(affine.createInverse());
@@ -200,22 +194,17 @@ public final class ElevationProfileManager {
                 System.out.println(e.getMessage());
             }
         }
-        System.out.println(worldToScreen.get().transform(0, 663));
     }
 
 
     private void setBindings(){
-        //todo ask if bindings are fine
-        if(worldToScreen.get()!=null) {
             bindingsDone=true;
-            System.out.println(position.doubleValue());
-            /*double elevationAtPosition = elevationProfile.get().elevationAt(position.doubleValue());
-            double x_screen_coordinate_at_position = worldToScreen.get().transform(position.doubleValue(), elevationAtPosition).getX();*/
-            line.layoutXProperty().bind(Bindings.createDoubleBinding(() ->worldToScreen.get().transform(position.doubleValue(), elevationProfile.get().elevationAt(position.doubleValue())).getX()
-                    , position));
+            double elevationAtPosition = elevationProfile.get().elevationAt(position.doubleValue());
+            double x_screen_coordinate_at_position = worldToScreen.get().transform(position.doubleValue(), elevationAtPosition).getX();
+            line.layoutXProperty().bind(Bindings.createDoubleBinding(() -> x_screen_coordinate_at_position, position));
             line.startYProperty().bind(Bindings.select(rectangle, "minY"));
             line.endYProperty().bind(Bindings.select(rectangle, "maxY"));
-            line.visibleProperty().bind(Bindings.greaterThan(position, 0));
+            line.visibleProperty().bind(Bindings.greaterThan(0, position));
         }
     }
     //TODO ABSOLUMENT MODULARISER CA OMG PTDRR
