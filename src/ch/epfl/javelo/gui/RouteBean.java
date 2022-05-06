@@ -142,7 +142,6 @@ public final class RouteBean {
      */
     public void setHighlightedPosition(double position) {
         if (route.get() != null) highlightedPosition.set(Math2.clamp(0, position, route.get().length()));
-        System.out.println(highlightedPosition);
     }
 
     public void addWaypoint(WayPoint w) {
@@ -153,7 +152,6 @@ public final class RouteBean {
     public void addAllWaypoints(Collection<WayPoint> w) {
         for (WayPoint wayPoint : w) {
             addWaypoint(wayPoint);
-            System.out.println(waypoints.size());
         }
     }
 

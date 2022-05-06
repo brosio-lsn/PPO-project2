@@ -192,6 +192,7 @@ public final class WaypointsManager {
      * creates a regular marker group
      * @return a regular marker group
      */
+    //TODO nommage de constantes ?
     private Group createMarkerGroup (WayPoint wayPoint){
         SVGPath exterior=new SVGPath();
         exterior.setContent("M-8-20C-5-14-2-7 0 0 2-7 5-14 8-20 20-40-20-40-8-20");

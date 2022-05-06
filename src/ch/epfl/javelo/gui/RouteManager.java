@@ -100,7 +100,6 @@ public final class RouteManager {
             polyline.setLayoutX(0);
             polyline.setLayoutY(0);
             Double[] arrayWithCoordinates = new Double[routeBean.route().get().points().size() * 2];
-            polyline.getPoints().clear();
             //didn't use a for i loop for more flexibility (in case the list implementation of list changed,
             //with the iterator the complexity wouldn't be increased)
             int i = 0;
@@ -110,7 +109,7 @@ public final class RouteManager {
                 arrayWithCoordinates[i] = mapViewParameters.get().viewY(PointWebMercator.ofPointCh(pointCh));
                 ++i;
             }
-            polyline.getPoints().addAll(arrayWithCoordinates);
+            polyline.getPoints().setAll(arrayWithCoordinates);
             polyline.setVisible(true);
         }
         else polyline.setVisible(false);
