@@ -87,6 +87,16 @@ public final class ElevationProfileManager {
             Double[] points = new Double[(numberOfBottomPoints + numberOfTopPoints) * 2];
             //todo regarder excpetions ( diviser par 0)
             double stepLength = elevationProfile.get().length() / (numberOfTopPoints - 1);
+            /*int j = 0;
+            for (int i = 0; i < numberOfTopPoints; ++i) {
+                double positionOnProfile = stepLength * (i);
+                double elevationAtPositionOnProfile = elevationProfile.get().elevationAt(positionOnProfile);
+                Point2D pointToAdd = worldToScreen.get().transform(positionOnProfile, elevationAtPositionOnProfile);
+                points[j] = pointToAdd.getX();
+                ++j;
+                points[j] = pointToAdd.getY();
+                ++j;
+            }*/
             int j = 0;
             for (int i = 0; i < numberOfTopPoints; ++i) {
                 double positionOnProfile = stepLength * (i);
@@ -156,7 +166,6 @@ public final class ElevationProfileManager {
 
     private void setBindings(){
             bindingsDone=true;
-            System.out.println(position.doubleValue());
             line.layoutXProperty().bind(Bindings.createDoubleBinding(() ->worldToScreen.get().transform(position.doubleValue(), elevationProfile.get().elevationAt(position.doubleValue())).getX()
                     , position));
             line.startYProperty().bind(Bindings.select(rectangle, "minY"));
@@ -167,7 +176,7 @@ public final class ElevationProfileManager {
     private void widthAndHeightlistenerContent (){
         double rectangle_width = pane.getWidth() - insets.getLeft() - insets.getRight();
         double rectangle_height = pane.getHeight() - insets.getBottom() - insets.getTop();
-        if(rectangle_height>0 && rectangle_height>0) {
+        if(rectangle_height>0 && rectangle_width>0) {
             rectangle.set(new Rectangle2D(insets.getLeft(), insets.getTop(), rectangle_width, rectangle_height));
             if (!bindingsDone) setBindings();
         }
