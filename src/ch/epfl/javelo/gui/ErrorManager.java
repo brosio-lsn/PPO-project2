@@ -31,7 +31,8 @@ public final class ErrorManager {
         return pane;
     }
 
-    public void displayError(){
+    public void displayError(String message){
+        text.textProperty().set(message);
         sequentialTransition.stop();
         java.awt.Toolkit.getDefaultToolkit().beep();
         sequentialTransition.play();
