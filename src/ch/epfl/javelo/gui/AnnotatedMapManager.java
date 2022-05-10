@@ -48,6 +48,10 @@ public final class AnnotatedMapManager {
 
     public Pane pane(){return pane;}
 
+    public DoubleProperty mousePositionOnRouteProperty(){
+        return positionAlongRoute;
+    }
+
     private void createPane(){
         pane.getStylesheets().add("map.css");
         pane.getChildren().addAll(baseMapManager.pane(), routeManager.pane(), waypointsManager.pane());
@@ -75,7 +79,9 @@ public final class AnnotatedMapManager {
         RoutePoint pointOnRoute = routeBean.route().get().pointClosestTo(pointWebMercator.toPointCh());
         double uX=mouseOnLastEvent.get().getX()-mapViewParametersP.get().viewX(PointWebMercator.ofPointCh(pointOnRoute.point()));
         double uY=mouseOnLastEvent.get().getY()-mapViewParametersP.get().viewY(PointWebMercator.ofPointCh(pointOnRoute.point()));
-        return MouseNotCloseToRoute;
+        double distanceInPixels = Math2.norm(uX, uY);
+        if(distanceInPixels<15) return pointOnRoute.position();
+        else return MouseNotCloseToRoute;
     }
 
 }
