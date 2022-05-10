@@ -11,6 +11,7 @@ import javafx.collections.FXCollections;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
 import javafx.geometry.VerticalDirection;
+import javafx.scene.Scene;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
@@ -25,6 +26,7 @@ import java.util.function.Consumer;
 
 public final class JaVelo extends Application {
 
+
     @Override
     public void start(Stage primaryStage) throws UncheckedIOException, IOException {
         Graph graphJavelo = Graph.loadFrom(Path.of("javelo-data"));
@@ -35,9 +37,11 @@ public final class JaVelo extends Application {
         CostFunction costFunction = new CityBikeCF(graphJavelo);
         RouteBean bean = new RouteBean(new RouteComputer(graphJavelo, costFunction));
         bean.setHighlightedPosition(1000);
-        AnnotatedMapManager map = new AnnotatedMapManager(graphJavelo, tileManager, bean, new ErrorConsumer());
-        SplitPane window = new SplitPane();
-        window.setOrientation(Orientation.VERTICAL);
+        ErrorManager errorManager = new ErrorManager();
+        AnnotatedMapManager map = new AnnotatedMapManager(graphJavelo, tileManager, bean, errorManager::displayError);
+
+
+
         MapViewParameters mapViewParameters =
                 new MapViewParameters(12, 543200, 370650);
         ObjectProperty<MapViewParameters> mapViewParametersP =
@@ -45,14 +49,17 @@ public final class JaVelo extends Application {
         MenuItem option = new MenuItem("Exporter GFX");
         Menu filesMenu = new Menu("Fichiers", null, option);
         MenuBar bar = new MenuBar(filesMenu);
+        SplitPane window = new SplitPane();
+        window.setOrientation(Orientation.VERTICAL);
+
         if(bean.route().get() != null) {
+
             ElevationProfile profile = ElevationProfileComputer
                     .elevationProfile(bean.route().get(), 5);
             ObjectProperty<ElevationProfile> profileProperty =
                     new SimpleObjectProperty<>(profile);
             DoubleProperty highlightProperty =
                     new SimpleDoubleProperty(0);
-
             ElevationProfileManager profileManager =
                     new ElevationProfileManager(profileProperty,
                             highlightProperty);
@@ -74,11 +81,14 @@ public final class JaVelo extends Application {
         primaryStage.setMinWidth(600);
         primaryStage.setMinHeight(300);
         primaryStage.setTitle("JaVelo");
+        window.getStylesheets().addAll("map.css", "elevation_profile.css");
+        window.getItems().add(errorManager.pane());
+        primaryStage.setScene(new Scene(window));
         primaryStage.show();
     }
     private static final class ErrorConsumer
             implements Consumer<String> {
         @Override
-        public void accept(String s) { System.out.println(s); }
+        public void accept(String s) { ; }
     }
 }

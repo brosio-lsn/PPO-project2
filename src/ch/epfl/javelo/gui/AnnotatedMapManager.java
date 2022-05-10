@@ -7,6 +7,7 @@ import ch.epfl.javelo.routing.RoutePoint;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Point2D;
 import javafx.scene.layout.Pane;
@@ -41,6 +42,7 @@ public final class AnnotatedMapManager {
         waypointsManager = new WaypointsManager(graph, mapViewParametersP,routeBean.getWaypoints(), consumer);
         baseMapManager = new BaseMapManager(tileManager, waypointsManager, mapViewParametersP);
         routeManager = new RouteManager(routeBean,mapViewParametersP , consumer);
+        positionAlongRoute = new SimpleDoubleProperty();
         pane = new StackPane();
         createPane();
         setEvents();

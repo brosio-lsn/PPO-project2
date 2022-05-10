@@ -115,7 +115,6 @@ public final class BaseMapManager {
      * redraws the canvas if it is needed - if redrawOnNextPulse() has been called
      */
     private void redrawIfNeeded() {
-        System.out.println("PANE IS : " +pane.getWidth());
         xTopLeft = mapViewParametersProp.get().topLeft().getX();
         yTopLeft = mapViewParametersProp.get().topLeft().getY();
         zoomLevel = mapViewParametersProp.get().zoomLevel();
