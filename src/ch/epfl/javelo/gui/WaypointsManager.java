@@ -151,24 +151,25 @@ public final class WaypointsManager {
      */
     public void addWayPoint(double x, double y){
         PointWebMercator pointWebMercator = mapViewParameters.get().pointAt(x,y);
-        int nodeId=graph.nodeClosestTo(pointWebMercator.toPointCh(), SEARCH_DISTANCE_NODE_CLOSEST_TO_1);
-        if(nodeId==-1) {
-            errorConsumer.accept("Aucune route à proximité !");
-            return;
+        if(pointWebMercator.toPointCh()!=null) {
+            int nodeId = graph.nodeClosestTo(pointWebMercator.toPointCh(), SEARCH_DISTANCE_NODE_CLOSEST_TO_1);
+            if (nodeId == -1) {
+                errorConsumer.accept("Aucune route à proximité !");
+                return;
+            }
+            WayPoint wayPoint = new WayPoint(pointWebMercator.toPointCh(), nodeId);
+            Group group = createMarkerGroup(wayPoint);
+            if (observableList.size() > 0) {
+                group.getStyleClass().add("last");
+                Node previousGroup = pane.getChildren().get(pane.getChildren().size() - 1);
+                previousGroup.getStyleClass().remove("last");
+                previousGroup.getStyleClass().add("middle");
+            } else group.getStyleClass().add("first");
+            pane.getChildren().add(group);
+            System.out.println(observableList.size());
+            observableList.add(wayPoint);
         }
-        WayPoint wayPoint = new WayPoint(pointWebMercator.toPointCh(), nodeId);
-        Group group = createMarkerGroup(wayPoint);
-        if(observableList.size()>0) {
-            group.getStyleClass().add("last");
-            Node previousGroup = pane.getChildren().get(pane.getChildren().size()-1);
-            previousGroup.getStyleClass().remove("last");
-            previousGroup.getStyleClass().add("middle");
-        }
-        else group.getStyleClass().add("first");
-        pane.getChildren().add(group);
-        System.out.println(observableList.size());
-        observableList.add(wayPoint);
-
+        else errorConsumer.accept("Aucune route à proximité !");
     }
 
 
