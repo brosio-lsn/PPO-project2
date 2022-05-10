@@ -37,6 +37,7 @@ public final class AnnotatedMapManager {
         this.routeBean = routeBean;
         this.consumer = consumer;
         mouseOnLastEvent=new SimpleObjectProperty<>();
+        //TODO nommage de constantes
         MapViewParameters mapViewParameters = new MapViewParameters(12, 543200, 370650);
         mapViewParametersP = new SimpleObjectProperty<>(mapViewParameters);
         waypointsManager = new WaypointsManager(graph, mapViewParametersP,routeBean.getWaypoints(), consumer);

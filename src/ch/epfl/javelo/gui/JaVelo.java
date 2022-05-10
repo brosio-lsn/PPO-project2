@@ -7,6 +7,8 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.event.EventHandler;
 import javafx.geometry.Orientation;
@@ -39,56 +41,47 @@ public final class JaVelo extends Application {
         bean.setHighlightedPosition(1000);
         ErrorManager errorManager = new ErrorManager();
         AnnotatedMapManager map = new AnnotatedMapManager(graphJavelo, tileManager, bean, errorManager::displayError);
-
-
-
-        MapViewParameters mapViewParameters =
-                new MapViewParameters(12, 543200, 370650);
-        ObjectProperty<MapViewParameters> mapViewParametersP =
-                new SimpleObjectProperty<>(mapViewParameters);
         MenuItem option = new MenuItem("Exporter GFX");
         Menu filesMenu = new Menu("Fichiers", null, option);
         MenuBar bar = new MenuBar(filesMenu);
         SplitPane window = new SplitPane();
         window.setOrientation(Orientation.VERTICAL);
 
-        if(bean.route().get() != null) {
+        bean.route().addListener((observable, oldValue, newValue) -> {
+            if(bean.route().get() != null) {
+                System.out.println("je passe par là");
+                ElevationProfile profile = ElevationProfileComputer
+                        .elevationProfile(bean.route().get(), 5);
+                ObjectProperty<ElevationProfile> profileProperty =
+                        new SimpleObjectProperty<>(profile);
+                DoubleProperty highlightProperty =
+                        new SimpleDoubleProperty(0);
+                ElevationProfileManager profileManager =
+                        new ElevationProfileManager(profileProperty,
+                                highlightProperty);
+                SplitPane.setResizableWithParent(profileManager.pane(), true);
+                bar.setDisable(false);
+                bar.setOnMouseClicked(event -> {
+                    try {
+                        GpxGenerator.writeGpx("javelo.gpx", bean.route().get(), profile);
+                    } catch (IOException e) {
+                        throw new UncheckedIOException(e);
+                    }
+                    window.getItems().setAll(map.pane(), profileManager.pane(), errorManager.pane());
+                });
+                bar.setUseSystemMenuBar(true);
+            } else {
+                window.getItems().setAll(map.pane(), errorManager.pane());
+                bar.setDisable(true);
+            }
+        });
 
-            ElevationProfile profile = ElevationProfileComputer
-                    .elevationProfile(bean.route().get(), 5);
-            ObjectProperty<ElevationProfile> profileProperty =
-                    new SimpleObjectProperty<>(profile);
-            DoubleProperty highlightProperty =
-                    new SimpleDoubleProperty(0);
-            ElevationProfileManager profileManager =
-                    new ElevationProfileManager(profileProperty,
-                            highlightProperty);
-            SplitPane.setResizableWithParent(profileManager.pane(), true);
-            bar.setDisable(false);
-            bar.setOnMouseClicked(event -> {
-                try {
-                    GpxGenerator.writeGpx("javelo.gpx", bean.route().get(), profile);
-                } catch (IOException e) {
-                    throw new UncheckedIOException(e);
-                }
-            });
-            bar.setUseSystemMenuBar(true);
-            window.getItems().setAll(map.pane(), profileManager.pane());
-        } else {
-            window.getItems().setAll(map.pane());
-            bar.setDisable(true);
-        }
         primaryStage.setMinWidth(600);
         primaryStage.setMinHeight(300);
         primaryStage.setTitle("JaVelo");
-        window.getStylesheets().addAll("map.css", "elevation_profile.css");
-        window.getItems().add(errorManager.pane());
+        window.getStylesheets().addAll("map.css", "elevation_profile.css", "error.css");
+        window.getItems().setAll(map.pane(), errorManager.pane());
         primaryStage.setScene(new Scene(window));
         primaryStage.show();
-    }
-    private static final class ErrorConsumer
-            implements Consumer<String> {
-        @Override
-        public void accept(String s) { ; }
     }
 }
