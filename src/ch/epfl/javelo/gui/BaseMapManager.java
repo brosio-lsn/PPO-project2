@@ -1,6 +1,7 @@
 package ch.epfl.javelo.gui;
 
 import ch.epfl.javelo.Math2;
+import ch.epfl.javelo.projection.PointWebMercator;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleLongProperty;
@@ -16,6 +17,7 @@ import javafx.scene.layout.Pane;
  * @author Ambroise AIGUEPERSE (341890)
  */
 public final class BaseMapManager {
+    private static final int TIME_TO_WAIT = 200;
     /**
      * TileManager to be used to load each image
      */
@@ -44,10 +46,6 @@ public final class BaseMapManager {
      * number of pixels per tile
      */
     private final static int PIXELS_PER_TILE = 256;
-    /**
-     * scaling factor a zoom engenders. Zooming in of 1 level multiplies the number of tiles by 4.
-     */
-    private final static int ZOOM_SCALING_FACTOR = 2;
     /**
      * minimum zoom level
      */
@@ -122,14 +120,11 @@ public final class BaseMapManager {
         redrawNeeded = false;
         context = canvas.getGraphicsContext2D();
         Image imageToDraw;
-        //System.out.println("width: " + canvas.getWidth() + " height :" + canvas.getHeight());
         boolean canDraw = true;
         for (int xOnCanvas = 0; xOnCanvas <= canvas.getWidth() + X_ITERATIONS; xOnCanvas += PIXELS_PER_TILE) {
             for (int yOnCanvas = 0; yOnCanvas <= canvas.getHeight() + Y_ITERATIONS; yOnCanvas += PIXELS_PER_TILE) {
                 int yTileIndex = (int) (yTopLeft + yOnCanvas) / PIXELS_PER_TILE;
                 int xTileIndex = (int) (xTopLeft + xOnCanvas) / PIXELS_PER_TILE;
-                System.out.println("width: " + canvas.getWidth() + " height :" + canvas.getHeight());
-
                 try {
                     imageToDraw = tileManager.imageForTileAt(new TileManager.TileId(zoomLevel, xTileIndex, yTileIndex));
                 } catch (Exception e) {
@@ -166,18 +161,15 @@ public final class BaseMapManager {
 
         SimpleLongProperty minScrollTime = new SimpleLongProperty();
         pane.setOnScroll(e -> {
+            if (e.getDeltaY() == 0) return;
             mouseOnLastEvent.set(new Point2D(e.getX(), e.getY()));
             long currentTime = System.currentTimeMillis();
             if (currentTime < minScrollTime.get()) return;
-            minScrollTime.set(currentTime + 250);
+            minScrollTime.set(currentTime + TIME_TO_WAIT);
             double zoomDelta = Math.signum(e.getDeltaY());
-            if (!((zoomLevel == ZOOM_LEVEL_MAX && zoomDelta > 0) || (zoomLevel == ZOOM_LEVEl_MIN && zoomDelta < 0))) {
-                zoomLevel = (int) Math2.clamp(ZOOM_LEVEl_MIN, zoomLevel + zoomDelta, ZOOM_LEVEL_MAX);
-                double scalingFactor = zoomDelta > 0 ? ZOOM_SCALING_FACTOR : (double) 1 / ZOOM_SCALING_FACTOR;
-                xTopLeft = ((xTopLeft + e.getX()) * scalingFactor);
-                yTopLeft = (scalingFactor * (yTopLeft + e.getY()));
-                mapViewParametersProp.set(new MapViewParameters(zoomLevel, xTopLeft - e.getX(), yTopLeft - e.getY()));
-            }
+            zoomLevel = (int) Math2.clamp(ZOOM_LEVEl_MIN, zoomLevel + zoomDelta, ZOOM_LEVEL_MAX);
+            PointWebMercator corner = mapViewParametersProp.get().pointAt(e.getX() , e.getY());
+            mapViewParametersProp.set(new MapViewParameters(zoomLevel, corner.xAtZoomLevel(zoomLevel) - e.getX(), corner.yAtZoomLevel(zoomLevel) - e.getY()));
         });
         pane.setOnMousePressed(event -> {
             mouseOnLastEvent.set(new Point2D(event.getX(), event.getY()));

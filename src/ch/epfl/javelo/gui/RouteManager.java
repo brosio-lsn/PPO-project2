@@ -146,7 +146,7 @@ public final class RouteManager {
                 }
             if (!alreadyAWayPoint) {
                 PointWebMercator pointWebMercator = mapViewParameters.get().pointAt(point2D.getX(), point2D.getY());
-                int indexOfSegmentAtHightlightedPosition = routeBean.route().get().indexOfSegmentAt(routeBean.highlightedPosition());
+                int indexOfSegmentAtHightlightedPosition = routeBean.indexOfNonEmptySegmentAt(routeBean.highlightedPosition());
                 routeBean.getWaypoints().add(indexOfSegmentAtHightlightedPosition+1, new WayPoint(pointWebMercator.toPointCh(), nodeId));
             }
         });

@@ -37,7 +37,7 @@ public class Pschinz extends Application{
         ObjectProperty<MapViewParameters> mapViewParametersP =
                 new SimpleObjectProperty<>(mapViewParameters);
         RouteBean bean = new RouteBean(new RouteComputer(graph, new CityBikeCF(graph)));
-        bean.addAllWaypoints(FXCollections.observableArrayList(
+        bean.getWaypoints().addAll(FXCollections.observableArrayList(
                 new WayPoint(new PointCh(2532697, 1152350), 159049),
                 new WayPoint(new PointCh(2538659, 1154350), 117669)));
         ObservableList<WayPoint> waypoints = bean.getWaypoints();

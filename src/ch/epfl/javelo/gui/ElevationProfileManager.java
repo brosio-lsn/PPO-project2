@@ -201,7 +201,7 @@ public final class ElevationProfileManager {
     /**
      * returns a property containing the position of the mouse cursor along the profile
      * or NaN if the cursor isn't above the profile
-     * @return
+     * @return the position of the mouse on the profile
      */
     public ReadOnlyDoubleProperty mousePositionOnProfileProperty() {
         return mousePositionOnProfileProperty;
@@ -211,7 +211,7 @@ public final class ElevationProfileManager {
      * draws the polygon representing the profile
      */
     private void drawPolygone() {
-        //the hard coded numbers that haven't benn put in constants are so because constants wouldn't make sens here
+        //the hard coded numbers that haven't been put in constants are so because constants wouldn't make sense here
         //(after discussion with the assistants)
         int numberOfTopPoints = (int) rectangle.get().getWidth();
         Double[] points = new Double[(NUMBER_OF_BOTTOM_POINTS + numberOfTopPoints) * 2];
@@ -444,7 +444,7 @@ public final class ElevationProfileManager {
                     labels.add(label);
                 }
             }
-            Text unitPosition = new Text("km");
+            /*Text unitPosition = new Text("km");
             Text unitElevation = new Text("m");
 
             unitPosition.relocate(rectangle.get().getWidth()+LEFT_PIXELS, rectangle.get().getHeight()+TOP_PIXELS);
@@ -454,6 +454,8 @@ public final class ElevationProfileManager {
             unitElevation.relocate(0, 0);
             unitElevation.setFont(new Font("Avenir", FONT_SIZE-1));
             labels.add(unitElevation);
+             */
+            positionLines.addAll(elevationLines);
             texts.getChildren().setAll(labels);
             grid.getElements().setAll(positionLines);
         }

@@ -83,24 +83,24 @@ public final class RouteBean {
             for (int i = 0; i < waypoints.size() - 1; i++) {
                 int nodeIdOfFirstWaypoint = waypoints.get(i).closestNodeId();
                 int nodeIdOfSecondWaypoint = waypoints.get(i + 1).closestNodeId();
-                if (!(bestRouteCache.containsKey(new Pair<>(nodeIdOfFirstWaypoint, nodeIdOfSecondWaypoint))
-                        || bestRouteCache.containsKey(new Pair<>(nodeIdOfSecondWaypoint, nodeIdOfFirstWaypoint)))) {
-                    Route bestRouteBetween = routeComputer.bestRouteBetween(nodeIdOfFirstWaypoint, nodeIdOfSecondWaypoint);
-                    if (bestRouteBetween == null) {
-                        nullifyProperties();
-                        System.out.println("On ne peut pas passer par là !");
-                        return;
+                if (!(nodeIdOfFirstWaypoint == nodeIdOfSecondWaypoint)) {
+                    if (!(bestRouteCache.containsKey(new Pair<>(nodeIdOfFirstWaypoint, nodeIdOfSecondWaypoint))
+                            || bestRouteCache.containsKey(new Pair<>(nodeIdOfSecondWaypoint, nodeIdOfFirstWaypoint)))) {
+                        Route bestRouteBetween = routeComputer.bestRouteBetween(nodeIdOfFirstWaypoint, nodeIdOfSecondWaypoint);
+                        if (bestRouteBetween == null) {
+                            nullifyProperties();
+                            return;
+                        }
+                        bestRouteCache.put(new Pair<>(nodeIdOfFirstWaypoint, nodeIdOfSecondWaypoint), bestRouteBetween);
                     }
-                    bestRouteCache.put(new Pair<>(nodeIdOfFirstWaypoint, nodeIdOfSecondWaypoint), bestRouteBetween);
+                    theRoutes.add(bestRouteCache.getOrDefault(new Pair<>(nodeIdOfFirstWaypoint, nodeIdOfSecondWaypoint),
+                            bestRouteCache.get(new Pair<>(nodeIdOfSecondWaypoint, nodeIdOfFirstWaypoint))));
                 }
-                theRoutes.add(bestRouteCache.getOrDefault(new Pair<>(nodeIdOfFirstWaypoint, nodeIdOfSecondWaypoint),
-                        bestRouteCache.get(new Pair<>(nodeIdOfSecondWaypoint, nodeIdOfFirstWaypoint))));
 
             }
             route.set(new MultiRoute(theRoutes));
             computeElevationProfile();
         } else {
-            System.out.println(waypoints.size());
             nullifyProperties();
         }
     }
@@ -109,9 +109,8 @@ public final class RouteBean {
      * Nullifies the properties of this bean in case the list of waypoints cannot compute a route.
      */
     private void nullifyProperties() {
-        System.out.println("je nullifie");
         theRoutes.clear();
-        route.set(null);
+        route.setValue(null);
         elevationProfile.set(null);
     }
 
@@ -149,25 +148,12 @@ public final class RouteBean {
         if (route.get() != null) highlightedPosition.set(Math2.clamp(0, position, route.get().length()));
     }
 
-    public void addWaypoint(WayPoint w) {
-        if (waypoints != null)
-            waypoints.add(w);
-    }
-
-    public void addAllWaypoints(Collection<WayPoint> w) {
-        for (WayPoint wayPoint : w) {
-            addWaypoint(wayPoint);
-        }
-    }
-
-
     /**
      * Returns the itinerary between all the waypoints in the list of waypoints. It is on read only so that it cannot
      * be accessed from the exterior, and no mischievous computations can be made.
      *
      * @return the itinerary between all the waypoints
      */
-    //TODO est-ce vraiment une ReadOnlyObjectProperty ?
     public ReadOnlyObjectProperty<Route> route() {
         return route;
     }
@@ -180,5 +166,15 @@ public final class RouteBean {
      */
     public ReadOnlyObjectProperty<ElevationProfile> elevationProfile() {
         return elevationProfile;
+    }
+
+    public int indexOfNonEmptySegmentAt(double position) {
+        int index = route().get().indexOfSegmentAt(position);
+        for (int i = 0; i <= index; i += 1) {
+            int n1 = waypoints.get(i).closestNodeId();
+            int n2 = waypoints.get(i + 1).closestNodeId();
+            if (n1 == n2) index += 1;
+        }
+        return index;
     }
 }
