@@ -11,6 +11,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polyline;
 
+import java.rmi.server.ExportException;
 import java.util.function.Consumer;
 
 // recontruite full la polyline si on chnage itineraire/zoom et sinon juste la déclaer
@@ -22,6 +23,11 @@ public final class RouteManager {
      * bean containing the properties related to the route
      */
     private final RouteBean routeBean;
+
+    /**
+     * constant to signal that the circle shouldn't be drawn
+     */
+    private static final double noPosition = Double.NaN;
 
     /**
      * property containing the parameters of the displayed map
@@ -119,13 +125,21 @@ public final class RouteManager {
      * positions the circle based on the highlighted position on the route
      */
     private void positionCircle() {
-        if(routeBean.route().get()!=null) {
+        try{
+        if(routeBean.route().get()!=null && routeBean.highlightedPosition() !=noPosition) {
+            System.out.println(routeBean.highlightedPosition());
+            System.out.println(routeBean.highlightedPosition()==Double.NaN);
             PointCh pointCh = routeBean.route().get().pointAt(routeBean.highlightedPosition());
             circle.setLayoutX(mapViewParameters.get().viewX(PointWebMercator.ofPointCh(pointCh)));
             circle.setLayoutY(mapViewParameters.get().viewY(PointWebMercator.ofPointCh(pointCh)));
             circle.setVisible(true);
         }
         else circle.setVisible(false);
+        }catch(Exception e){
+            System.out.println("exception");
+            circle.setVisible(false);
+        }
+
     }
 
     /**

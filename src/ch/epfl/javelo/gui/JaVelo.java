@@ -70,7 +70,7 @@ public final class JaVelo extends Application {
         window.setOrientation(Orientation.VERTICAL);
         window.getStylesheets().addAll("map.css", "elevation_profile.css", "error.css");
         StackPane scene = new StackPane(window, errorManager.pane(), bar);
-        StackPane.setAlignment(bar, Pos.BOTTOM_CENTER);
+        StackPane.setAlignment(bar, Pos.TOP_CENTER);
         primaryStage.setMinWidth(600);
         primaryStage.setMinHeight(300);
         primaryStage.setTitle("JaVelo");

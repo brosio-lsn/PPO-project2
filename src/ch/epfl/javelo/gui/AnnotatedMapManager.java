@@ -71,19 +71,22 @@ public final class AnnotatedMapManager {
 
         positionAlongRoute.bind(Bindings.createDoubleBinding(() -> {
             //todo essayer sur map si route est null
+            //System.out.println(updatePositionAlongRoute());
             return updatePositionAlongRoute();
         }, mouseOnLastEvent, routeBean.route(), mapViewParametersP));
 
     }
 
     private double updatePositionAlongRoute(){
-        if(mapViewParametersP.get()==null || routeBean.route().get()==null)return MouseNotCloseToRoute;
+        if(mapViewParametersP.get()==null || routeBean.route().get()==null || mouseOnLastEvent.get()==null)return MouseNotCloseToRoute;
         PointWebMercator pointWebMercator = mapViewParametersP.get().pointAt(mouseOnLastEvent.get().getX(), mouseOnLastEvent.get().getY());
         RoutePoint pointOnRoute = routeBean.route().get().pointClosestTo(pointWebMercator.toPointCh());
         double uX=mouseOnLastEvent.get().getX()-mapViewParametersP.get().viewX(PointWebMercator.ofPointCh(pointOnRoute.point()));
         double uY=mouseOnLastEvent.get().getY()-mapViewParametersP.get().viewY(PointWebMercator.ofPointCh(pointOnRoute.point()));
         double distanceInPixels = Math2.norm(uX, uY);
-        if(distanceInPixels<15) return pointOnRoute.position();
+        if(distanceInPixels<15){
+            //System.out.println(distanceInPixels);
+            return pointOnRoute.position();}
         else return MouseNotCloseToRoute;
     }
 
