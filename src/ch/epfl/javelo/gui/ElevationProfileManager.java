@@ -180,7 +180,7 @@ public final class ElevationProfileManager {
         gridPane=new GridPane();
         worldToScreen = new SimpleObjectProperty<>();
         screenToWorld = new SimpleObjectProperty<>();
-        mousePositionOnProfileProperty = new SimpleDoubleProperty();
+        mousePositionOnProfileProperty = new SimpleDoubleProperty(MOUSE_NOT_IN_RECTANGLE);
         rectangle = new SimpleObjectProperty<>();
         insets = new Insets(TOP_PIXELS, RIGHT_PIXELS, BOTTOM_PIXELS, LEFT_PIXELS);
         bindingsDone = false;
