@@ -3,6 +3,7 @@ package ch.epfl.javelo.gui;
 import ch.epfl.javelo.data.Graph;
 import ch.epfl.javelo.routing.*;
 import javafx.application.Application;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Orientation;
@@ -59,12 +60,17 @@ public final class JaVelo extends Application {
                 bar.setUseSystemMenuBar(true);
                 //TODO problèmes si null
                 bean.highlightedPosition.bind(profileManager.mousePositionOnProfileProperty());
+                bean.highlightedPosition.bind(Bindings.createDoubleBinding(() -> {
+                    //todo essayer sur map si route est null
+                    //System.out.println(updatePositionAlongRoute());
+                    return Double.compare(map.mousePositionOnRouteProperty().get(), Double.NaN) ==0?profileManager.mousePositionOnProfileProperty().get() :map.mousePositionOnRouteProperty().get();
+                }, profileManager.mousePositionOnProfileProperty(), map.mousePositionOnRouteProperty()));
             } else {
                 bean.highlightedPositionProperty().unbind();
                 window.getItems().setAll(map.pane());
                 bar.setDisable(true);
             }
-            bean.highlightedPosition.bind(map.mousePositionOnRouteProperty());
+            //bean.highlightedPosition.bind(map.mousePositionOnRouteProperty());
         });
         window.getItems().add(map.pane());
         window.setOrientation(Orientation.VERTICAL);

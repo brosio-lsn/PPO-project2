@@ -209,7 +209,9 @@ public final class BaseMapManager {
     private void installListeners() {
         canvas.sceneProperty().addListener((p, oldS, newS) -> {
             assert oldS == null;
-            newS.addPreLayoutPulseListener(this::redrawIfNeeded);
+            if(newS!=null) {
+                newS.addPreLayoutPulseListener(this::redrawIfNeeded);
+            }
         });
         canvas.heightProperty().addListener((observable, oldValue, newValue) -> redrawOnNextPulse());
         canvas.widthProperty().addListener((o, oV, nV) -> redrawOnNextPulse());

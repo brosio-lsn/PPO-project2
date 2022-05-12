@@ -125,20 +125,14 @@ public final class RouteManager {
      * positions the circle based on the highlighted position on the route
      */
     private void positionCircle() {
-        try{
-        if(routeBean.route().get()!=null && routeBean.highlightedPosition() !=noPosition) {
-            System.out.println(routeBean.highlightedPosition());
-            System.out.println(routeBean.highlightedPosition()==Double.NaN);
+        //todo qd ca emprutne la mm route dans 2 sens ca beugue mais normaö
+        if(routeBean.route().get()!=null && Double.compare(routeBean.highlightedPosition(), Double.NaN)!=0) {
             PointCh pointCh = routeBean.route().get().pointAt(routeBean.highlightedPosition());
             circle.setLayoutX(mapViewParameters.get().viewX(PointWebMercator.ofPointCh(pointCh)));
             circle.setLayoutY(mapViewParameters.get().viewY(PointWebMercator.ofPointCh(pointCh)));
             circle.setVisible(true);
         }
         else circle.setVisible(false);
-        }catch(Exception e){
-            System.out.println("exception");
-            circle.setVisible(false);
-        }
 
     }
 

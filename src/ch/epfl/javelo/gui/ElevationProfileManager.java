@@ -187,7 +187,6 @@ public final class ElevationProfileManager {
         createChildren();
         setLabels();
         setEvents();
-        stats.setText(stats());
     }
 
     /**
@@ -195,6 +194,7 @@ public final class ElevationProfileManager {
      * @return the pane containing the Node elements related to the profile
      */
     public Pane pane() {
+        System.out.println(borderPane);
         return borderPane;
     }
 
@@ -257,6 +257,8 @@ public final class ElevationProfileManager {
                 new CornerRadii(2),
                 new Insets(0)
         )));
+        stats.setText(stats());
+        System.out.println(stats());
         vbox.getChildren().add(stats);
         borderPane.setBottom(vbox);
         borderPane.setCenter(pane);
@@ -283,7 +285,9 @@ public final class ElevationProfileManager {
      */
 
     private void setEvents() {
-        elevationProfile.addListener((property, previousV, newV)-> createTransformations());
+        elevationProfile.addListener((property, previousV, newV)-> {
+            createTransformations();
+        });
         pane.setOnMouseMoved(event -> {
             if (screenToWorld.get() != null)
                 mousePositionOnProfileProperty.set(screenToWorld.get().transform(event.getX(), event.getY()).getX());
@@ -296,6 +300,7 @@ public final class ElevationProfileManager {
             widthAndHeightlistenerContent();
         });
         rectangle.addListener((property, previousV, newV) -> {
+            stats.setText(stats());
             createTransformations();
         });
 
@@ -324,6 +329,7 @@ public final class ElevationProfileManager {
      * creates the transformation from the screen to the actual profile and its inverse
      */
     private void createTransformations() {
+        System.out.println("trnasfo");
         Affine affine = new Affine();
         affine.prependTranslation(0, -elevationProfile.get().maxElevation());
         affine.prependScale(rectangle.get().getWidth() / elevationProfile.get().length(),
