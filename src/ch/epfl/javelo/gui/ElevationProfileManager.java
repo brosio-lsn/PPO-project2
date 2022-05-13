@@ -194,7 +194,7 @@ public final class ElevationProfileManager {
      * @return the pane containing the Node elements related to the profile
      */
     public Pane pane() {
-        System.out.println(borderPane);
+        //System.out.println(borderPane);
         return borderPane;
     }
 
@@ -286,15 +286,15 @@ public final class ElevationProfileManager {
 
     private void setEvents() {
         elevationProfile.addListener((property, previousV, newV)-> {
-            System.out.println("lol");
+            //.out.println("lol");
             createTransformations();
         });
         pane.setOnMouseMoved(event -> {
             if (screenToWorld.get() != null)
                 mousePositionOnProfileProperty.set(screenToWorld.get().transform(event.getX(), event.getY()).getX());
-            System.out.println(line.visibleProperty().get());
-            System.out.println(position.get());
-            System.out.println(elevationProfile.get().length());
+            //System.out.println(line.visibleProperty().get());
+            //System.out.println(position.get());
+            //System.out.println(elevationProfile.get().length());
         });
         pane.setOnMouseExited(event -> mousePositionOnProfileProperty.set(MOUSE_NOT_IN_RECTANGLE));
         pane.heightProperty().addListener((property, previousV, newV) -> {
@@ -359,6 +359,11 @@ public final class ElevationProfileManager {
         line.startYProperty().bind(Bindings.select(rectangle, "minY"));
         line.endYProperty().bind(Bindings.select(rectangle, "maxY"));
         line.visibleProperty().bind(Bindings.greaterThan(position, 0).and(Bindings.lessThan(position, elevationProfile.get().length())));
+        line.visibleProperty().bind(Bindings.greaterThan(position, 0).and(Bindings.createBooleanBinding(() -> {
+            //todo essayer sur map si route est null
+            //System.out.println(updatePositionAlongRoute());
+            return position.get()<=elevationProfile.get().length();
+        }, position)));
 
         gridPane.visibleProperty().bind(line.visibleProperty());
         gridPane.layoutXProperty().bind(line.layoutXProperty());

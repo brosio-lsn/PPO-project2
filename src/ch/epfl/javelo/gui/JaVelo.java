@@ -53,8 +53,10 @@ public final class JaVelo extends Application {
                 SplitPane.setResizableWithParent(profileManager.pane(), true);
                 bar.setDisable(false);
                 bar.setOnMouseClicked(event -> {
+                    System.out.println("lol");
                     try {
                         GpxGenerator.writeGpx("javelo.gpx", bean.route().get(), profile);
+                        System.out.println("bb");
                     } catch (IOException e) {
                         throw new UncheckedIOException(e);
                     }
