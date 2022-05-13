@@ -19,6 +19,10 @@ public final class ErrorManager {
     private static final Duration SECOND_DURATION=new Duration(500);
     private static final Duration PAUSE_DURATION=new Duration(2000);
 
+    /**
+     * Default constructor of the errorManager class.
+     * It initialises the Vbox the text should be displayed upon, sets the right stylesheets and creates the transitions
+     */
     public ErrorManager(){
         text=new Text();
         pane=new VBox(text);
@@ -31,13 +35,23 @@ public final class ErrorManager {
         return pane;
     }
 
+    /**
+     * displays the given error on the screen
+     * @param message error to be displayed
+     */
     public void displayError(String message){
         text.textProperty().set(message);
+        System.out.println(message);
         sequentialTransition.stop();
         java.awt.Toolkit.getDefaultToolkit().beep();
         sequentialTransition.play();
     }
 
+    /**
+     * creates the graphic effects of the error display.
+     * It consists of two fading transitions. One fades the text in, the other fades the text out of the screen.
+     * Between these two fading transitions is a pause time, which allows the user to read the error.
+     */
     private void createSequentialTransition(){
         FadeTransition firstFadeTransition = new FadeTransition(FIRST_DURATION, pane);
         firstFadeTransition.setFromValue(LOW_OPACITY);

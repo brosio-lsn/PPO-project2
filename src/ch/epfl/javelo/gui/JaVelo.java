@@ -37,9 +37,9 @@ public final class JaVelo extends Application {
         Menu filesMenu = new Menu("Fichiers", null, option);
         MenuBar bar = new MenuBar(filesMenu);
         SplitPane window = new SplitPane();
+        window.setOrientation(Orientation.VERTICAL);
         ObjectProperty<ElevationProfile> profileProperty=new SimpleObjectProperty<>();
-        ElevationProfileManager profileManager=new ElevationProfileManager(profileProperty,
-                bean.highlightedPositionProperty());
+        ElevationProfileManager profileManager=new ElevationProfileManager(profileProperty, bean.highlightedPositionProperty());
         bean.route().addListener((observable, oldValue, newValue) -> {
             if(bean.route().get() != null) {
                 ElevationProfile profile = ElevationProfileComputer
@@ -52,22 +52,18 @@ public final class JaVelo extends Application {
                 profileProperty.set(profile);
                 SplitPane.setResizableWithParent(profileManager.pane(), true);
                 bar.setDisable(false);
-                bar.setOnMouseClicked(event -> {
-                    System.out.println("lol");
+                option.setOnAction(event -> {
                     try {
-                        GpxGenerator.writeGpx("javelo.gpx", bean.route().get(), profile);
-                        System.out.println("bb");
-                    } catch (IOException e) {
+                        GpxGenerator.writeGpx("javelo.gpx", bean.route().get(), profile);} catch (IOException e) {
                         throw new UncheckedIOException(e);
                     }
                 });
                 window.getItems().setAll(map.pane(), profileManager.pane());
+                System.out.println("vbbox " + profileManager.pane().getChildren());
                 bar.setUseSystemMenuBar(true);
                 //TODO problèmes si null
-                bean.highlightedPosition.bind(profileManager.mousePositionOnProfileProperty());
                 bean.highlightedPosition.bind(Bindings.createDoubleBinding(() -> {
                     //todo essayer sur map si route est null
-                    //System.out.println(updatePositionAlongRoute());
                     return Double.compare(map.mousePositionOnRouteProperty().get(), Double.NaN) ==0?profileManager.mousePositionOnProfileProperty().get() :map.mousePositionOnRouteProperty().get();
                 }, profileManager.mousePositionOnProfileProperty(), map.mousePositionOnRouteProperty()));
             } else {
@@ -78,8 +74,8 @@ public final class JaVelo extends Application {
             //bean.highlightedPosition.bind(map.mousePositionOnRouteProperty());
         });
         window.getItems().add(map.pane());
-        window.setOrientation(Orientation.VERTICAL);
-        window.getStylesheets().addAll("map.css", "elevation_profile.css", "error.css");
+
+        window.getStylesheets().addAll("map.css", "error.css");
         StackPane scene = new StackPane(window, errorManager.pane(), bar);
         StackPane.setAlignment(bar, Pos.TOP_CENTER);
         primaryStage.setMinWidth(600);
