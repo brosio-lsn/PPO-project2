@@ -22,7 +22,6 @@ import java.nio.file.Path;
 
 public final class JaVelo extends Application {
 
-
     @Override
     public void start(Stage primaryStage) throws IOException {
         Graph graphJavelo = Graph.loadFrom(Path.of("javelo-data"));
@@ -38,15 +37,19 @@ public final class JaVelo extends Application {
         Menu filesMenu = new Menu("Fichiers", null, option);
         MenuBar bar = new MenuBar(filesMenu);
         SplitPane window = new SplitPane();
+        ObjectProperty<ElevationProfile> profileProperty=new SimpleObjectProperty<>();
+        ElevationProfileManager profileManager=new ElevationProfileManager(profileProperty,
+                bean.highlightedPositionProperty());
         bean.route().addListener((observable, oldValue, newValue) -> {
             if(bean.route().get() != null) {
                 ElevationProfile profile = ElevationProfileComputer
                         .elevationProfile(bean.route().get(), 5);
-                ObjectProperty<ElevationProfile> profileProperty =
+                /*ObjectProperty<ElevationProfile> profileProperty =
                         new SimpleObjectProperty<>(profile);
                 ElevationProfileManager profileManager =
                         new ElevationProfileManager(profileProperty,
-                                bean.highlightedPositionProperty());
+                                bean.highlightedPositionProperty());*/
+                profileProperty.set(profile);
                 SplitPane.setResizableWithParent(profileManager.pane(), true);
                 bar.setDisable(false);
                 bar.setOnMouseClicked(event -> {

@@ -257,8 +257,8 @@ public final class ElevationProfileManager {
                 new CornerRadii(2),
                 new Insets(0)
         )));
-        stats.setText(stats());
-        System.out.println(stats());
+        if(elevationProfile.get()!=null)stats.setText(stats());
+        //System.out.println(stats());
         vbox.getChildren().add(stats);
         borderPane.setBottom(vbox);
         borderPane.setCenter(pane);
@@ -286,11 +286,15 @@ public final class ElevationProfileManager {
 
     private void setEvents() {
         elevationProfile.addListener((property, previousV, newV)-> {
+            System.out.println("lol");
             createTransformations();
         });
         pane.setOnMouseMoved(event -> {
             if (screenToWorld.get() != null)
                 mousePositionOnProfileProperty.set(screenToWorld.get().transform(event.getX(), event.getY()).getX());
+            System.out.println(line.visibleProperty().get());
+            System.out.println(position.get());
+            System.out.println(elevationProfile.get().length());
         });
         pane.setOnMouseExited(event -> mousePositionOnProfileProperty.set(MOUSE_NOT_IN_RECTANGLE));
         pane.heightProperty().addListener((property, previousV, newV) -> {
@@ -329,17 +333,19 @@ public final class ElevationProfileManager {
      * creates the transformation from the screen to the actual profile and its inverse
      */
     private void createTransformations() {
-        System.out.println("trnasfo");
-        Affine affine = new Affine();
-        affine.prependTranslation(0, -elevationProfile.get().maxElevation());
-        affine.prependScale(rectangle.get().getWidth() / elevationProfile.get().length(),
-                (rectangle.get().getHeight()) / (-elevationProfile.get().maxElevation() + elevationProfile.get().minElevation()));
-        affine.prependTranslation(rectangle.get().getMinX(), rectangle.get().getMinY());
-        worldToScreen.set(affine);
-        try {
-            screenToWorld.set(affine.createInverse());
-        } catch (NonInvertibleTransformException e) {
-            System.out.println(e.getMessage());
+        if(rectangle.get()!=null) {
+            //System.out.println("trnasfo");
+            Affine affine = new Affine();
+            affine.prependTranslation(0, -elevationProfile.get().maxElevation());
+            affine.prependScale(rectangle.get().getWidth() / elevationProfile.get().length(),
+                    (rectangle.get().getHeight()) / (-elevationProfile.get().maxElevation() + elevationProfile.get().minElevation()));
+            affine.prependTranslation(rectangle.get().getMinX(), rectangle.get().getMinY());
+            worldToScreen.set(affine);
+            try {
+                screenToWorld.set(affine.createInverse());
+            } catch (NonInvertibleTransformException e) {
+                System.out.println(e.getMessage());
+            }
         }
     }
 
