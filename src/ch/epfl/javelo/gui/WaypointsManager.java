@@ -3,7 +3,6 @@ package ch.epfl.javelo.gui;
 import ch.epfl.javelo.data.Graph;
 import ch.epfl.javelo.projection.PointCh;
 import ch.epfl.javelo.projection.PointWebMercator;
-import ch.epfl.javelo.projection.SwissBounds;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ListChangeListener;
@@ -27,6 +26,9 @@ import java.util.function.Consumer;
 
 public final class WaypointsManager {
 
+    private static final String SVG_EXTERIOR_STRING = "M-8-20C-5-14-2-7 0 0 2-7 5-14 8-20 20-40-20-40-8-20";
+    private static final String SVG_INTERIOR_STRING = "M0-23A1 1 0 000-29 1 1 0 000-23";
+    private static final String ERROR_MESSAGE = "Aucune route à proximité !";
     /**
      * the graph of the route
      */
@@ -53,14 +55,9 @@ public final class WaypointsManager {
     private final Pane pane;
 
     /**
-     * search distance for node closest to, used in the method addWayPoint
+     * search distance for node closest to
      */
-    private final static int SEARCH_DISTANCE_NODE_CLOSEST_TO_1 = 500;
-
-    /**
-     * search distance for node closest to, used when a marker is repositioned after a drag
-     */
-    private final static int SEARCH_DISTANCE_NODE_CLOSEST_TO_2 = 1000;
+    private final static int SEARCH_DISTANCE_NODE_CLOSEST_TO_1 = 1000;
 
     /**
      * the current wayPoint that is being dragged
@@ -104,6 +101,7 @@ public final class WaypointsManager {
      * creates the markers corresponding to the waypoints contained in observableList
      * and adds them as children to the pane
      */
+    //todo nommer les constantes first last...?
     private void createMarkers (){
         List<Node> markers = new ArrayList<>();
         int size = observableList.size();
@@ -150,25 +148,17 @@ public final class WaypointsManager {
      */
     public void addWayPoint(double x, double y){
         PointWebMercator pointWebMercator = mapViewParameters.get().pointAt(x,y);
+        PointCh pointCh=pointWebMercator.toPointCh();
         if(pointWebMercator.toPointCh()!=null) {
-            int nodeId = graph.nodeClosestTo(pointWebMercator.toPointCh(), SEARCH_DISTANCE_NODE_CLOSEST_TO_1);
+            int nodeId = graph.nodeClosestTo(pointCh, SEARCH_DISTANCE_NODE_CLOSEST_TO_1);
             if (nodeId == -1) {
-                errorConsumer.accept("Aucune route à proximité !");
+                errorConsumer.accept(ERROR_MESSAGE);
                 return;
             }
-            WayPoint wayPoint = new WayPoint(pointWebMercator.toPointCh(), nodeId);
-            Group group = createMarkerGroup(wayPoint);
-            if (observableList.size() > 0) {
-                group.getStyleClass().add("last");
-                Node previousGroup = pane.getChildren().get(pane.getChildren().size() - 1);
-                previousGroup.getStyleClass().remove("last");
-                previousGroup.getStyleClass().add("middle");
-            } else group.getStyleClass().add("first");
-            pane.getChildren().add(group);
-            System.out.println(observableList.size());
+            WayPoint wayPoint = new WayPoint(pointCh, nodeId);
             observableList.add(wayPoint);
         }
-        else errorConsumer.accept("Aucune route à proximité !");
+        else errorConsumer.accept(ERROR_MESSAGE);
     }
 
 
@@ -177,30 +167,27 @@ public final class WaypointsManager {
      * @param mapViewParameters the new mapviewParameters
      */
     private void relocateMarkers(MapViewParameters mapViewParameters){
-        List<Node> markers = new ArrayList<>();
+        //todo demander si meilleur maniere de le faire
         Iterator<WayPoint> itWaypoints = observableList.iterator();
         for (Node node : pane.getChildren()) {
             WayPoint wayPoint = itWaypoints.next();
             PointWebMercator nodePointWebMercator = PointWebMercator.ofPointCh(wayPoint.point());
             node.setLayoutX(mapViewParameters.viewX(nodePointWebMercator));
             node.setLayoutY(mapViewParameters.viewY(nodePointWebMercator));
-            markers.add(node);
         }
-        pane.getChildren().setAll(markers);
     }
 
     /**
      * creates a regular marker group
      * @return a regular marker group
      */
-    //TODO nommage de constantes ?
     private Group createMarkerGroup (WayPoint wayPoint){
         SVGPath exterior=new SVGPath();
-        exterior.setContent("M-8-20C-5-14-2-7 0 0 2-7 5-14 8-20 20-40-20-40-8-20");
+        exterior.setContent(SVG_EXTERIOR_STRING);
         exterior.getStyleClass().add("pin_outside");
 
         SVGPath interior=new SVGPath();
-        interior.setContent("M0-23A1 1 0 000-29 1 1 0 000-23");
+        interior.setContent(SVG_INTERIOR_STRING);
         interior.getStyleClass().add("pin_inside");
 
         Group group=new Group(exterior, interior);
@@ -233,11 +220,11 @@ public final class WaypointsManager {
             if (!event.isStillSincePress()) {
                 PointCh pointCh = mapViewParameters.get().pointAt(group.getLayoutX(), group.getLayoutY()).toPointCh();
                 int nodeId=-1;
-                if (pointCh!=null)nodeId= graph.nodeClosestTo(pointCh, SEARCH_DISTANCE_NODE_CLOSEST_TO_2);
+                if (pointCh!=null)nodeId= graph.nodeClosestTo(pointCh, SEARCH_DISTANCE_NODE_CLOSEST_TO_1);
                 if (nodeId == -1) {
                     group.setLayoutX(xBeforeDrag);
                     group.setLayoutY(yBeforeDrag);
-                    errorConsumer.accept("Aucune route à proximité !");
+                    errorConsumer.accept(ERROR_MESSAGE);
                 }
                 else observableList.set(observableList.indexOf(draggedWayPoint), new WayPoint(pointCh, nodeId));
             }

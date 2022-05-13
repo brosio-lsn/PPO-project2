@@ -93,12 +93,13 @@ public final class TileManager {
                 .append(id.yIndex)
                 .append(".png")
                 .toString();
+        Path pathToFiles = Path.of(fileOfTile);
         if (cache.containsKey(id)) {
             return cache.get(id);
-        } else if (Files.exists(Path.of(pathToRepertory + imagePath), LinkOption.NOFOLLOW_LINKS)) {
-            return imageFromDisk(id, pathToRepertory.toString(), imagePath);
+        } else if (Files.exists(Path.of(imagePath), LinkOption.NOFOLLOW_LINKS)) {
+            return imageFromDisk(id, imagePath);
         } else {
-            return imageFromServer(id, pathToRepertory.toString(), imagePath, fileOfTile);
+            return imageFromServer(id, pathToFiles, imagePath);
         }
     }
     /**
@@ -106,15 +107,12 @@ public final class TileManager {
      * it into the cache.
      *
      * @param id        id of the tile to load.
-     * @param pathToFiles the paths to the local files in which to search the image
-     * @param pathToImage local path to such an image.
-     *
+     * @param imagePath local path to such an image.
      * @return the image representing the tile of given id from the local hard drive.
      */
-    private Image imageFromDisk(TileId id, String pathToFiles, String pathToImage) throws IOException {
+    private Image imageFromDisk(TileId id, String imagePath) throws IOException {
         Image fileImage;
-        File f = new File(pathToFiles + pathToImage);
-        try (FileInputStream i = new FileInputStream(f.getAbsolutePath())) {
+        try (FileInputStream i = new FileInputStream(imagePath)) {
             fileImage = new Image(i);
             cache.put(id, fileImage);
         }
@@ -130,19 +128,18 @@ public final class TileManager {
      * @return the image downloaded from the server
      * @throws IOException if there is an error in any of the paths used.
      */
-    private Image imageFromServer(TileId id, String pathToFiles, String pathToImage, String fileOfTile) throws IOException {
+    private Image imageFromServer(TileId id, Path pathToFiles, String pathToImage) throws IOException {
         System.out.println("je dl" + id);
-        String path = new File(pathToFiles).getAbsolutePath();
-        Files.createDirectories(Path.of(path + fileOfTile));
+        Files.createDirectories(pathToFiles);
         URL u = new URL(HTTPS + serverName + pathToImage);
         URLConnection c = u.openConnection();
         c.setRequestProperty("User-Agent", "JaVelo");
         try (InputStream i = c.getInputStream();
-             OutputStream writer = new FileOutputStream(path + pathToImage)) {
+             OutputStream writer = new FileOutputStream(pathToImage)) {
             i.transferTo(writer);
         }
         Iterator<TileId> ite = cache.keySet().iterator();
         if (ite.hasNext() && cache.size()==CAPACITY_OF_CACHE) cache.remove(ite.next());
-        return imageFromDisk(id, pathToFiles, pathToImage);
+        return imageFromDisk(id, pathToImage);
     }
 }

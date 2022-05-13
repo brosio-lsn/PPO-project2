@@ -29,6 +29,9 @@ import java.util.Iterator;
  */
 
 public final class GpxGenerator {
+
+    private static final int INITIAL_POSITION_ON_ROUTE = 0;
+
     /**
      * private constructor
      */
@@ -75,7 +78,7 @@ public final class GpxGenerator {
         //initiate different objects for the following while loop
         Iterator<PointCh> pointChIterator = route.points().iterator();
         Iterator<Edge> edgeIterator = route.edges().iterator();
-        double positionOnRtoue = 0;
+        double positionOnRtoue = INITIAL_POSITION_ON_ROUTE;
         double altitude;
         Element rtept;
 

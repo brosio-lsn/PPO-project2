@@ -50,7 +50,7 @@ public final class JaVelo extends Application {
                         new ElevationProfileManager(profileProperty,
                                 bean.highlightedPositionProperty());*/
                 profileProperty.set(profile);
-                SplitPane.setResizableWithParent(profileManager.pane(), true);
+                SplitPane.setResizableWithParent(profileManager.pane(), false);
                 bar.setDisable(false);
                 option.setOnAction(event -> {
                     try {
@@ -58,7 +58,10 @@ public final class JaVelo extends Application {
                         throw new UncheckedIOException(e);
                     }
                 });
-                window.getItems().setAll(map.pane(), profileManager.pane());
+                window.getItems().setAll(
+                        // map.pane(),
+                        profileManager.pane()
+                );
                 System.out.println("vbbox " + profileManager.pane().getChildren());
                 bar.setUseSystemMenuBar(true);
                 //TODO problèmes si null

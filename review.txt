@@ -1,59 +1,7 @@
-faudra voir immuabilité, truc faire List = new Arrylist pas Arraylist = new Arraylist, boucles for favoriser les forEach
-ici, ca a été check
-Review code only ( voir doc apres)
-Etape 1:
--préconditions: done
--math2 : done
--SwissBounds: done
--Ch1903 : done
--PointCh : done
+Etape 7:
+-GPX
+-mapViewParameters
+-wayPoint
 
-Etape 2 :
--WebMercator : done
--PointWebMercator :done
--bits : done
--Q28_4 : done
--functions = done
--attributeSet : done
-
-Etape 3 :
--GraphNodes : done
--GraphSectors : done
--GraphEdges : fait
-
-E4:
--Grpah : fait
--ElevationProfile :done
--Edge : done
--RoutePoint : done
--Route :done
-
-E5:
--SingleRoute : done
--ElevationProfileComputer : fait
-
-E6:
--MultiRoute : Louis
--RouteComputer : done
-
-
-QUESTIONS:
-grpahNodes, quand t extractUnsigned ( magic nbs)
-CH1903 aussi les formules degueux (magic nbs)
-
-A faire:
--essayer de mettre que des this.b = b dans les constructeurs (Ambroise) (done)
--> Au niveau de la lisibilité du code, il faudrait qu’un lecteur puisse comprendre facilement ce que fait votre code :
-     - Noms de variables clairs (Ambroise) (done)
-     - Pas de magic numbers (IMPORTANT), tout nombre utilisé dans le code doit être mis dans une constante private static avec un nom en majuscule et des underscores (normes d’écriture java) (ambroise) (done)
-     - Modulariser au maximum le code, surtout pour les fonctions publiques assez longues, séparer en méthodes private avec des noms de méthodes, là encore assez parlants. (ambroise et louis)
-      - Au niveau des boucles, favoriser les boucles for each aux for(int i..) dans la mesure du possible car plus lisibles et concises. (ambroise)(done)
-      - Ne pas hésiter à commenter des parties de code que vous jugez assez compliquées.
-
--> Il faudra aussi faire attention à la documentation de TOUTE l’interface publique du projet (méthodes, constantes etc)
-     - Suivre un système assez cohérent tout au long du projet (s’inspirer de la javadoc pour des exemples de documentation) (louis) (done)
-     - Ne pas oublier de mentionner les @throws « nom de l’exception » suivie du cas où l’exception sera levée. (louis) (done)
-
--> Garder une certaine logique de regroupement de code (toutes les méthodes privées regroupées ensemble, de même pour celles publiques, statiques etc.) Le choix du regroupement vous incombe mais il doit être consistant sur tout le projet.
--> si fini faire ce qu Antoine a dit (pour les methodes d une ligne les dé-collapse)
-Pour Louis:
+Etape 8 :
+-wayPointManager Q: relocate markers + nommage de constantes

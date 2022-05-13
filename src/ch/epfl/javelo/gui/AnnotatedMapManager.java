@@ -15,7 +15,12 @@ import javafx.scene.layout.StackPane;
 
 import java.awt.*;
 import java.util.function.Consumer;
-
+/**
+ * @author Louis ROCHE (345620)
+ * @author Ambroise AIGUEPERSE (341890)
+ *
+ * handels the display of the annotated map
+ */
 public final class AnnotatedMapManager {
     private static final double MouseNotCloseToRoute = Double.NaN;
     private final Graph graph;
@@ -30,6 +35,13 @@ public final class AnnotatedMapManager {
     private final ObjectProperty<Point2D> mouseOnLastEvent;
     private final DoubleProperty positionAlongRoute;
 
+    /**
+     * constructor of the class
+     * @param graph the with all the edges, node...
+     * @param tileManager the tile manager
+     * @param routeBean the bean of the displayed route
+     * @param consumer a consumer to display errors
+     */
     public AnnotatedMapManager(Graph graph, TileManager tileManager, RouteBean routeBean, Consumer<String> consumer) {
         //todo ask for the mapViewParameters (mais je pense c bon)
         this.graph = graph;
@@ -49,17 +61,31 @@ public final class AnnotatedMapManager {
         setEvents();
     }
 
+    /**
+     * returns the pane with the annotated map
+     * @return the pane with the annotated map
+     */
     public Pane pane(){return pane;}
 
+    /**
+     * returns the property containing the position of the mouse along the route
+     * @return the property containing the position of the mouse along the route
+     */
     public DoubleProperty mousePositionOnRouteProperty(){
         return positionAlongRoute;
     }
 
+    /**
+     * creates the pane of the annotated map
+     */
     private void createPane(){
         pane.getStylesheets().add("map.css");
         pane.getChildren().addAll(baseMapManager.pane(), routeManager.pane(), waypointsManager.pane());
     }
 
+    /**
+     * sets all the events for the class
+     */
     private void setEvents(){
         pane.setOnMouseMoved(event-> {
             mouseOnLastEvent.set(new Point2D(event.getX() , event.getY()));

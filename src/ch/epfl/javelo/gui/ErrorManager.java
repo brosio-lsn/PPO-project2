@@ -7,7 +7,12 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
-
+/**
+ * @author Louis ROCHE (345620)
+ * @author Ambroise AIGUEPERSE (341890)
+ *
+ * handles the display of the error message
+ */
 public final class ErrorManager {
 
     public static final int LOW_OPACITY = 0;
@@ -20,8 +25,7 @@ public final class ErrorManager {
     private static final Duration PAUSE_DURATION=new Duration(2000);
 
     /**
-     * Default constructor of the errorManager class.
-     * It initialises the Vbox the text should be displayed upon, sets the right stylesheets and creates the transitions
+     * constructor of the class
      */
     public ErrorManager(){
         text=new Text();
@@ -31,26 +35,27 @@ public final class ErrorManager {
         createSequentialTransition();
     }
 
+    /**
+     * returns the pane containing the error message
+     * @return the pane containing the error message
+     */
     public Pane pane(){
         return pane;
     }
 
     /**
-     * displays the given error on the screen
-     * @param message error to be displayed
+     * displayes the given error message
+     * @param message the error message to be displayed
      */
     public void displayError(String message){
         text.textProperty().set(message);
-        System.out.println(message);
         sequentialTransition.stop();
         java.awt.Toolkit.getDefaultToolkit().beep();
         sequentialTransition.play();
     }
 
     /**
-     * creates the graphic effects of the error display.
-     * It consists of two fading transitions. One fades the text in, the other fades the text out of the screen.
-     * Between these two fading transitions is a pause time, which allows the user to read the error.
+     * creates the necessary transitions for the erroe message display
      */
     private void createSequentialTransition(){
         FadeTransition firstFadeTransition = new FadeTransition(FIRST_DURATION, pane);

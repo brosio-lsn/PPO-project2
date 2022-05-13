@@ -194,6 +194,7 @@ public final class ElevationProfileManager {
      * @return the pane containing the Node elements related to the profile
      */
     public Pane pane() {
+        //System.out.println(borderPane);
         return borderPane;
     }
 
@@ -257,6 +258,7 @@ public final class ElevationProfileManager {
                 new Insets(0)
         )));
         if(elevationProfile.get()!=null)stats.setText(stats());
+        //System.out.println(stats());
         vbox.getChildren().add(stats);
         borderPane.setBottom(vbox);
         borderPane.setCenter(pane);
@@ -267,18 +269,15 @@ public final class ElevationProfileManager {
      * @return the String containing the stats about the profile
      */
     private String stats() {
-
         String format = "Longueur : %.1f km" +
                 "     Montée : %.0f m" +
                 "     Descente : %.0f m" +
                 "     Altitude : de %.0f m à %.0f m";
-        String format1 = String.format(format, elevationProfile.get().length() / ROUND_TO_KILOMETERS_FACTOR,
+        return String.format(format, elevationProfile.get().length()/ ROUND_TO_KILOMETERS_FACTOR,
                 elevationProfile.get().totalAscent(),
                 elevationProfile.get().totalDescent(),
                 elevationProfile.get().minElevation(),
                 elevationProfile.get().maxElevation());
-        System.out.println(format1);
-        return format1;
     }
 
     /**
@@ -310,7 +309,6 @@ public final class ElevationProfileManager {
         });
 
         worldToScreen.addListener((property, previousV, newV) -> {
-            stats.setText(stats());
             drawPolygone();
             createGrid();
         });
@@ -326,10 +324,7 @@ public final class ElevationProfileManager {
                 double elevation=elevationProfile.get().elevationAt(position.doubleValue());
                 elevationAtPosition.textProperty().set("elevation : "+String.format("%.1f" , elevation));
                 distanceAtPosition.textProperty().set("distance : " + String.format("%.0f",position.doubleValue()));
-                gridPane.layoutYProperty().set(worldToScreen.get().transform(position.doubleValue(), elevation).getY()
-
-                );
-
+                gridPane.layoutYProperty().set(worldToScreen.get().transform(position.doubleValue(), elevation).getY());
             }
         });
     }
@@ -450,7 +445,6 @@ public final class ElevationProfileManager {
             double minElevation = elevationProfile.get().minElevation();
             int closestStepToMinHeight = Math2.ceilDiv((int) minElevation, stepInWorldElevation) * stepInWorldElevation;
             double delta = -worldToScreen.get().deltaTransform(0, (Math2.ceilDiv((int) minElevation, stepInWorldElevation) * stepInWorldElevation - minElevation)).getY();
-            System.out.println(delta);
             List<PathElement> elevationLines = new ArrayList<>();
             for (int i = 0; i < nbOfHoriLines; i++) {
                 double yCoordinateOfLine = rectangle.get().getHeight() - stepInScreenElevation * i - delta + TOP_PIXELS;
@@ -467,6 +461,17 @@ public final class ElevationProfileManager {
                     labels.add(label);
                 }
             }
+            /*Text unitPosition = new Text("km");
+            Text unitElevation = new Text("m");
+
+            unitPosition.relocate(rectangle.get().getWidth()+LEFT_PIXELS, rectangle.get().getHeight()+TOP_PIXELS);
+            unitPosition.setFont(new Font("Avenir", FONT_SIZE-1));
+            labels.add(unitPosition);
+            positionLines.addAll(elevationLines);
+            unitElevation.relocate(0, 0);
+            unitElevation.setFont(new Font("Avenir", FONT_SIZE-1));
+            labels.add(unitElevation);
+             */
             positionLines.addAll(elevationLines);
             texts.getChildren().setAll(labels);
             grid.getElements().setAll(positionLines);
