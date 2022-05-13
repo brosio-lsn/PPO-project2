@@ -28,7 +28,7 @@ public final class AnnotatedMapManager {
     private final RouteManager routeManager;
     private final ObjectProperty<MapViewParameters> mapViewParametersP;
     private final ObjectProperty<Point2D> mouseOnLastEvent;
-    private DoubleProperty positionAlongRoute;
+    private final DoubleProperty positionAlongRoute;
 
     public AnnotatedMapManager(Graph graph, TileManager tileManager, RouteBean routeBean, Consumer<String> consumer) {
         //todo ask for the mapViewParameters (mais je pense c bon)
@@ -69,11 +69,9 @@ public final class AnnotatedMapManager {
             mouseOnLastEvent.set(null);
         });
 
-        positionAlongRoute.bind(Bindings.createDoubleBinding(() -> {
-            //todo essayer sur map si route est null
-            //System.out.println(updatePositionAlongRoute());
-            return updatePositionAlongRoute();
-        }, mouseOnLastEvent, routeBean.route(), mapViewParametersP));
+        //todo essayer sur map si route est null
+        //System.out.println(updatePositionAlongRoute());
+        positionAlongRoute.bind(Bindings.createDoubleBinding(this::updatePositionAlongRoute, mouseOnLastEvent, routeBean.route(), mapViewParametersP));
 
     }
 
