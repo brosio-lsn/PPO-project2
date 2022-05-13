@@ -46,8 +46,8 @@ public final class ErrorManager {
         PauseTransition pauseTransition = new PauseTransition(PAUSE_DURATION);
 
         FadeTransition secondFadeTransition = new FadeTransition(SECOND_DURATION, pane);
-        firstFadeTransition.setFromValue(HIGH_OPACITY);
-        firstFadeTransition.setToValue(LOW_OPACITY);
+        secondFadeTransition.setFromValue(HIGH_OPACITY);
+        secondFadeTransition.setToValue(LOW_OPACITY);
 
         sequentialTransition = new SequentialTransition(firstFadeTransition, pauseTransition, secondFadeTransition);
 
