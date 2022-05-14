@@ -5,3 +5,6 @@ Etape 7:
 
 Etape 8 :
 -wayPointManager Q: relocate markers + nommage de constantes
+
+Etape 9 :
+-routemanager Q : compare vs equals
