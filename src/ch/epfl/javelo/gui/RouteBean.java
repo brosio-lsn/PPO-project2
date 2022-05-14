@@ -44,7 +44,7 @@ public final class RouteBean {
     /**
      * initial size of the bestRouteCache
      */
-    private final static int INITIAL_CAPACITY = 10;
+    private final static int INITIAL_CAPACITY = 30;
     /**
      * default load factor of any LinkedHashMap -> to be used in the constructor of bestRouteCache.
      */
@@ -92,6 +92,8 @@ public final class RouteBean {
                             return;
                         }
                         bestRouteCache.put(new Pair<>(nodeIdOfFirstWaypoint, nodeIdOfSecondWaypoint), bestRouteBetween);
+                        if (bestRouteCache.size() == INITIAL_CAPACITY) bestRouteCache.remove(bestRouteCache.keySet().iterator().next());
+
                     }
                     theRoutes.add(bestRouteCache.getOrDefault(new Pair<>(nodeIdOfFirstWaypoint, nodeIdOfSecondWaypoint),
                             bestRouteCache.get(new Pair<>(nodeIdOfSecondWaypoint, nodeIdOfFirstWaypoint))));
