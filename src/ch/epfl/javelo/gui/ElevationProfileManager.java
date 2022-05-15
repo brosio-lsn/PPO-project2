@@ -474,7 +474,7 @@ public final class ElevationProfileManager {
                     label.setFont(new Font("Avenir", FONT_SIZE));
                     //TODO nommage de constantes
                     //we substract by label.getlayoutBounds.getHeight() divided by two to recenter the text at the right height
-                    label.relocate(label.getLayoutBounds().getWidth() + OFFSET_ELEVATION_TEXT, yCoordinateOfLine - label.getLayoutBounds().getHeight() / 2);
+                    label.relocate(LEFT_PIXELS-label.getLayoutBounds().getWidth() - OFFSET_ELEVATION_TEXT, yCoordinateOfLine - label.getLayoutBounds().getHeight() / 2);
                     labels.add(label);
                 }
             }
