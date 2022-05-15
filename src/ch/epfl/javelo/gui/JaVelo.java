@@ -78,8 +78,6 @@ public final class JaVelo extends Application {
             //bean.highlightedPosition.bind(map.mousePositionOnRouteProperty());
         });
         window.getItems().add(map.pane());
-
-        window.getStylesheets().addAll("map.css", "error.css");
         StackPane scene = new StackPane(window, errorManager.pane(), bar);
         StackPane.setAlignment(bar, Pos.TOP_CENTER);
         primaryStage.setMinWidth(600);
