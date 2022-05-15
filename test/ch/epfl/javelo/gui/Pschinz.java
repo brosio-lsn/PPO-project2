@@ -30,7 +30,7 @@ public class Pschinz extends Application{
         Path cacheBasePath = Path.of(".");
         String tileServerHost = "tile.openstreetmap.org";
         TileManager tileManager =
-                new TileManager(cacheBasePath, tileServerHost);
+                new TileManager(cacheBasePath, tileServerHost, "");
 
         MapViewParameters mapViewParameters =
                 new MapViewParameters(12, 543200, 370650);

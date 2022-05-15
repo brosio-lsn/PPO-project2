@@ -28,14 +28,15 @@ public final class JaVelo extends Application {
         Path cacheBasePathJavelo = Path.of("osm-cache");
         String tileServerHostJavelo = "tile.openstreetmap.org";
         TileManager tileManager =
-                new TileManager(cacheBasePathJavelo, tileServerHostJavelo);
+                new TileManager(cacheBasePathJavelo, tileServerHostJavelo, "");
         CostFunction costFunction = new CityBikeCF(graphJavelo);
         RouteBean bean = new RouteBean(new RouteComputer(graphJavelo, costFunction));
         ErrorManager errorManager = new ErrorManager();
         AnnotatedMapManager map = new AnnotatedMapManager(graphJavelo, tileManager, bean, errorManager::displayError);
-        MenuItem option = new MenuItem("Exporter GFX");
-        Menu filesMenu = new Menu("Fichiers", null, option);
+        MenuItem exporterGFX = new MenuItem("Exporter GFX");
+        Menu filesMenu = new Menu("Fichiers", null, exporterGFX);
         MenuBar bar = new MenuBar(filesMenu);
+        bonusOptions(bar, tileManager);
         SplitPane window = new SplitPane();
         window.setOrientation(Orientation.VERTICAL);
         ObjectProperty<ElevationProfile> profileProperty=new SimpleObjectProperty<>();
@@ -51,15 +52,15 @@ public final class JaVelo extends Application {
                                 bean.highlightedPositionProperty());*/
                 profileProperty.set(profile);
                 SplitPane.setResizableWithParent(profileManager.pane(), false);
-                bar.setDisable(false);
-                option.setOnAction(event -> {
+                filesMenu.setDisable(false);
+                exporterGFX.setOnAction(event -> {
                     try {
                         GpxGenerator.writeGpx("javelo.gpx", bean.route().get(), profile);} catch (IOException e) {
                         throw new UncheckedIOException(e);
                     }
                 });
                 window.getItems().setAll(
-                        // map.pane(),
+                         map.pane(),
                         profileManager.pane()
                 );
                 System.out.println("vbbox " + profileManager.pane().getChildren());
@@ -72,7 +73,7 @@ public final class JaVelo extends Application {
             } else {
                 bean.highlightedPositionProperty().unbind();
                 window.getItems().setAll(map.pane());
-                bar.setDisable(true);
+                filesMenu.setDisable(true);
             }
             //bean.highlightedPosition.bind(map.mousePositionOnRouteProperty());
         });
@@ -86,5 +87,14 @@ public final class JaVelo extends Application {
         primaryStage.setTitle("JaVelo");
         primaryStage.setScene(new Scene(scene));
         primaryStage.show();
+    }
+
+    private void bonusOptions(MenuBar bar, TileManager tileManager) {
+        MenuItem cycleOSM = new MenuItem("Route adaptée aux vélos");
+        MenuItem defaultOSM = new MenuItem("Route par défaut");
+        Menu itineraryOptions = new Menu("Affichage de la carte", null, defaultOSM, cycleOSM);
+        cycleOSM.setOnAction(e -> tileManager.setNewServer("tile.thunderforest.com/cycle/", "?apikey=00364017c0f944099888ffa7a7e24159"));
+        defaultOSM.setOnAction(e -> tileManager.setNewServer("tile.openstreetmap.org", ""));
+        bar.getMenus().add(itineraryOptions);
     }
 }
