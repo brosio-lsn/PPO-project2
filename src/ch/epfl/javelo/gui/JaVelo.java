@@ -21,6 +21,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.Path;
 
 public final class JaVelo extends Application {
+    private AnnotatedMapManager map;
 
     @Override
     public void start(Stage primaryStage) throws IOException {
@@ -32,7 +33,7 @@ public final class JaVelo extends Application {
         CostFunction costFunction = new CityBikeCF(graphJavelo);
         RouteBean bean = new RouteBean(new RouteComputer(graphJavelo, costFunction));
         ErrorManager errorManager = new ErrorManager();
-        AnnotatedMapManager map = new AnnotatedMapManager(graphJavelo, tileManager, bean, errorManager::displayError);
+        map = new AnnotatedMapManager(graphJavelo, tileManager, bean, errorManager::displayError);
         MenuItem exporterGFX = new MenuItem("Exporter GFX");
         Menu filesMenu = new Menu("Fichiers", null, exporterGFX);
         MenuBar bar = new MenuBar(filesMenu);
@@ -45,11 +46,6 @@ public final class JaVelo extends Application {
             if(bean.route().get() != null) {
                 ElevationProfile profile = ElevationProfileComputer
                         .elevationProfile(bean.route().get(), 5);
-                /*ObjectProperty<ElevationProfile> profileProperty =
-                        new SimpleObjectProperty<>(profile);
-                ElevationProfileManager profileManager =
-                        new ElevationProfileManager(profileProperty,
-                                bean.highlightedPositionProperty());*/
                 profileProperty.set(profile);
                 SplitPane.setResizableWithParent(profileManager.pane(), false);
                 filesMenu.setDisable(false);
@@ -90,9 +86,18 @@ public final class JaVelo extends Application {
     private void bonusOptions(MenuBar bar, TileManager tileManager) {
         MenuItem cycleOSM = new MenuItem("Route adaptée aux vélos");
         MenuItem defaultOSM = new MenuItem("Route par défaut");
-        Menu itineraryOptions = new Menu("Affichage de la carte", null, defaultOSM, cycleOSM);
-        cycleOSM.setOnAction(e -> tileManager.setNewServer("tile.thunderforest.com/cycle/", "?apikey=00364017c0f944099888ffa7a7e24159"));
-        defaultOSM.setOnAction(e -> tileManager.setNewServer("tile.openstreetmap.org", ""));
+        MenuItem landscapeOSM = new MenuItem("Carte Paysage");
+        MenuItem realistOSM = new MenuItem("Carte réaliste");
+        MenuItem swissOSM = new MenuItem("Carte spéciale Suisse");
+        Menu itineraryOptions = new Menu("Affichage de la carte", null, defaultOSM, cycleOSM, landscapeOSM, realistOSM, swissOSM);
+        cycleOSM.setOnAction(e -> tileManager.setNewServer("tile.thunderforest.com/cycle", "?apikey=00364017c0f944099888ffa7a7e24159"));
+        defaultOSM.setOnAction(e -> {
+            tileManager.setNewServer("tile.openstreetmap.org", "");
+
+        });
+        landscapeOSM.setOnAction(e -> tileManager.setNewServer("tile.thunderforest.com/landscape", "?apikey=00364017c0f944099888ffa7a7e24159"));
+        realistOSM.setOnAction(e -> tileManager.setNewServer("tile.thunderforest.com/outdoors", "?apikey=00364017c0f944099888ffa7a7e24159"));
+        swissOSM.setOnAction(e -> tileManager.setNewServer("tile.osm.ch/osm-swiss-style/", ""));
         bar.getMenus().add(itineraryOptions);
     }
 }
