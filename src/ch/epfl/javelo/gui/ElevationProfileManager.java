@@ -260,7 +260,6 @@ public final class ElevationProfileManager {
                 new CornerRadii(2),
                 new Insets(0)
         )));
-        if(elevationProfile.get()!=null)stats.setText(stats());
         vbox.getChildren().add(stats);
         borderPane.setBottom(vbox);
         borderPane.setCenter(pane);
@@ -290,31 +289,26 @@ public final class ElevationProfileManager {
      */
 
     private void setEvents() {
-        elevationProfile.addListener((property, previousV, newV)-> {
-            //.out.println("lol");
-            createTransformations();
-        });
+        elevationProfile.addListener((property, previousV, newV)-> createTransformations());
+
         pane.setOnMouseMoved(event -> {
             if (screenToWorld.get() != null)
                 mousePositionOnProfileProperty.set(screenToWorld.get().transform(event.getX(), event.getY()).getX());
-            //System.out.println(line.visibleProperty().get());
-            //System.out.println(position.get());
-            //System.out.println(elevationProfile.get().length());
         });
+
         pane.setOnMouseExited(event -> mousePositionOnProfileProperty.set(MOUSE_NOT_IN_RECTANGLE));
-        pane.heightProperty().addListener((property, previousV, newV) -> {
-            widthAndHeightlistenerContent();
-        });
-        pane.widthProperty().addListener((property, previousV, newV) -> {
-            widthAndHeightlistenerContent();
-        });
+
+        pane.heightProperty().addListener((property, previousV, newV) -> widthAndHeightlistenerContent());
+
+        pane.widthProperty().addListener((property, previousV, newV) -> widthAndHeightlistenerContent());
+
         rectangle.addListener((property, previousV, newV) -> {
             stats.setText(stats());
             createTransformations();
         });
 
+        //todo besoin de mettre sur les deux tranfo ?  (car une est calculee comme l inverse de l autre)
         worldToScreen.addListener((property, previousV, newV) -> {
-            stats.setText(stats());
             drawPolygone();
             createGrid();
         });
@@ -350,7 +344,6 @@ public final class ElevationProfileManager {
      */
     private void createTransformations() {
         if(rectangle.get()!=null) {
-            //System.out.println("trnasfo");
             Affine affine = new Affine();
             affine.prependTranslation(0, -elevationProfile.get().maxElevation());
             affine.prependScale(rectangle.get().getWidth() / elevationProfile.get().length(),
@@ -370,8 +363,10 @@ public final class ElevationProfileManager {
      */
     private void setBindings() {
         bindingsDone = true;
-        line.layoutXProperty().bind(Bindings.createDoubleBinding(() -> worldToScreen.get().transform(position.doubleValue(), elevationProfile.get().elevationAt(position.doubleValue())).getX()
-                , position));
+        line.layoutXProperty().bind(Bindings.createDoubleBinding(() ->
+                        worldToScreen.get().transform(position.doubleValue(),
+                                elevationProfile.get().elevationAt(position.doubleValue())).getX(),
+                                    position));
         line.startYProperty().bind(Bindings.select(rectangle, "minY"));
         line.endYProperty().bind(Bindings.select(rectangle, "maxY"));
         line.visibleProperty().bind(Bindings.greaterThan(position, 0).and(Bindings.lessThan(position, elevationProfile.get().length())));
