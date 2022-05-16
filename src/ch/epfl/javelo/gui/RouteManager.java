@@ -3,6 +3,7 @@ package ch.epfl.javelo.gui;
 import ch.epfl.javelo.projection.PointCh;
 import ch.epfl.javelo.projection.PointWebMercator;
 import ch.epfl.javelo.routing.Route;
+import com.sun.jdi.PrimitiveValue;
 import com.sun.security.jgss.GSSUtil;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -17,18 +18,24 @@ import java.util.function.Consumer;
 // recontruite full la polyline si on chnage itineraire/zoom et sinon juste la déclaer
 //comment bouger la polyline (faut faire comme les waypoitns immobiles)
 
-/**
- * Manages the route.
- *
- * @author Louis ROCHE (345620)
- * @author Ambroise Aigueperse (341890)
- */
 
 public final class RouteManager {
+
     /**
-     * error message when there is already a waypoint
+     * error message
      */
-    private static final String THERE_IS_ALREADY_A_WAY_POINT_ERROR_MESSAGE = "Un point de passage est déjà présent à cet endroit !";
+    private static final String ERROR_MESSAGE = "Un point de passage est déjà présent à cet endroit !";
+
+    /**
+     * y center coordinate
+     */
+    private static final int Y_CENTER = 0;
+
+    /**
+     * x center coordinate
+     */
+    private static final int X_CENTER = 0;
+
     /**
      * bean containing the properties related to the route
      */
@@ -95,6 +102,7 @@ public final class RouteManager {
      * the circle and te polyline as its children
      */
     private void createPane() {
+        //todo demander si constantes pour ces strings
         polyline.setId("route");
         circle.setId("highlight");
         circle.setRadius(5);
@@ -111,13 +119,14 @@ public final class RouteManager {
     private void createPointsCoordinates() {
         Route route = routeBean.route().get();
         if(route!=null) {
-            polyline.setLayoutX(0);
-            polyline.setLayoutY(0);
+
+            polyline.setLayoutX(X_CENTER);
+            polyline.setLayoutY(Y_CENTER);
             Double[] arrayWithCoordinates = new Double[route.points().size() * 2];
             //didn't use a for i loop for more flexibility (in case the list implementation of list changed,
             //with the iterator the complexity wouldn't be increased)
             int i = 0;
-            for (PointCh pointCh : routeBean.route().get().points()) {
+            for (PointCh pointCh : route.points()) {
                 PointWebMercator pointWebMercator = PointWebMercator.ofPointCh(pointCh);
                 arrayWithCoordinates[i] = mapViewParameters.get().viewX(pointWebMercator);
                 ++i;
@@ -134,8 +143,9 @@ public final class RouteManager {
      * positions the circle based on the highlighted position on the route
      */
     private void positionCircle() {
-        //todo demander ce truc de compare (je voudrait equals maybe);
-        if(routeBean.route().get()!=null && Double.compare(routeBean.highlightedPosition(), Double.NaN)!=0) {
+        //todo qd ca emprutne la mm route dans 2 sens ca beugue mais normaö
+        //TODO demander cette histoire de compare
+        if(routeBean.route().get()!=null && Double.compare(routeBean.highlightedPosition(), Double.NaN)!= 0) {
             PointCh pointCh = routeBean.route().get().pointAt(routeBean.highlightedPosition());
             PointWebMercator pointWebMercator = PointWebMercator.ofPointCh(pointCh);
             circle.setLayoutX(mapViewParameters.get().viewX(pointWebMercator));
@@ -151,13 +161,14 @@ public final class RouteManager {
      * highlighted position on the route)
      */
     private void setEvents() {
+        //todo demander si moy d opti la methode
         circle.setOnMouseClicked(event -> {
             Point2D point2D = circle.localToParent(event.getX(), event.getY());
             int nodeId = routeBean.route().get().nodeClosestTo(routeBean.highlightedPosition());
             boolean alreadyAWayPoint = false;
             for (WayPoint wayPoint : routeBean.getWaypoints())
                 if (wayPoint.closestNodeId() == nodeId) {
-                    errorConsumer.accept(THERE_IS_ALREADY_A_WAY_POINT_ERROR_MESSAGE);
+                    errorConsumer.accept(ERROR_MESSAGE);
                     alreadyAWayPoint = true;
                     break;
                 }
@@ -183,8 +194,8 @@ public final class RouteManager {
         routeBean.highlightedPosition.addListener((property, previousV, newV) -> positionCircle());
 
         routeBean.route().addListener((property, previousV, newV) -> {
-                positionCircle();
-                createPointsCoordinates();
+            positionCircle();
+            createPointsCoordinates();
         });
     }
 
