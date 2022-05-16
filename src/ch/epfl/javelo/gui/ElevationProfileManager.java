@@ -215,6 +215,7 @@ public final class ElevationProfileManager {
     private void drawPolygone() {
         //the hard coded numbers that haven't been put in constants are so because constants wouldn't make sense here
         //(after discussion with the assistants)
+        //todo demander si ca pose probleme mon j et mon i
         int numberOfTopPoints = (int) rectangle.get().getWidth();
         Double[] points = new Double[(NUMBER_OF_BOTTOM_POINTS + numberOfTopPoints) * 2];
         if(numberOfTopPoints<2) return;
@@ -260,7 +261,6 @@ public final class ElevationProfileManager {
                 new CornerRadii(2),
                 new Insets(0)
         )));
-        if(elevationProfile.get()!=null)stats.setText(stats());
         vbox.getChildren().add(stats);
         borderPane.setBottom(vbox);
         borderPane.setCenter(pane);
@@ -281,7 +281,6 @@ public final class ElevationProfileManager {
                 elevationProfile.get().totalDescent(),
                 elevationProfile.get().minElevation(),
                 elevationProfile.get().maxElevation());
-        System.out.println(format1);
         return format1;
     }
 
@@ -290,16 +289,10 @@ public final class ElevationProfileManager {
      */
 
     private void setEvents() {
-        elevationProfile.addListener((property, previousV, newV)-> {
-            //.out.println("lol");
-            createTransformations();
-        });
+        elevationProfile.addListener((property, previousV, newV)-> createTransformations());
         pane.setOnMouseMoved(event -> {
             if (screenToWorld.get() != null)
                 mousePositionOnProfileProperty.set(screenToWorld.get().transform(event.getX(), event.getY()).getX());
-            //System.out.println(line.visibleProperty().get());
-            //System.out.println(position.get());
-            //System.out.println(elevationProfile.get().length());
         });
         pane.setOnMouseExited(event -> mousePositionOnProfileProperty.set(MOUSE_NOT_IN_RECTANGLE));
         pane.heightProperty().addListener((property, previousV, newV) -> {

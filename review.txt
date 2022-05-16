@@ -4,4 +4,8 @@ Etape 7:
 -wayPoint
 
 Etape 8 :
--wayPointManager Q: relocate markers + nommage de constantes
+-wayPointManager Q: relocate markers + nommage de constantes + demander si bien l idee d avoir une propriete qui garde valeur de la souris
+
+Etape 9 : RouteManager : voir les todo
+
+Etape 10 :

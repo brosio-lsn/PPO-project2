@@ -3,6 +3,7 @@ package ch.epfl.javelo.gui;
 import ch.epfl.javelo.projection.PointCh;
 import ch.epfl.javelo.projection.PointWebMercator;
 import ch.epfl.javelo.routing.Route;
+import com.sun.jdi.PrimitiveValue;
 import com.sun.security.jgss.GSSUtil;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -19,6 +20,22 @@ import java.util.function.Consumer;
 
 
 public final class RouteManager {
+
+    /**
+     * error message
+     */
+    private static final String ERROR_MESSAGE = "Un point de passage est déjà présent à cet endroit !";
+
+    /**
+     * y center coordinate
+     */
+    private static final int Y_CENTER = 0;
+
+    /**
+     * x center coordinate
+     */
+    private static final int X_CENTER = 0;
+
     /**
      * bean containing the properties related to the route
      */
@@ -85,13 +102,12 @@ public final class RouteManager {
      * the circle and te polyline as its children
      */
     private void createPane() {
-        pane = new Pane();
-        pane.setPickOnBounds(false);
+        //todo demander si constantes pour ces strings
         polyline.setId("route");
         circle.setId("highlight");
         circle.setRadius(5);
-        pane.getChildren().add(polyline);
-        pane.getChildren().add(circle);
+        pane = new Pane(polyline, circle);
+        pane.setPickOnBounds(false);
         createPointsCoordinates();
         positionCircle();
     }
@@ -103,16 +119,18 @@ public final class RouteManager {
     private void createPointsCoordinates() {
         Route route = routeBean.route().get();
         if(route!=null) {
-            polyline.setLayoutX(0);
-            polyline.setLayoutY(0);
-            Double[] arrayWithCoordinates = new Double[routeBean.route().get().points().size() * 2];
+
+            polyline.setLayoutX(X_CENTER);
+            polyline.setLayoutY(Y_CENTER);
+            Double[] arrayWithCoordinates = new Double[route.points().size() * 2];
             //didn't use a for i loop for more flexibility (in case the list implementation of list changed,
             //with the iterator the complexity wouldn't be increased)
             int i = 0;
-            for (PointCh pointCh : routeBean.route().get().points()) {
-                arrayWithCoordinates[i] = mapViewParameters.get().viewX(PointWebMercator.ofPointCh(pointCh));
+            for (PointCh pointCh : route.points()) {
+                PointWebMercator pointWebMercator = PointWebMercator.ofPointCh(pointCh);
+                arrayWithCoordinates[i] = mapViewParameters.get().viewX(pointWebMercator);
                 ++i;
-                arrayWithCoordinates[i] = mapViewParameters.get().viewY(PointWebMercator.ofPointCh(pointCh));
+                arrayWithCoordinates[i] = mapViewParameters.get().viewY(pointWebMercator);
                 ++i;
             }
             polyline.getPoints().setAll(arrayWithCoordinates);
@@ -126,14 +144,15 @@ public final class RouteManager {
      */
     private void positionCircle() {
         //todo qd ca emprutne la mm route dans 2 sens ca beugue mais normaö
-        if(routeBean.route().get()!=null && Double.compare(routeBean.highlightedPosition(), Double.NaN)!=0) {
+        //TODO demander cette histoire de compare
+        if(routeBean.route().get()!=null && Double.compare(routeBean.highlightedPosition(), Double.NaN)!= 0) {
             PointCh pointCh = routeBean.route().get().pointAt(routeBean.highlightedPosition());
-            circle.setLayoutX(mapViewParameters.get().viewX(PointWebMercator.ofPointCh(pointCh)));
-            circle.setLayoutY(mapViewParameters.get().viewY(PointWebMercator.ofPointCh(pointCh)));
+            PointWebMercator pointWebMercator = PointWebMercator.ofPointCh(pointCh);
+            circle.setLayoutX(mapViewParameters.get().viewX(pointWebMercator));
+            circle.setLayoutY(mapViewParameters.get().viewY(pointWebMercator));
             circle.setVisible(true);
         }
         else circle.setVisible(false);
-
     }
 
     /**
@@ -142,13 +161,14 @@ public final class RouteManager {
      * highlighted position on the route)
      */
     private void setEvents() {
+        //todo demander si moy d opti la methode
         circle.setOnMouseClicked(event -> {
             Point2D point2D = circle.localToParent(event.getX(), event.getY());
             int nodeId = routeBean.route().get().nodeClosestTo(routeBean.highlightedPosition());
             boolean alreadyAWayPoint = false;
             for (WayPoint wayPoint : routeBean.getWaypoints())
                 if (wayPoint.closestNodeId() == nodeId) {
-                    errorConsumer.accept("Un point de passage est déjà présent à cet endroit !");
+                    errorConsumer.accept(ERROR_MESSAGE);
                     alreadyAWayPoint = true;
                     break;
                 }
@@ -163,7 +183,6 @@ public final class RouteManager {
             if (previousV.zoomLevel() != newV.zoomLevel())
                 createPointsCoordinates();
             else {
-                //todo mieux de mettre def des attributs en dehors?
                 double deltaX = newV.topLeft().getX() - previousV.topLeft().getX();
                 double deltaY = newV.topLeft().getY() - previousV.topLeft().getY();
                 polyline.setLayoutX(polyline.getLayoutX() - deltaX);
