@@ -22,6 +22,7 @@ import java.util.function.Consumer;
  */
 public final class AnnotatedMapManager {
     private static final double MouseNotCloseToRoute = Double.NaN;
+    private static final int MAXIMAL_PIXEL_DISTANCE_FOR_MOUSE = 15;
     private static final int INITIAL_ZOOM_LEVEL = 12;
     private static final int INITIAL_X = 543200;
     private static final int INITIAL_Y = 370650;
@@ -96,8 +97,6 @@ public final class AnnotatedMapManager {
             mouseOnLastEvent.set(null);
         });
 
-        //todo essayer sur map si route est null
-        //System.out.println(updatePositionAlongRoute());
         positionAlongRoute.bind(Bindings.createDoubleBinding(this::updatePositionAlongRoute, mouseOnLastEvent, routeBean.route(), mapViewParametersP));
 
     }
@@ -106,11 +105,11 @@ public final class AnnotatedMapManager {
         if(mapViewParametersP.get()==null || routeBean.route().get()==null || mouseOnLastEvent.get()==null)return MouseNotCloseToRoute;
         PointWebMercator pointWebMercator = mapViewParametersP.get().pointAt(mouseOnLastEvent.get().getX(), mouseOnLastEvent.get().getY());
         RoutePoint pointOnRoute = routeBean.route().get().pointClosestTo(pointWebMercator.toPointCh());
-        double uX=mouseOnLastEvent.get().getX()-mapViewParametersP.get().viewX(PointWebMercator.ofPointCh(pointOnRoute.point()));
-        double uY=mouseOnLastEvent.get().getY()-mapViewParametersP.get().viewY(PointWebMercator.ofPointCh(pointOnRoute.point()));
+        PointWebMercator pointWebMercatorOfPointCh = PointWebMercator.ofPointCh(pointOnRoute.point());
+        double uX=mouseOnLastEvent.get().getX()-mapViewParametersP.get().viewX(pointWebMercatorOfPointCh);
+        double uY=mouseOnLastEvent.get().getY()-mapViewParametersP.get().viewY(pointWebMercatorOfPointCh);
         double distanceInPixels = Math2.norm(uX, uY);
-        if(distanceInPixels<15){
-            //System.out.println(distanceInPixels);
+        if(distanceInPixels< MAXIMAL_PIXEL_DISTANCE_FOR_MOUSE){
             return pointOnRoute.position();}
         else return MouseNotCloseToRoute;
     }

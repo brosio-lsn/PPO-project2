@@ -10,3 +10,5 @@ Etape 9 :
 -routemanager Q : compare vs equals
 
 Etape 10 :  voir todo sur profileManager
+
+Etape 11 : voir Q sur annotatedMapManager
