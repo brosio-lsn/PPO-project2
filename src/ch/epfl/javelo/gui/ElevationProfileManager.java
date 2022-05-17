@@ -370,8 +370,8 @@ public final class ElevationProfileManager {
         line.startYProperty().bind(Bindings.select(rectangle, "minY"));
         line.endYProperty().bind(Bindings.select(rectangle, "maxY"));
         line.visibleProperty().bind(Bindings.greaterThan(position, 0).and(Bindings.lessThan(position, elevationProfile.get().length())));
+        //todo peux ameliorer ca?
         line.visibleProperty().bind(Bindings.greaterThan(position, 0).and(Bindings.createBooleanBinding(() -> {
-            //todo essayer sur map si route est null
             //System.out.println(updatePositionAlongRoute());
             return position.get()<=elevationProfile.get().length();
         }, position)));

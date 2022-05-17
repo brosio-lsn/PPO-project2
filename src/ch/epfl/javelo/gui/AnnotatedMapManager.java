@@ -13,7 +13,6 @@ import javafx.geometry.Point2D;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 
-import java.awt.*;
 import java.util.function.Consumer;
 /**
  * @author Louis ROCHE (345620)
@@ -23,6 +22,9 @@ import java.util.function.Consumer;
  */
 public final class AnnotatedMapManager {
     private static final double MouseNotCloseToRoute = Double.NaN;
+    private static final int INITIAL_ZOOM_LEVEL = 12;
+    private static final int INITIAL_X = 543200;
+    private static final int INITIAL_Y = 370650;
     private final Graph graph;
     private final TileManager tileManager;
     private final RouteBean routeBean;
@@ -49,8 +51,7 @@ public final class AnnotatedMapManager {
         this.routeBean = routeBean;
         this.consumer = consumer;
         mouseOnLastEvent=new SimpleObjectProperty<>();
-        //TODO nommage de constantes
-        MapViewParameters mapViewParameters = new MapViewParameters(12, 543200, 370650);
+        MapViewParameters mapViewParameters = new MapViewParameters(INITIAL_ZOOM_LEVEL, INITIAL_X, INITIAL_Y);
         mapViewParametersP = new SimpleObjectProperty<>(mapViewParameters);
         waypointsManager = new WaypointsManager(graph, mapViewParametersP,routeBean.getWaypoints(), consumer);
         baseMapManager = new BaseMapManager(tileManager, waypointsManager, mapViewParametersP);

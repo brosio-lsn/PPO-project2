@@ -8,3 +8,5 @@ Etape 8 :
 
 Etape 9 :
 -routemanager Q : compare vs equals
+
+Etape 10 :  voir todo sur profileManager
