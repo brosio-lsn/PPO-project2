@@ -44,6 +44,7 @@ public final class ElevationProfileManager {
      * number of bottom points of the polygon
      */
     private static final int NUMBER_OF_BOTTOM_POINTS = 2;
+    private static final String FONT_NAME = "Avenir";
     /**
      * elevation profile this is supposed to display
      */
@@ -264,9 +265,9 @@ public final class ElevationProfileManager {
         profile.getPoints().setAll(points);
         profile.setFill(linearGradient);
         //profile.setFill(linearGradient);
-        System.out.println("called");
+        /*System.out.println("called");
         System.out.println(linearGradient);
-        System.out.println(profile.getFill());
+        System.out.println(profile.getFill());*/
         //System.out.println(profile.getFill());
     }
 
@@ -286,6 +287,7 @@ public final class ElevationProfileManager {
         else if(slope<9) return Color.RED;
         else if(slope<13) return Color.DARKRED;
         else return Color.BLACK;*/
+        //todo cst pr ca?
         return new Color(Math2.clamp(0,slope*20,255)/255, 0.65*(1-Math2.clamp(0,Math.abs(slope)*20,200)/255), 1,1);
     }
     /**
@@ -333,6 +335,7 @@ public final class ElevationProfileManager {
         pane.setOnMouseMoved(event -> {
             if (screenToWorld.get() != null)
                 mousePositionOnProfileProperty.set(screenToWorld.get().transform(event.getX(), event.getY()).getX());
+            else mousePositionOnProfileProperty.set(MOUSE_NOT_IN_RECTANGLE);
         });
         pane.setOnMouseExited(event -> mousePositionOnProfileProperty.set(MOUSE_NOT_IN_RECTANGLE));
         pane.heightProperty().addListener((property, previousV, newV) -> {
@@ -352,10 +355,12 @@ public final class ElevationProfileManager {
             createGrid();
         });
 
-        screenToWorld.addListener((property, previousV, newV) -> {
-            //drawPolygone();
+        //volontirely removed because a change in worldToScreen automatically implies a change in worldToScreen
+        /*screenToWorld.addListener((property, previousV, newV) -> {
+            stats.setText(stats());
+            drawPolygone();
             createGrid();
-        });
+        });*/
 
 
 
@@ -474,7 +479,7 @@ public final class ElevationProfileManager {
                 label.textOriginProperty().set(VPos.TOP);
                 label.relocate(LEFT_PIXELS + stepInScreenPosition * i - label.getLayoutBounds().getWidth()/2, rectangle.get().getHeight() + TOP_PIXELS);
                 label.prefWidth(0);
-                label.setFont(new Font("Avenir", FONT_SIZE));
+                label.setFont(new Font(FONT_NAME, FONT_SIZE));
                 labels.add(label);
             }
             int nbOfHoriLines = 0;

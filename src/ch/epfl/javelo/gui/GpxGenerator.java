@@ -4,7 +4,6 @@ import ch.epfl.javelo.projection.PointCh;
 import ch.epfl.javelo.routing.Edge;
 import ch.epfl.javelo.routing.ElevationProfile;
 import ch.epfl.javelo.routing.Route;
-import javafx.scene.shape.Path;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -17,7 +16,6 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Iterator;
 
@@ -45,6 +43,7 @@ public final class GpxGenerator {
      * @param profile the profile of the Route
      * @return the GPX document corresponding to the given Route and its elevationProfile
      */
+    //todo demander si mettre des constantes pour les strings
     public static Document createGpx(Route route, ElevationProfile profile) {
         //given part
         Document doc = newDocument();
