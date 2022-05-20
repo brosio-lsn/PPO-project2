@@ -245,7 +245,7 @@ public final class ElevationProfileManager {
         List<Stop> list=new ArrayList<>();
         int numberOfSamples=50;
         double sampleLength=elevationProfile.get().length()/numberOfSamples;
-        for (int i = 0; i < numberOfSamples; ++i) {
+        for (int i = 0; i < numberOfSamples-1; ++i) {
             double positionOnProfile = sampleLength * (i);
             double averageSlope = elevationProfile.get().slope(positionOnProfile, sampleLength);
             list.add(new Stop((float)positionOnProfile/elevationProfile.get().length(), choseColor(averageSlope)));
@@ -288,7 +288,7 @@ public final class ElevationProfileManager {
         else if(slope<13) return Color.DARKRED;
         else return Color.BLACK;*/
         //todo cst pr ca?
-        return new Color(Math2.clamp(0,slope*20,255)/255, 0.65*(1-Math2.clamp(0,Math.abs(slope)*20,200)/255), 1,1);
+        return new Color(Math2.clamp(0,slope*20,255)/255, 0.65*(1-Math2.clamp(0,Math.abs(slope)*5,200)/255), 0.1,1);
     }
     /**
      * adds all the children to the different parents to create the javaFx tree structure
