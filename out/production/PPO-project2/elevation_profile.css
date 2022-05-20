@@ -17,7 +17,6 @@
 }
 
 #profile {
-    -fx-fill: hsb(0, 100%, 100%, 0.5);
     -fx-stroke: hsb(0, 0%, 0%, 0.2);
     -fx-stroke-width: 2;
 }
