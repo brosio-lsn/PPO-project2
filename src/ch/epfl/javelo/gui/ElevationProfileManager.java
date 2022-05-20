@@ -145,6 +145,8 @@ public final class ElevationProfileManager {
      */
     private static final int[] POS_STEPS =
             {1000, 2000, 5000, 10_000, 25_000, 50_000, 100_000};
+    private static final int
+            NUMBER_OF_COLOR_SAMPLES_TO_PUT_ON_POLYGONE = 500;
     /**
      * The different elevation steps one can use.
      */
@@ -243,7 +245,7 @@ public final class ElevationProfileManager {
 
 
         List<Stop> list=new ArrayList<>();
-        int numberOfSamples=50;
+        int numberOfSamples= NUMBER_OF_COLOR_SAMPLES_TO_PUT_ON_POLYGONE;
         double sampleLength=elevationProfile.get().length()/numberOfSamples;
         for (int i = 0; i < numberOfSamples-1; ++i) {
             double positionOnProfile = sampleLength * (i);
@@ -288,7 +290,7 @@ public final class ElevationProfileManager {
         else if(slope<13) return Color.DARKRED;
         else return Color.BLACK;*/
         //todo cst pr ca?
-        return new Color(Math2.clamp(0,slope*20,255)/255, 0.65*(1-Math2.clamp(0,Math.abs(slope)*5,200)/255), 0.1,1);
+        return  new Color(Math2.clamp(0,slope*20,255)/255, 0.65*(1-Math2.clamp(0,Math.abs(slope)*20,200)/255), 1,1);
     }
     /**
      * adds all the children to the different parents to create the javaFx tree structure
