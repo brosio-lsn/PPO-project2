@@ -21,7 +21,7 @@ import java.util.function.Consumer;
  * handels the display of the annotated map
  */
 public final class AnnotatedMapManager {
-    private static final double MouseNotCloseToRoute = Double.NaN;
+    private static final double MOUSE_NOT_CLOSE_TO_ROUTE = Double.NaN;
     private static final int MAXIMAL_PIXEL_DISTANCE_FOR_MOUSE = 15;
     private static final int INITIAL_ZOOM_LEVEL = 12;
     private static final int INITIAL_X = 543200;
@@ -46,7 +46,6 @@ public final class AnnotatedMapManager {
      * @param consumer a consumer to display errors
      */
     public AnnotatedMapManager(Graph graph, TileManager tileManager, RouteBean routeBean, Consumer<String> consumer) {
-        //todo ask for the mapViewParameters (mais je pense c bon)
         this.graph = graph;
         this.tileManager = tileManager;
         this.routeBean = routeBean;
@@ -94,8 +93,7 @@ public final class AnnotatedMapManager {
     }
 
     private double updatePositionAlongRoute(){
-        //todo verifier ca
-        if(mapViewParametersP.get()==null || routeBean.route().get()==null || mouseOnLastEvent.get()==null)return MouseNotCloseToRoute;
+        if(mapViewParametersP.get()==null || routeBean.route().get()==null || mouseOnLastEvent.get()==null)return MOUSE_NOT_CLOSE_TO_ROUTE;
         PointWebMercator pointWebMercator = mapViewParametersP.get().pointAt(mouseOnLastEvent.get().getX(), mouseOnLastEvent.get().getY());
         RoutePoint pointOnRoute = routeBean.route().get().pointClosestTo(pointWebMercator.toPointCh());
         PointWebMercator pointWebMercatorOfPointCh = PointWebMercator.ofPointCh(pointOnRoute.point());
@@ -104,7 +102,7 @@ public final class AnnotatedMapManager {
         double distanceInPixels = Math2.norm(uX, uY);
         if(distanceInPixels< MAXIMAL_PIXEL_DISTANCE_FOR_MOUSE){
             return pointOnRoute.position();}
-        else return MouseNotCloseToRoute;
+        else return MOUSE_NOT_CLOSE_TO_ROUTE;
     }
 
 }

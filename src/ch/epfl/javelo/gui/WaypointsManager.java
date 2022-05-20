@@ -61,11 +61,6 @@ public final class WaypointsManager {
     private final static int SEARCH_DISTANCE_NODE_CLOSEST_TO_1 = 1000;
 
     /**
-     * the current wayPoint that is being dragged
-     */
-    private WayPoint draggedWayPoint;
-
-    /**
      * pre-drag x coordinate of the marker that is being dragged
      */
     private double xBeforeDrag;
@@ -203,14 +198,15 @@ public final class WaypointsManager {
         group.setOnMouseClicked(event->{
             if (event.isStillSincePress())observableList.remove(wayPoint);
         });
+        ObjectProperty<WayPoint> draggedWayPoint = new SimpleObjectProperty<>();
         //todo cahnge draggedWayPoint to local varaible
         group.setOnMousePressed(event-> {
             xBeforeDrag=group.getLayoutX();
             yBeforeDrag=group.getLayoutY();
-            draggedWayPoint=wayPoint;
+            draggedWayPoint.set(wayPoint);
             mouseOnLastEvent.set(new Point2D(event.getX(), event.getY()));
         });
-        //todo demander si le truc des mouse ca va
+        //todo demander si le truc des mouse ca va(oui)
         group.setOnMouseDragged(event-> {
             double deltaX = event.getX() - mouseOnLastEvent.get().getX();
             double deltaY = event.getY() - mouseOnLastEvent.get().getY();
@@ -229,8 +225,8 @@ public final class WaypointsManager {
                     group.setLayoutY(yBeforeDrag);
                     errorConsumer.accept(ERROR_MESSAGE);
                 }
-                //todo ca
-                else observableList.set(observableList.indexOf(draggedWayPoint), new WayPoint(pointCh, nodeId));
+                //todo ca (done)
+                else observableList.set(observableList.indexOf(draggedWayPoint.get()), new WayPoint(pointCh, nodeId));
             }
         });
         return group;

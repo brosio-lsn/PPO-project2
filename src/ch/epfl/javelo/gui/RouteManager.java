@@ -157,16 +157,11 @@ public final class RouteManager {
      * highlighted position on the route)
      */
     private void setEvents() {
-        //todo demander si moy d opti la methode
+        //todo demander si moy d opti la methode (done)
         circle.setOnMouseClicked(event -> {
             Point2D point2D = circle.localToParent(event.getX(), event.getY());
             int nodeId = routeBean.route().get().nodeClosestTo(routeBean.highlightedPosition());
-            //remove this after stage 11 fix
-            /*for (WayPoint wayPoint : routeBean.getWaypoints())
-                if (wayPoint.closestNodeId() == nodeId) {
-                    errorConsumer.accept(ERROR_MESSAGE);
-                    return;
-                }*/
+
             PointWebMercator pointWebMercator = mapViewParameters.get().pointAt(point2D.getX(), point2D.getY());
             int indexOfSegmentAtHightlightedPosition = routeBean.indexOfNonEmptySegmentAt(routeBean.highlightedPosition());
             routeBean.getWaypoints().add(indexOfSegmentAtHightlightedPosition + 1, new WayPoint(pointWebMercator.toPointCh(), nodeId));
