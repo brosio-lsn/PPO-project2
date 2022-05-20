@@ -118,8 +118,7 @@ public final class RouteManager {
      */
     private void createPointsCoordinates() {
         Route route = routeBean.route().get();
-        if(route!=null) {
-
+        if (route != null) {
             polyline.setLayoutX(X_CENTER);
             polyline.setLayoutY(Y_CENTER);
             Double[] arrayWithCoordinates = new Double[route.points().size() * 2];
@@ -135,8 +134,7 @@ public final class RouteManager {
             }
             polyline.getPoints().setAll(arrayWithCoordinates);
             polyline.setVisible(true);
-        }
-        else polyline.setVisible(false);
+        } else polyline.setVisible(false);
     }
 
     /**
@@ -145,14 +143,13 @@ public final class RouteManager {
     private void positionCircle() {
         //todo qd ca emprutne la mm route dans 2 sens ca beugue mais normaö
         //TODO demander cette histoire de compare
-        if(routeBean.route().get()!=null && Double.compare(routeBean.highlightedPosition(), Double.NaN)!= 0) {
+        if (routeBean.route().get() != null && !Double.isNaN(routeBean.highlightedPosition())) {
             PointCh pointCh = routeBean.route().get().pointAt(routeBean.highlightedPosition());
             PointWebMercator pointWebMercator = PointWebMercator.ofPointCh(pointCh);
             circle.setLayoutX(mapViewParameters.get().viewX(pointWebMercator));
             circle.setLayoutY(mapViewParameters.get().viewY(pointWebMercator));
             circle.setVisible(true);
-        }
-        else circle.setVisible(false);
+        } else circle.setVisible(false);
     }
 
     /**
@@ -165,18 +162,15 @@ public final class RouteManager {
         circle.setOnMouseClicked(event -> {
             Point2D point2D = circle.localToParent(event.getX(), event.getY());
             int nodeId = routeBean.route().get().nodeClosestTo(routeBean.highlightedPosition());
-            boolean alreadyAWayPoint = false;
-            for (WayPoint wayPoint : routeBean.getWaypoints())
+            //remove this after stage 11 fix
+            /*for (WayPoint wayPoint : routeBean.getWaypoints())
                 if (wayPoint.closestNodeId() == nodeId) {
                     errorConsumer.accept(ERROR_MESSAGE);
-                    alreadyAWayPoint = true;
-                    break;
-                }
-            if (!alreadyAWayPoint) {
-                PointWebMercator pointWebMercator = mapViewParameters.get().pointAt(point2D.getX(), point2D.getY());
-                int indexOfSegmentAtHightlightedPosition = routeBean.indexOfNonEmptySegmentAt(routeBean.highlightedPosition());
-                routeBean.getWaypoints().add(indexOfSegmentAtHightlightedPosition+1, new WayPoint(pointWebMercator.toPointCh(), nodeId));
-            }
+                    return;
+                }*/
+            PointWebMercator pointWebMercator = mapViewParameters.get().pointAt(point2D.getX(), point2D.getY());
+            int indexOfSegmentAtHightlightedPosition = routeBean.indexOfNonEmptySegmentAt(routeBean.highlightedPosition());
+            routeBean.getWaypoints().add(indexOfSegmentAtHightlightedPosition + 1, new WayPoint(pointWebMercator.toPointCh(), nodeId));
         });
 
         mapViewParameters.addListener((property, previousV, newV) -> {
