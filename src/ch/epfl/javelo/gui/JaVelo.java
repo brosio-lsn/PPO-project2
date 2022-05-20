@@ -59,7 +59,7 @@ public final class JaVelo extends Application {
                     }
                 });
                 window.getItems().setAll(
-                        // map.pane(),
+                        map.pane(),
                         profileManager.pane()
                 );
                 System.out.println("vbbox " + profileManager.pane().getChildren());

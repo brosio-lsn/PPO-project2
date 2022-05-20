@@ -35,6 +35,7 @@ public final class RouteManager {
      * x center coordinate
      */
     private static final int X_CENTER = 0;
+    private static final int CIRCLE_RADIUS = 5;
 
     /**
      * bean containing the properties related to the route
@@ -105,7 +106,7 @@ public final class RouteManager {
         //todo demander si constantes pour ces strings
         polyline.setId("route");
         circle.setId("highlight");
-        circle.setRadius(5);
+        circle.setRadius(CIRCLE_RADIUS);
         pane = new Pane(polyline, circle);
         pane.setPickOnBounds(false);
         createPointsCoordinates();
@@ -141,8 +142,6 @@ public final class RouteManager {
      * positions the circle based on the highlighted position on the route
      */
     private void positionCircle() {
-        //todo qd ca emprutne la mm route dans 2 sens ca beugue mais normaö
-        //TODO demander cette histoire de compare
         if (routeBean.route().get() != null && !Double.isNaN(routeBean.highlightedPosition())) {
             PointCh pointCh = routeBean.route().get().pointAt(routeBean.highlightedPosition());
             PointWebMercator pointWebMercator = PointWebMercator.ofPointCh(pointCh);

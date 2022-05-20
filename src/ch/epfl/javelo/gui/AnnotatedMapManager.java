@@ -58,8 +58,8 @@ public final class AnnotatedMapManager {
         baseMapManager = new BaseMapManager(tileManager, waypointsManager, mapViewParametersP);
         routeManager = new RouteManager(routeBean,mapViewParametersP , consumer);
         positionAlongRoute = new SimpleDoubleProperty();
-        pane = new StackPane();
-        createPane();
+        pane = new StackPane(baseMapManager.pane(), routeManager.pane(), waypointsManager.pane());
+        pane.getStylesheets().add("map.css");
         setEvents();
     }
 
@@ -75,14 +75,6 @@ public final class AnnotatedMapManager {
      */
     public DoubleProperty mousePositionOnRouteProperty(){
         return positionAlongRoute;
-    }
-
-    /**
-     * creates the pane of the annotated map
-     */
-    private void createPane(){
-        pane.getStylesheets().add("map.css");
-        pane.getChildren().addAll(baseMapManager.pane(), routeManager.pane(), waypointsManager.pane());
     }
 
     /**
@@ -102,6 +94,7 @@ public final class AnnotatedMapManager {
     }
 
     private double updatePositionAlongRoute(){
+        //todo verifier ca
         if(mapViewParametersP.get()==null || routeBean.route().get()==null || mouseOnLastEvent.get()==null)return MouseNotCloseToRoute;
         PointWebMercator pointWebMercator = mapViewParametersP.get().pointAt(mouseOnLastEvent.get().getX(), mouseOnLastEvent.get().getY());
         RoutePoint pointOnRoute = routeBean.route().get().pointClosestTo(pointWebMercator.toPointCh());
