@@ -12,8 +12,10 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
 import javafx.scene.control.Button;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.shape.Rectangle;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,6 +40,7 @@ public final class AnnotatedMapManager {
     private final ObjectProperty<MapViewParameters> mapViewParametersP;
     private final ObjectProperty<Point2D> mouseOnLastEvent;
     private final DoubleProperty positionAlongRoute;
+    private final GridPane statsPane;
 
     /**
      * constructor of the class
@@ -61,6 +64,7 @@ public final class AnnotatedMapManager {
         routeManager = new RouteManager(routeBean,mapViewParametersP , consumer);
         positionAlongRoute = new SimpleDoubleProperty();
         pane = new StackPane();
+        this.statsPane = new StatsPane(routeBean, consumer).pane();
         createPane();
         setEvents();
         createButtons();
@@ -91,7 +95,8 @@ public final class AnnotatedMapManager {
     private void createButtons(){
         Button removeAllBtn = new Button("remove all waypoints");
         Button reverseRoute = new Button("reverse route");
-        Pane buttonPane = new Pane(removeAllBtn,reverseRoute);
+        Button ecoStat = new Button("display eco-stats");
+        Pane buttonPane = new Pane(removeAllBtn,reverseRoute, ecoStat);
         buttonPane.setPickOnBounds(false);
         pane.getChildren().add(buttonPane);
 
@@ -104,11 +109,24 @@ public final class AnnotatedMapManager {
             routeBean.getWaypoints().setAll(reverseW);
         });
         reverseRoute.visibleProperty().bind(Bindings.createBooleanBinding(() ->routeBean.route().get()!=null, routeBean.route()));
+        ecoStat.visibleProperty().bind(Bindings.createBooleanBinding(() ->routeBean.route().get()!=null, routeBean.route()));
+        ecoStat.setOnAction(event -> {
+            if(pane.getChildren().contains(statsPane)){
+                pane.getChildren().remove(statsPane);
+                ecoStat.textProperty().set("display eco-stats");
+            }
+            else {
+                pane.getChildren().add(pane.getChildren().size()-1, statsPane);
+                ecoStat.textProperty().set("hide eco-stats");
+            }
+        });
 
         removeAllBtn.setLayoutX(0);
         removeAllBtn.setLayoutY(25);
+        ecoStat.setLayoutX(0);
+        ecoStat.setLayoutY(50);
         reverseRoute.setLayoutX(0);
-        reverseRoute.setLayoutY(50);
+        reverseRoute.setLayoutY(75);
     }
 
 
@@ -125,7 +143,6 @@ public final class AnnotatedMapManager {
         });
 
         positionAlongRoute.bind(Bindings.createDoubleBinding(this::updatePositionAlongRoute, mouseOnLastEvent, routeBean.route(), mapViewParametersP));
-
     }
 
     private double updatePositionAlongRoute(){
