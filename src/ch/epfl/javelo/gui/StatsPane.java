@@ -57,25 +57,29 @@ public class StatsPane {
         return grid;
     }
 
-    private void createListeners(){
+    private void createListeners() {
         calculate.setOnAction(event -> {
             //calValue.textProperty().set(String.valueOf("lol"));
             String TxtConsoF = consoF.textProperty().get();
             Double inDouble;
-            try{
+            try {
                 inDouble = Double.parseDouble(TxtConsoF);
-            }catch(NumberFormatException e){
+            } catch (NumberFormatException e) {
                 consumer.accept("Give a valid fuel consumption!!");
                 return;
             }
-            String selectedFuelType = (String)fuelChoiceBox.getSelectionModel().getSelectedItem();
-            if(selectedFuelType==null){
+            String selectedFuelType = (String) fuelChoiceBox.getSelectionModel().getSelectedItem();
+            if (selectedFuelType == null) {
                 consumer.accept("Give a valid fuel consumption!!");
                 return;
             }
             double factor = selectedFuelType.equals("diesel") ? DIESEL_CO2_GRAMS_PER_LITER : GASOLINE_CO2_GRAMS_PER_LITER;
             calValue.textProperty().set(String.format("%.1f kilogrammes of CO2 not produced",
-                    inDouble*factor*routeBean.route().get().length()/ (UNIT_TO_THOUSAND*UNIT_TO_THOUSAND)));
+                    inDouble * factor * routeBean.route().get().length() / (UNIT_TO_THOUSAND * UNIT_TO_THOUSAND)));
+        });
+
+        routeBean.route().addListener((property, prev, newV) -> {
+            calValue.textProperty().set(null);
         });
     }
 
