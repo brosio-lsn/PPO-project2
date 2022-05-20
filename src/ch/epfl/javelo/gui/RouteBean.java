@@ -84,8 +84,8 @@ public final class RouteBean {
                 int nodeIdOfFirstWaypoint = waypoints.get(i).closestNodeId();
                 int nodeIdOfSecondWaypoint = waypoints.get(i + 1).closestNodeId();
                 if (!(nodeIdOfFirstWaypoint == nodeIdOfSecondWaypoint)) {
-                    if (!(bestRouteCache.containsKey(new Pair<>(nodeIdOfFirstWaypoint, nodeIdOfSecondWaypoint))
-                            || bestRouteCache.containsKey(new Pair<>(nodeIdOfSecondWaypoint, nodeIdOfFirstWaypoint)))) {
+                    //todo ask for this
+                    if (!(bestRouteCache.containsKey(new Pair<>(nodeIdOfFirstWaypoint, nodeIdOfSecondWaypoint)))) {
                         Route bestRouteBetween = routeComputer.bestRouteBetween(nodeIdOfFirstWaypoint, nodeIdOfSecondWaypoint);
                         if (bestRouteBetween == null) {
                             nullifyProperties();

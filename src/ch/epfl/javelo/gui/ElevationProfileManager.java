@@ -8,6 +8,9 @@ import javafx.geometry.*;
 import javafx.scene.Group;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.CycleMethod;
+import javafx.scene.paint.LinearGradient;
+import javafx.scene.paint.Stop;
 import javafx.scene.shape.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
@@ -220,6 +223,7 @@ public final class ElevationProfileManager {
         Double[] points = new Double[(NUMBER_OF_BOTTOM_POINTS + numberOfTopPoints) * 2];
         if(numberOfTopPoints<2) return;
         double stepLength = elevationProfile.get().length() / (numberOfTopPoints - 1);
+        //List<Stop> list=new ArrayList<>();
         int j = 0;
         for (int i = 0; i < numberOfTopPoints; ++i) {
             double positionOnProfile = stepLength * (i);
@@ -229,13 +233,41 @@ public final class ElevationProfileManager {
             ++j;
             points[j] = pointToAdd.getY();
             ++j;
+            //list.add(new Stop((float)positionOnProfile/elevationProfile.get().length(), choseColor(elevationProfile.get().slope(positionOnProfile))));
         }
         points[points.length - 4] = insets.getLeft() + rectangle.get().getWidth();
         points[points.length - 3] = insets.getTop() + rectangle.get().getHeight();
         points[points.length - 2] = insets.getLeft();
         points[points.length - 1] = insets.getTop() + rectangle.get().getHeight();
 
+
+        List<Stop> list=new ArrayList<>();
+        int numberOfSamples=50;
+        double sampleLength=elevationProfile.get().length()/numberOfSamples;
+        for (int i = 0; i < numberOfSamples; ++i) {
+            double positionOnProfile = sampleLength * (i);
+            double averageSlope = elevationProfile.get().slope(positionOnProfile, sampleLength);
+            list.add(new Stop((float)positionOnProfile/elevationProfile.get().length(), choseColor(averageSlope)));
+        }
+
+        LinearGradient linearGradient = new LinearGradient(.0f,
+                .0f,
+                1f,
+                0f,
+                true,
+                CycleMethod.NO_CYCLE,
+                list
+        );
+        //System.out.println(linearGradient);
+        //System.out.println("filled");
+
         profile.getPoints().setAll(points);
+        profile.setFill(linearGradient);
+        //profile.setFill(linearGradient);
+        System.out.println("called");
+        System.out.println(linearGradient);
+        System.out.println(profile.getFill());
+        //System.out.println(profile.getFill());
     }
 
     /**
@@ -247,7 +279,15 @@ public final class ElevationProfileManager {
         grid.setId("grid");
         profile.setId("profile");
     }
-
+    private Color choseColor(double slope){
+        /*if(slope<0) return Color.LIGHTGREEN;
+        else if(slope<2) return Color.YELLOW;
+        else if(slope<6) return Color.ORANGE;
+        else if(slope<9) return Color.RED;
+        else if(slope<13) return Color.DARKRED;
+        else return Color.BLACK;*/
+        return new Color(Math2.clamp(0,slope*20,255)/255, 0.65*(1-Math2.clamp(0,Math.abs(slope)*20,200)/255), 1,1);
+    }
     /**
      * adds all the children to the different parents to create the javaFx tree structure
      */
@@ -313,9 +353,11 @@ public final class ElevationProfileManager {
         });
 
         screenToWorld.addListener((property, previousV, newV) -> {
-            drawPolygone();
+            //drawPolygone();
             createGrid();
         });
+
+
 
 
         position.addListener((property, previousV, newV) ->{
@@ -454,7 +496,7 @@ public final class ElevationProfileManager {
             double minElevation = elevationProfile.get().minElevation();
             int closestStepToMinHeight = Math2.ceilDiv((int) minElevation, stepInWorldElevation) * stepInWorldElevation;
             double delta = -worldToScreen.get().deltaTransform(0, (Math2.ceilDiv((int) minElevation, stepInWorldElevation) * stepInWorldElevation - minElevation)).getY();
-            System.out.println(delta);
+            //System.out.println(delta);
             List<PathElement> elevationLines = new ArrayList<>();
             for (int i = 0; i < nbOfHoriLines; i++) {
                 double yCoordinateOfLine = rectangle.get().getHeight() - stepInScreenElevation * i - delta + TOP_PIXELS;

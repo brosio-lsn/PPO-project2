@@ -10,6 +10,7 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.SVGPath;
 

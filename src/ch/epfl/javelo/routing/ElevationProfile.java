@@ -120,6 +120,14 @@ public final class ElevationProfile {
         return angle/(Math.PI/2)*100;
     }
 
+    public double slope(double position, double delta) {
+        double elevation = elevationAt(position);
+        double deltaElevation = elevationAt(position+delta);
+        double coeff = (deltaElevation-elevation)/delta;
+        double angle = Math.atan(coeff);
+        return angle/(Math.PI/2)*100;
+    }
+
     /**
      * initiates the attribute samples
      *

@@ -9,10 +9,14 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
+import javafx.scene.control.Button;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.function.Consumer;
 /**
  * @author Louis ROCHE (345620)
@@ -59,6 +63,7 @@ public final class AnnotatedMapManager {
         pane = new StackPane();
         createPane();
         setEvents();
+        createButtons();
     }
 
     /**
@@ -82,6 +87,30 @@ public final class AnnotatedMapManager {
         pane.getStylesheets().add("map.css");
         pane.getChildren().addAll(baseMapManager.pane(), routeManager.pane(), waypointsManager.pane());
     }
+
+    private void createButtons(){
+        Button removeAllBtn = new Button("remove all waypoints");
+        Button reverseRoute = new Button("reverse route");
+        Pane buttonPane = new Pane(removeAllBtn,reverseRoute);
+        buttonPane.setPickOnBounds(false);
+        pane.getChildren().add(buttonPane);
+
+        removeAllBtn.setOnAction(event -> routeBean.getWaypoints().clear());
+        removeAllBtn.visibleProperty().bind(Bindings.createBooleanBinding(() ->routeBean.getWaypoints().size()>0, routeBean.getWaypoints()));
+
+        reverseRoute.setOnAction(event -> {
+            ArrayList<WayPoint> reverseW = new ArrayList<>(routeBean.getWaypoints());
+            Collections.reverse(reverseW);
+            routeBean.getWaypoints().setAll(reverseW);
+        });
+        reverseRoute.visibleProperty().bind(Bindings.createBooleanBinding(() ->routeBean.route().get()!=null, routeBean.route()));
+
+        removeAllBtn.setLayoutX(0);
+        removeAllBtn.setLayoutY(25);
+        reverseRoute.setLayoutX(0);
+        reverseRoute.setLayoutY(50);
+    }
+
 
     /**
      * sets all the events for the class

@@ -59,7 +59,7 @@ public final class JaVelo extends Application {
                          map.pane(),
                         profileManager.pane()
                 );
-                System.out.println("vbbox " + profileManager.pane().getChildren());
+                //System.out.println("vbbox " + profileManager.pane().getChildren());
                 bar.setUseSystemMenuBar(true);
                 //TODO problèmes si null
                 bean.highlightedPosition.bind(Bindings.createDoubleBinding(() -> {
