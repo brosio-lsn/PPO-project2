@@ -22,68 +22,79 @@ import java.nio.file.Path;
 
 public final class JaVelo extends Application {
 
+    private static final int PANE_MIN_HEIGHT = 600;
+    private static final int PANE_MIN_WIDTH = 800;
+    private static final String TITLE = "JaVelo";
+    private static final String FILE_NAME = "Files";
+    private static final String EXPORTER_GFX = "Export GFX";
+    private static final String SERVER_NAME = "tile.openstreetmap.org";
+    private static final String PATH_TO_REPERTORY = "osm-cache";
+    private static final String NAME_OF_DATA_FILES = "javelo-data";
+    private static final String FILE_NAME_WRITTEN = "javelo.gpx";
+    private static final int MAX_STEP_LENGTH = 5;
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+
+    /**
+     * starts the JaVelo application.
+     *
+     * @param primaryStage window to display the application onto.
+     * @throws IOException if the path given to load from is wrong.
+     */
     @Override
     public void start(Stage primaryStage) throws IOException {
-        Graph graphJavelo = Graph.loadFrom(Path.of("javelo-data"));
-        Path cacheBasePathJavelo = Path.of("osm-cache");
-        String tileServerHostJavelo = "tile.openstreetmap.org";
+        Graph graphJavelo = Graph.loadFrom(Path.of(NAME_OF_DATA_FILES));
+        Path cacheBasePathJavelo = Path.of(PATH_TO_REPERTORY);
         TileManager tileManager =
-                new TileManager(cacheBasePathJavelo, tileServerHostJavelo);
+                new TileManager(cacheBasePathJavelo, SERVER_NAME);
         CostFunction costFunction = new CityBikeCF(graphJavelo);
         RouteBean bean = new RouteBean(new RouteComputer(graphJavelo, costFunction));
         ErrorManager errorManager = new ErrorManager();
         AnnotatedMapManager map = new AnnotatedMapManager(graphJavelo, tileManager, bean, errorManager::displayError);
-        MenuItem option = new MenuItem("Exporter GFX");
-        Menu filesMenu = new Menu("Fichiers", null, option);
+
+        MenuItem option = new MenuItem(EXPORTER_GFX);
+        Menu filesMenu = new Menu(FILE_NAME, null, option);
         MenuBar bar = new MenuBar(filesMenu);
+
         SplitPane window = new SplitPane();
         window.setOrientation(Orientation.VERTICAL);
-        ObjectProperty<ElevationProfile> profileProperty=new SimpleObjectProperty<>();
-        ElevationProfileManager profileManager=new ElevationProfileManager(profileProperty, bean.highlightedPositionProperty());
+
+        ObjectProperty<ElevationProfile> profileProperty = new SimpleObjectProperty<>();
+        ElevationProfileManager profileManager = new ElevationProfileManager(profileProperty, bean.highlightedPositionProperty());
+        SplitPane.setResizableWithParent(profileManager.pane(), false);
+
         bean.route().addListener((observable, oldValue, newValue) -> {
-            if(bean.route().get() != null) {
+            if (newValue != null) {
                 ElevationProfile profile = ElevationProfileComputer
-                        .elevationProfile(bean.route().get(), 5);
-                /*ObjectProperty<ElevationProfile> profileProperty =
-                        new SimpleObjectProperty<>(profile);
-                ElevationProfileManager profileManager =
-                        new ElevationProfileManager(profileProperty,
-                                bean.highlightedPositionProperty());*/
+                        .elevationProfile(bean.route().get(), MAX_STEP_LENGTH);
                 profileProperty.set(profile);
-                SplitPane.setResizableWithParent(profileManager.pane(), false);
                 bar.setDisable(false);
                 option.setOnAction(event -> {
                     try {
-                        GpxGenerator.writeGpx("javelo.gpx", bean.route().get(), profile);} catch (IOException e) {
+                        GpxGenerator.writeGpx(FILE_NAME_WRITTEN, bean.route().get(), profile);
+                    } catch (IOException e) {
                         throw new UncheckedIOException(e);
                     }
                 });
-                window.getItems().setAll(
-                        // map.pane(),
-                        profileManager.pane()
-                );
-                System.out.println("vbbox " + profileManager.pane().getChildren());
+                window.getItems().setAll(map.pane(), profileManager.pane());
                 bar.setUseSystemMenuBar(true);
-                //TODO problèmes si null
-                bean.highlightedPosition.bind(Bindings.createDoubleBinding(() -> {
-                    //todo essayer sur map si route est null
-                    return Double.compare(map.mousePositionOnRouteProperty().get(), Double.NaN) ==0?profileManager.mousePositionOnProfileProperty().get() :map.mousePositionOnRouteProperty().get();
-                }, profileManager.mousePositionOnProfileProperty(), map.mousePositionOnRouteProperty()));
+                bean.highlightedPosition.bind(Bindings.createDoubleBinding(() -> map.mousePositionOnRouteProperty().get() >= 0
+                        ? map.mousePositionOnRouteProperty().get()
+                        : profileManager.mousePositionOnProfileProperty().get(), profileManager.mousePositionOnProfileProperty(), map.mousePositionOnRouteProperty()));
             } else {
-                bean.highlightedPositionProperty().unbind();
                 window.getItems().setAll(map.pane());
                 bar.setDisable(true);
             }
-            //bean.highlightedPosition.bind(map.mousePositionOnRouteProperty());
         });
-        window.getItems().add(map.pane());
 
-        window.getStylesheets().addAll("map.css", "error.css");
+        window.getItems().add(map.pane());
         StackPane scene = new StackPane(window, errorManager.pane(), bar);
         StackPane.setAlignment(bar, Pos.TOP_CENTER);
-        primaryStage.setMinWidth(600);
-        primaryStage.setMinHeight(300);
-        primaryStage.setTitle("JaVelo");
+        primaryStage.setMinWidth(PANE_MIN_WIDTH);
+        primaryStage.setMinHeight(PANE_MIN_HEIGHT);
+        primaryStage.setTitle(TITLE);
         primaryStage.setScene(new Scene(scene));
         primaryStage.show();
     }

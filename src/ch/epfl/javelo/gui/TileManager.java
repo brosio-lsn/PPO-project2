@@ -53,6 +53,7 @@ public final class TileManager {
         }
     }
 
+    //todo pathToImage à renommer en imageURL, faire un pathToimage avec pathToRepertory
     LinkedHashMap<TileId, Image> cache;
     private final Path pathToRepertory;
     private final String serverName;
@@ -82,26 +83,28 @@ public final class TileManager {
      */
     public Image imageForTileAt(TileId id) throws IOException {
         StringBuilder url = new StringBuilder();
-        String fileOfTile = url
+        String fileOfTile = pathToRepertory + url
                 .append("/")
                 .append(id.zoomLevel)
                 .append("/")
                 .append(id.xIndex)
                 .toString();
-        String imagePath = url
+        String imageURL = url
                 .append("/")
                 .append(id.yIndex)
                 .append(".png")
                 .toString();
         Path pathToFiles = Path.of(fileOfTile);
+
         if (cache.containsKey(id)) {
             return cache.get(id);
-        } else if (Files.exists(Path.of(imagePath), LinkOption.NOFOLLOW_LINKS)) {
-            return imageFromDisk(id, imagePath);
+        } else if (Files.exists(Path.of(pathToRepertory + imageURL), LinkOption.NOFOLLOW_LINKS)) {
+            return imageFromDisk(id, imageURL);
         } else {
-            return imageFromServer(id, pathToFiles, imagePath);
+            return imageFromServer(id, pathToFiles, imageURL);
         }
     }
+
     /**
      * Loads an image, which represents a Tile, from hard drive memory, then puts
      * it into the cache.
@@ -112,34 +115,34 @@ public final class TileManager {
      */
     private Image imageFromDisk(TileId id, String imagePath) throws IOException {
         Image fileImage;
-        try (FileInputStream i = new FileInputStream(imagePath)) {
-            fileImage = new Image(i);
+        try (FileInputStream inputStream = new FileInputStream(pathToRepertory + imagePath)) {
+            fileImage = new Image(inputStream);
             cache.put(id, fileImage);
         }
         return fileImage;
     }
+
     /**
      * creates the directory to store an image which represents a Tile, downloads it
      * from a given server address and returns it.
      *
      * @param id          id of the tile to download
      * @param pathToFiles local path to create the directory in.
-     * @param pathToImage path to get the image from in the server
+     * @param imageURL    URL to get the image from in the server
      * @return the image downloaded from the server
      * @throws IOException if there is an error in any of the paths used.
      */
-    private Image imageFromServer(TileId id, Path pathToFiles, String pathToImage) throws IOException {
-        System.out.println("je dl" + id);
+    private Image imageFromServer(TileId id, Path pathToFiles, String imageURL) throws IOException {
         Files.createDirectories(pathToFiles);
-        URL u = new URL(HTTPS + serverName + pathToImage);
+        URL u = new URL(HTTPS + serverName + imageURL);
         URLConnection c = u.openConnection();
         c.setRequestProperty("User-Agent", "JaVelo");
         try (InputStream i = c.getInputStream();
-             OutputStream writer = new FileOutputStream(pathToImage)) {
+             OutputStream writer = new FileOutputStream(pathToRepertory + imageURL)) {
             i.transferTo(writer);
         }
         Iterator<TileId> ite = cache.keySet().iterator();
-        if (ite.hasNext() && cache.size()==CAPACITY_OF_CACHE) cache.remove(ite.next());
-        return imageFromDisk(id, pathToImage);
+        if (ite.hasNext() && cache.size() == CAPACITY_OF_CACHE) cache.remove(ite.next());
+        return imageFromDisk(id, imageURL);
     }
 }

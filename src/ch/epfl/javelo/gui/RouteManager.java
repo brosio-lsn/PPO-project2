@@ -143,8 +143,6 @@ public final class RouteManager {
      * positions the circle based on the highlighted position on the route
      */
     private void positionCircle() {
-        //todo qd ca emprutne la mm route dans 2 sens ca beugue mais normaö
-        //TODO demander cette histoire de compare
         if(routeBean.route().get()!=null && Double.compare(routeBean.highlightedPosition(), Double.NaN)!= 0) {
             PointCh pointCh = routeBean.route().get().pointAt(routeBean.highlightedPosition());
             PointWebMercator pointWebMercator = PointWebMercator.ofPointCh(pointCh);
@@ -161,7 +159,6 @@ public final class RouteManager {
      * highlighted position on the route)
      */
     private void setEvents() {
-        //todo demander si moy d opti la methode
         circle.setOnMouseClicked(event -> {
             Point2D point2D = circle.localToParent(event.getX(), event.getY());
             int nodeId = routeBean.route().get().nodeClosestTo(routeBean.highlightedPosition());

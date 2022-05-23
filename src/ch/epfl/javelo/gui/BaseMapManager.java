@@ -41,7 +41,7 @@ public final class BaseMapManager {
     /**
      * boolean telling whether a redraw of the map is needed.
      */
-    boolean redrawNeeded;
+    private boolean redrawNeeded;
     /**
      * number of pixels per tile
      */
@@ -55,20 +55,9 @@ public final class BaseMapManager {
      */
     private final static int ZOOM_LEVEL_MAX = 19;
     /**
-     * xTopLeft : x coordinate of the top left corner of the map
-     * yTopLeft : y coordinate of the top left corner of the map
-     * zoomLevel : zoomLevel
-     */
-    private double xTopLeft, yTopLeft;
-    private int zoomLevel;
-    /**
      * property recording the coordinates of the mouse on the last event it indulged in.
      */
     private final ObjectProperty<Point2D> mouseOnLastEvent;
-    /**
-     * context which will be associated with that of the canvas
-     */
-    private GraphicsContext context;
     /**
      * Number of iterations needed to draw the image on the X-axis of the canvas
      */
@@ -113,12 +102,12 @@ public final class BaseMapManager {
      * redraws the canvas if it is needed - if redrawOnNextPulse() has been called
      */
     private void redrawIfNeeded() {
-        xTopLeft = mapViewParametersProp.get().topLeft().getX();
-        yTopLeft = mapViewParametersProp.get().topLeft().getY();
-        zoomLevel = mapViewParametersProp.get().zoomLevel();
+        double xTopLeft = mapViewParametersProp.get().topLeft().getX();
+        double yTopLeft = mapViewParametersProp.get().topLeft().getY();
+        int zoomLevel = mapViewParametersProp.get().zoomLevel();
         if (!redrawNeeded) return;
         redrawNeeded = false;
-        context = canvas.getGraphicsContext2D();
+        GraphicsContext context = canvas.getGraphicsContext2D();
         Image imageToDraw;
         boolean canDraw = true;
         for (int xOnCanvas = 0; xOnCanvas <= canvas.getWidth() + X_ITERATIONS; xOnCanvas += PIXELS_PER_TILE) {
@@ -167,23 +156,22 @@ public final class BaseMapManager {
             if (currentTime < minScrollTime.get()) return;
             minScrollTime.set(currentTime + TIME_TO_WAIT);
             double zoomDelta = Math.signum(e.getDeltaY());
-            zoomLevel = (int) Math2.clamp(ZOOM_LEVEl_MIN, zoomLevel + zoomDelta, ZOOM_LEVEL_MAX);
+            int currentZoomLevel = mapViewParametersProp.get().zoomLevel();
+            int newZoomLevel = (int) Math2.clamp(ZOOM_LEVEl_MIN, currentZoomLevel + zoomDelta, ZOOM_LEVEL_MAX);
             PointWebMercator corner = mapViewParametersProp.get().pointAt(e.getX() , e.getY());
-            mapViewParametersProp.set(new MapViewParameters(zoomLevel, corner.xAtZoomLevel(zoomLevel) - e.getX(), corner.yAtZoomLevel(zoomLevel) - e.getY()));
+            mapViewParametersProp.set(new MapViewParameters(newZoomLevel, corner.xAtZoomLevel(newZoomLevel) - e.getX(), corner.yAtZoomLevel(newZoomLevel) - e.getY()));
         });
         pane.setOnMousePressed(event -> {
             mouseOnLastEvent.set(new Point2D(event.getX(), event.getY()));
-            xTopLeftOnPress = xTopLeft;
-            yTopLeftOnPress = yTopLeft;
+            xTopLeftOnPress = mapViewParametersProp.get().x();
+            yTopLeftOnPress = mapViewParametersProp.get().y();
         });
         pane.setOnMouseDragged(event -> {
             double deltaX = event.getX() - mouseOnLastEvent.get().getX();
             double deltaY = event.getY() - mouseOnLastEvent.get().getY();
             mapViewParametersProp.set(mapViewParametersProp.get().withMinXY(xTopLeftOnPress - deltaX, yTopLeftOnPress - deltaY));
         });
-        pane.setOnMouseReleased(event -> {
-            mouseOnLastEvent.set(new Point2D(event.getX(), event.getY()));
-        });
+        pane.setOnMouseReleased(event -> mouseOnLastEvent.set(new Point2D(event.getX(), event.getY())));
         pane.setOnMouseClicked(event -> {
             if (mouseOnLastEvent.get() == null) mouseOnLastEvent.set(new Point2D(event.getX(), event.getY()));
             if (event.isStillSincePress()) waypointsManager.addWayPoint(event.getX(), event.getY());
@@ -209,7 +197,7 @@ public final class BaseMapManager {
     private void installListeners() {
         canvas.sceneProperty().addListener((p, oldS, newS) -> {
             assert oldS == null;
-            if (newS != null) {
+            if(newS != null) {
                 newS.addPreLayoutPulseListener(this::redrawIfNeeded);
             }
         });

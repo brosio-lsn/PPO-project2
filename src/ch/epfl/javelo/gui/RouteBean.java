@@ -84,8 +84,7 @@ public final class RouteBean {
                 int nodeIdOfFirstWaypoint = waypoints.get(i).closestNodeId();
                 int nodeIdOfSecondWaypoint = waypoints.get(i + 1).closestNodeId();
                 if (!(nodeIdOfFirstWaypoint == nodeIdOfSecondWaypoint)) {
-                    if (!(bestRouteCache.containsKey(new Pair<>(nodeIdOfFirstWaypoint, nodeIdOfSecondWaypoint))
-                            || bestRouteCache.containsKey(new Pair<>(nodeIdOfSecondWaypoint, nodeIdOfFirstWaypoint)))) {
+                    if (!(bestRouteCache.containsKey(new Pair<>(nodeIdOfFirstWaypoint, nodeIdOfSecondWaypoint)))) {
                         Route bestRouteBetween = routeComputer.bestRouteBetween(nodeIdOfFirstWaypoint, nodeIdOfSecondWaypoint);
                         if (bestRouteBetween == null) {
                             nullifyProperties();
@@ -95,8 +94,7 @@ public final class RouteBean {
                         if (bestRouteCache.size() == INITIAL_CAPACITY) bestRouteCache.remove(bestRouteCache.keySet().iterator().next());
 
                     }
-                    theRoutes.add(bestRouteCache.getOrDefault(new Pair<>(nodeIdOfFirstWaypoint, nodeIdOfSecondWaypoint),
-                            bestRouteCache.get(new Pair<>(nodeIdOfSecondWaypoint, nodeIdOfFirstWaypoint))));
+                    theRoutes.add(bestRouteCache.get(new Pair<>(nodeIdOfFirstWaypoint, nodeIdOfSecondWaypoint)));
                 }
 
             }

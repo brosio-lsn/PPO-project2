@@ -10,8 +10,8 @@ import ch.epfl.javelo.projection.PointCh;
 
 
 /**
- * @param point position of the point of passage in the suiss coordinate system
- * @param closestNodeId the identity of the Javelo node closest to the point
+ * @param point position of the point of passage in the swiss coordinate system
+ * @param closestNodeId the identity of the JaVelo node closest to the point
  */
 public record WayPoint(PointCh point, int closestNodeId) {
 }
