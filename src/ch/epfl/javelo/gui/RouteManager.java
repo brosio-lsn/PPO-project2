@@ -35,6 +35,7 @@ public final class RouteManager {
      * x center coordinate
      */
     private static final int X_CENTER = 0;
+    private static final int CIRCLE_RADIUS = 5;
 
     /**
      * bean containing the properties related to the route
@@ -105,7 +106,7 @@ public final class RouteManager {
         //todo demander si constantes pour ces strings
         polyline.setId("route");
         circle.setId("highlight");
-        circle.setRadius(5);
+        circle.setRadius(CIRCLE_RADIUS);
         pane = new Pane(polyline, circle);
         pane.setPickOnBounds(false);
         createPointsCoordinates();
@@ -118,8 +119,7 @@ public final class RouteManager {
      */
     private void createPointsCoordinates() {
         Route route = routeBean.route().get();
-        if(route!=null) {
-
+        if (route != null) {
             polyline.setLayoutX(X_CENTER);
             polyline.setLayoutY(Y_CENTER);
             Double[] arrayWithCoordinates = new Double[route.points().size() * 2];
@@ -135,22 +135,20 @@ public final class RouteManager {
             }
             polyline.getPoints().setAll(arrayWithCoordinates);
             polyline.setVisible(true);
-        }
-        else polyline.setVisible(false);
+        } else polyline.setVisible(false);
     }
 
     /**
      * positions the circle based on the highlighted position on the route
      */
     private void positionCircle() {
-        if(routeBean.route().get()!=null && Double.compare(routeBean.highlightedPosition(), Double.NaN)!= 0) {
+        if (routeBean.route().get() != null && !Double.isNaN(routeBean.highlightedPosition())) {
             PointCh pointCh = routeBean.route().get().pointAt(routeBean.highlightedPosition());
             PointWebMercator pointWebMercator = PointWebMercator.ofPointCh(pointCh);
             circle.setLayoutX(mapViewParameters.get().viewX(pointWebMercator));
             circle.setLayoutY(mapViewParameters.get().viewY(pointWebMercator));
             circle.setVisible(true);
-        }
-        else circle.setVisible(false);
+        } else circle.setVisible(false);
     }
 
     /**
@@ -159,21 +157,14 @@ public final class RouteManager {
      * highlighted position on the route)
      */
     private void setEvents() {
+        //todo demander si moy d opti la methode
         circle.setOnMouseClicked(event -> {
             Point2D point2D = circle.localToParent(event.getX(), event.getY());
             int nodeId = routeBean.route().get().nodeClosestTo(routeBean.highlightedPosition());
-            boolean alreadyAWayPoint = false;
-            for (WayPoint wayPoint : routeBean.getWaypoints())
-                if (wayPoint.closestNodeId() == nodeId) {
-                    errorConsumer.accept(ERROR_MESSAGE);
-                    alreadyAWayPoint = true;
-                    break;
-                }
-            if (!alreadyAWayPoint) {
-                PointWebMercator pointWebMercator = mapViewParameters.get().pointAt(point2D.getX(), point2D.getY());
-                int indexOfSegmentAtHightlightedPosition = routeBean.indexOfNonEmptySegmentAt(routeBean.highlightedPosition());
-                routeBean.getWaypoints().add(indexOfSegmentAtHightlightedPosition+1, new WayPoint(pointWebMercator.toPointCh(), nodeId));
-            }
+
+            PointWebMercator pointWebMercator = mapViewParameters.get().pointAt(point2D.getX(), point2D.getY());
+            int indexOfSegmentAtHightlightedPosition = routeBean.indexOfNonEmptySegmentAt(routeBean.highlightedPosition());
+            routeBean.getWaypoints().add(indexOfSegmentAtHightlightedPosition + 1, new WayPoint(pointWebMercator.toPointCh(), nodeId));
         });
 
         mapViewParameters.addListener((property, previousV, newV) -> {

@@ -10,6 +10,7 @@ import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
 import javafx.scene.Group;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.SVGPath;
 
@@ -60,11 +61,6 @@ public final class WaypointsManager {
     private final static int SEARCH_DISTANCE_NODE_CLOSEST_TO_1 = 1000;
 
     /**
-     * the current wayPoint that is being dragged
-     */
-    private WayPoint draggedWayPoint;
-
-    /**
      * pre-drag x coordinate of the marker that is being dragged
      */
     private double xBeforeDrag;
@@ -101,10 +97,11 @@ public final class WaypointsManager {
      * creates the markers corresponding to the waypoints contained in observableList
      * and adds them as children to the pane
      */
-    //todo nommer les constantes first last...?
+    //todo nommer les constantes first last...?(non)
     private void createMarkers (){
         List<Node> markers = new ArrayList<>();
         int size = observableList.size();
+        //todo mieux de faire un forEach avec un i que j incremente tt seul?(nnon)
         for(int i =0; i<size;++i){
             WayPoint wayPoint=observableList.get(i);
             Group group = createMarkerGroup(wayPoint);
@@ -167,7 +164,7 @@ public final class WaypointsManager {
      * @param mapViewParameters the new mapviewParameters
      */
     private void relocateMarkers(MapViewParameters mapViewParameters){
-        //todo demander si meilleur maniere de le faire
+        //todo demander si meilleur maniere de le faire(nn)
         Iterator<WayPoint> itWaypoints = observableList.iterator();
         for (Node node : pane.getChildren()) {
             WayPoint wayPoint = itWaypoints.next();
@@ -182,6 +179,7 @@ public final class WaypointsManager {
      * @return a regular marker group
      */
     private Group createMarkerGroup (WayPoint wayPoint){
+        //todo nommer ces constantes?(dt care)
         SVGPath exterior=new SVGPath();
         exterior.setContent(SVG_EXTERIOR_STRING);
         exterior.getStyleClass().add("pin_outside");
@@ -200,14 +198,15 @@ public final class WaypointsManager {
         group.setOnMouseClicked(event->{
             if (event.isStillSincePress())observableList.remove(wayPoint);
         });
-
+        ObjectProperty<WayPoint> draggedWayPoint = new SimpleObjectProperty<>();
+        //todo cahnge draggedWayPoint to local varaible
         group.setOnMousePressed(event-> {
             xBeforeDrag=group.getLayoutX();
             yBeforeDrag=group.getLayoutY();
-            draggedWayPoint=wayPoint;
+            draggedWayPoint.set(wayPoint);
             mouseOnLastEvent.set(new Point2D(event.getX(), event.getY()));
         });
-
+        //todo demander si le truc des mouse ca va(oui)
         group.setOnMouseDragged(event-> {
             double deltaX = event.getX() - mouseOnLastEvent.get().getX();
             double deltaY = event.getY() - mouseOnLastEvent.get().getY();
@@ -226,7 +225,8 @@ public final class WaypointsManager {
                     group.setLayoutY(yBeforeDrag);
                     errorConsumer.accept(ERROR_MESSAGE);
                 }
-                else observableList.set(observableList.indexOf(draggedWayPoint), new WayPoint(pointCh, nodeId));
+                //todo ca (done)
+                else observableList.set(observableList.indexOf(draggedWayPoint.get()), new WayPoint(pointCh, nodeId));
             }
         });
         return group;

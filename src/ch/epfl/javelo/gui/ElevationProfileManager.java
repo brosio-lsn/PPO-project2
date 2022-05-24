@@ -177,6 +177,7 @@ public final class ElevationProfileManager {
         rectangle = new SimpleObjectProperty<>();
         insets = new Insets(TOP_PIXELS, RIGHT_PIXELS, BOTTOM_PIXELS, LEFT_PIXELS);
         bindingsDone = false;
+        createChildren();
         setLabels();
         setEvents();
     }
@@ -222,6 +223,7 @@ public final class ElevationProfileManager {
         points[points.length - 3] = insets.getTop() + rectangle.get().getHeight();
         points[points.length - 2] = insets.getLeft();
         points[points.length - 1] = insets.getTop() + rectangle.get().getHeight();
+
         profile.getPoints().setAll(points);
     }
 
@@ -355,7 +357,6 @@ public final class ElevationProfileManager {
                 stepInWorldPosition = POS_STEPS[POS_STEPS.length - 1];
                 stepInScreenPosition = worldToScreen.get().deltaTransform(stepInWorldPosition, 0).getX();
             }
-
             List<Text> labels = new ArrayList<>();
             List<PathElement> positionLines = new ArrayList<>();
             double heightOfLine = worldToScreen.get().deltaTransform(0, -heightWorld).getY();
@@ -366,6 +367,7 @@ public final class ElevationProfileManager {
             for (int i = 0; i < nbOfVertiLines+1; i++) {
                 positionLines.add(new MoveTo(LEFT_PIXELS + stepInScreenPosition * i, heightOfRectangle + TOP_PIXELS));
                 positionLines.add(new LineTo(LEFT_PIXELS + stepInScreenPosition * i, heightOfRectangle - heightOfLine + TOP_PIXELS));
+                //TODO nommage de constantes
                 Text label = new Text(String.valueOf((stepInWorldPosition * i) / ROUND_TO_KILOMETERS_FACTOR));
                 label.textOriginProperty().set(VPos.TOP);
                 label.relocate(LEFT_PIXELS + stepInScreenPosition * i - label.getLayoutBounds().getWidth()/2, rectangle.get().getHeight() + TOP_PIXELS);
