@@ -26,10 +26,7 @@ public final class AnnotatedMapManager {
     private static final int INITIAL_ZOOM_LEVEL = 12;
     private static final int INITIAL_X = 543200;
     private static final int INITIAL_Y = 370650;
-    private final Graph graph;
-    private final TileManager tileManager;
     private final RouteBean routeBean;
-    private final Consumer<String> consumer;
     private final Pane pane;
     private final WaypointsManager waypointsManager;
     private final BaseMapManager baseMapManager;
@@ -46,10 +43,7 @@ public final class AnnotatedMapManager {
      * @param consumer a consumer to display errors
      */
     public AnnotatedMapManager(Graph graph, TileManager tileManager, RouteBean routeBean, Consumer<String> consumer) {
-        this.graph = graph;
-        this.tileManager = tileManager;
         this.routeBean = routeBean;
-        this.consumer = consumer;
         mouseOnLastEvent=new SimpleObjectProperty<>();
         MapViewParameters mapViewParameters = new MapViewParameters(INITIAL_ZOOM_LEVEL, INITIAL_X, INITIAL_Y);
         mapViewParametersP = new SimpleObjectProperty<>(mapViewParameters);
@@ -80,16 +74,12 @@ public final class AnnotatedMapManager {
      * sets all the events for the class
      */
     private void setEvents(){
-        pane.setOnMouseMoved(event-> {
-            mouseOnLastEvent.set(new Point2D(event.getX() , event.getY()));
-        });
+        pane.setOnMouseMoved(event-> mouseOnLastEvent.set(new Point2D(event.getX() , event.getY())));
 
-        pane.setOnMouseExited(event-> {
-            mouseOnLastEvent.set(null);
-        });
+        pane.setOnMouseExited(event-> mouseOnLastEvent.set(null));
 
-        positionAlongRoute.bind(Bindings.createDoubleBinding(this::updatePositionAlongRoute, mouseOnLastEvent, routeBean.route(), mapViewParametersP));
-
+        positionAlongRoute.bind(Bindings.createDoubleBinding(
+                this::updatePositionAlongRoute, mouseOnLastEvent, routeBean.route(), mapViewParametersP));
     }
 
     private double updatePositionAlongRoute(){

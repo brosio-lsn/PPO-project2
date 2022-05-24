@@ -155,6 +155,10 @@ public final class ElevationProfileManager {
      * the Text containing the distance along the profile at the highlighted position
      */
     private final Text distanceAtPosition;
+
+    /**
+     * the Text containing the slope along the profile at the highlighted position
+     */
     private final Text slopeAtPosition;
     /**
      * pane containing the elevationAtPosition and the distanceAtPosition
