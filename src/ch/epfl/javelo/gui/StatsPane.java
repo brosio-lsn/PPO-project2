@@ -12,7 +12,12 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 
 import java.util.function.Consumer;
-
+/**
+ * represents the pane containing the eco-stats
+ *
+ * @author Louis ROCHE (345620)
+ * @author Ambroise AIGUEPERSE (341890)
+ */
 public class StatsPane {
 
     private static final int UNIT_TO_THOUSAND = 1000;
@@ -27,22 +32,30 @@ public class StatsPane {
     private final Text calValue;
     private final Consumer<String> consumer;
     private final GridPane grid;
+    private final Label title;
 
-
+    /**
+     * the constructor of the class
+     * @param routeBean the routeBean of the route
+     * @param consumer  an error consumer to display error messages
+     */
     public StatsPane(RouteBean routeBean, Consumer<String> consumer){
         this.routeBean=routeBean;
         this.consumer=consumer;
-        this.calculate = new Button("calculate");
-        this.calValue= new Text();
+        title=new Label("Calculate how much CO2 your car would have produced for this route:");
+        title.setTextFill(Color.RED);
+        calculate = new Button("calculate");
+        calValue= new Text();
         grid=new GridPane();
         grid.setPickOnBounds(false);
         conso = new Label(" fuel consumption(liter/100km)");
         consoF= new TextField();
         fuel = new Label(" fuel type");
         fuelChoiceBox= new ChoiceBox(FXCollections.observableArrayList("diesel", "gasoline"));
-        grid.addRow(0, conso, consoF);
-        grid.addRow(1, fuel, fuelChoiceBox);
-        grid.addRow(2, calculate, calValue);
+        grid.addRow(0, title);
+        grid.addRow(1, conso, consoF);
+        grid.addRow(2, fuel, fuelChoiceBox);
+        grid.addRow(3, calculate, calValue);
         grid.backgroundProperty().set(new Background(new BackgroundFill(
                 Color.LIGHTBLUE,
                 new CornerRadii(2),
@@ -53,10 +66,17 @@ public class StatsPane {
         createListeners();
     }
 
+    /**
+     * returns the pane containing all the graphical elements
+     * @return the pane containing all the graphical elements
+     */
     public GridPane pane(){
         return grid;
     }
 
+    /**
+     * makes the pane dynamic
+     */
     private void createListeners() {
         calculate.setOnAction(event -> {
             //calValue.textProperty().set(String.valueOf("lol"));
@@ -74,7 +94,7 @@ public class StatsPane {
                 return;
             }
             double factor = selectedFuelType.equals("diesel") ? DIESEL_CO2_GRAMS_PER_LITER : GASOLINE_CO2_GRAMS_PER_LITER;
-            calValue.textProperty().set(String.format("%.1f kilogrammes of CO2 not produced",
+            calValue.textProperty().set(String.format("%.1f kilogrammes of CO2 not produced :)",
                     inDouble * factor * routeBean.route().get().length() / (UNIT_TO_THOUSAND * UNIT_TO_THOUSAND)));
         });
 

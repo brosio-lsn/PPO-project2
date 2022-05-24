@@ -19,7 +19,12 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
-
+/**
+ * the class for the whole application
+ *
+ * @author Louis ROCHE (345620)
+ * @author Ambroise AIGUEPERSE (341890)
+ */
 public final class JaVelo extends Application {
     private AnnotatedMapManager map;
 
@@ -76,8 +81,8 @@ public final class JaVelo extends Application {
         window.getItems().add(map.pane());
         StackPane scene = new StackPane(window, errorManager.pane(), bar);
         StackPane.setAlignment(bar, Pos.TOP_CENTER);
-        primaryStage.setMinWidth(600);
-        primaryStage.setMinHeight(300);
+        primaryStage.setMinWidth(700);
+        primaryStage.setMinHeight(400);
         primaryStage.setTitle("JaVelo");
         primaryStage.setScene(new Scene(scene));
         primaryStage.show();
