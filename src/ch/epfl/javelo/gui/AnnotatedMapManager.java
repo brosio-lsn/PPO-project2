@@ -2,6 +2,7 @@ package ch.epfl.javelo.gui;
 
 import ch.epfl.javelo.Math2;
 import ch.epfl.javelo.data.Graph;
+import ch.epfl.javelo.projection.PointCh;
 import ch.epfl.javelo.projection.PointWebMercator;
 import ch.epfl.javelo.routing.RoutePoint;
 import javafx.beans.binding.Bindings;
@@ -109,6 +110,7 @@ public final class AnnotatedMapManager {
             routeBean.getWaypoints().setAll(reverseW);
         });
         reverseRoute.visibleProperty().bind(Bindings.createBooleanBinding(() ->routeBean.route().get()!=null, routeBean.route()));
+
         ecoStat.visibleProperty().bind(Bindings.createBooleanBinding(() ->routeBean.route().get()!=null, routeBean.route()));
         ecoStat.setOnAction(event -> {
             if(pane.getChildren().contains(statsPane)){
@@ -118,6 +120,12 @@ public final class AnnotatedMapManager {
             else {
                 pane.getChildren().add(pane.getChildren().size()-1, statsPane);
                 ecoStat.textProperty().set("hide eco-stats");
+            }
+        });
+        routeBean.route().addListener((property, oldV, newV)->{
+            if(newV==null) {
+                pane.getChildren().remove(statsPane);
+                ecoStat.textProperty().set("display eco-stats");
             }
         });
 
@@ -148,7 +156,9 @@ public final class AnnotatedMapManager {
     private double updatePositionAlongRoute(){
         if(mapViewParametersP.get()==null || routeBean.route().get()==null || mouseOnLastEvent.get()==null)return MouseNotCloseToRoute;
         PointWebMercator pointWebMercator = mapViewParametersP.get().pointAt(mouseOnLastEvent.get().getX(), mouseOnLastEvent.get().getY());
-        RoutePoint pointOnRoute = routeBean.route().get().pointClosestTo(pointWebMercator.toPointCh());
+        PointCh pointCh = pointWebMercator.toPointCh();
+        if(pointCh==null) return MouseNotCloseToRoute;
+        RoutePoint pointOnRoute = routeBean.route().get().pointClosestTo(pointCh);
         PointWebMercator pointWebMercatorOfPointCh = PointWebMercator.ofPointCh(pointOnRoute.point());
         double uX=mouseOnLastEvent.get().getX()-mapViewParametersP.get().viewX(pointWebMercatorOfPointCh);
         double uY=mouseOnLastEvent.get().getY()-mapViewParametersP.get().viewY(pointWebMercatorOfPointCh);

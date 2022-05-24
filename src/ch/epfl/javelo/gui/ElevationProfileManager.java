@@ -250,11 +250,11 @@ public final class ElevationProfileManager {
         for (int i = 0; i < numberOfSamples-1; ++i) {
             double positionOnProfile = sampleLength * (i);
             double averageSlope = elevationProfile.get().slope(positionOnProfile, sampleLength);
-            list.add(new Stop((float)positionOnProfile/elevationProfile.get().length(), choseColor(averageSlope)));
+            list.add(new Stop((float)i/numberOfSamples, choseColor(averageSlope)));
         }
 
         LinearGradient linearGradient = new LinearGradient(.0f,
-                .0f,
+                0f,
                 1f,
                 0f,
                 true,
@@ -368,7 +368,7 @@ public final class ElevationProfileManager {
 
 
         position.addListener((property, previousV, newV) ->{
-            //TODO modulariser + enlever pour le rendu final
+            //TODO PAS METTRE SETFILLL ET SETFONT DANS LE LISTENER
             if(position.doubleValue()>0 && worldToScreen.get()!=null){
                 double elevation=elevationProfile.get().elevationAt(position.doubleValue());
                 double slope = elevationProfile.get().slope(position.doubleValue());

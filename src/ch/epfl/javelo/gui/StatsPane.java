@@ -36,7 +36,7 @@ public class StatsPane {
         this.calValue= new Text();
         grid=new GridPane();
         grid.setPickOnBounds(false);
-        conso = new Label(" fuel consumption(liter/100km))");
+        conso = new Label(" fuel consumption(liter/100km)");
         consoF= new TextField();
         fuel = new Label(" fuel type");
         fuelChoiceBox= new ChoiceBox(FXCollections.observableArrayList("diesel", "gasoline"));
@@ -70,7 +70,7 @@ public class StatsPane {
             }
             String selectedFuelType = (String) fuelChoiceBox.getSelectionModel().getSelectedItem();
             if (selectedFuelType == null) {
-                consumer.accept("Give a valid fuel consumption!!");
+                consumer.accept("Enter the fuel type!!");
                 return;
             }
             double factor = selectedFuelType.equals("diesel") ? DIESEL_CO2_GRAMS_PER_LITER : GASOLINE_CO2_GRAMS_PER_LITER;
