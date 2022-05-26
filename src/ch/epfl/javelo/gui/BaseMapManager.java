@@ -3,9 +3,7 @@ package ch.epfl.javelo.gui;
 import ch.epfl.javelo.Math2;
 import ch.epfl.javelo.projection.PointWebMercator;
 import javafx.application.Platform;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleLongProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.*;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -158,7 +156,6 @@ public final class BaseMapManager {
      * - mouse click -> puts a waypoint on the place the mouse clicked on.
      */
     private void createHandlers() {
-
         SimpleLongProperty minScrollTime = new SimpleLongProperty();
         pane.setOnScroll(e -> {
             if (e.getDeltaY() == 0) return;
@@ -172,9 +169,9 @@ public final class BaseMapManager {
             mapViewParametersProp.set(new MapViewParameters(zoomLevel, corner.xAtZoomLevel(zoomLevel) - e.getX(), corner.yAtZoomLevel(zoomLevel) - e.getY()));
         });
         pane.setOnMousePressed(event -> {
-            mouseOnLastEvent.set(new Point2D(event.getX(), event.getY()));
-            xTopLeftOnPress = xTopLeft;
-            yTopLeftOnPress = yTopLeft;
+                mouseOnLastEvent.set(new Point2D(event.getX(), event.getY()));
+                xTopLeftOnPress = xTopLeft;
+                yTopLeftOnPress = yTopLeft;
         });
         pane.setOnMouseDragged(event -> {
             double deltaX = event.getX() - mouseOnLastEvent.get().getX();
