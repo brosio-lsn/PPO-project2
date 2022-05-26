@@ -28,9 +28,6 @@ public final class AnnotatedMapManager {
     private static final int INITIAL_Y = 370650;
     private final RouteBean routeBean;
     private final Pane pane;
-    private final WaypointsManager waypointsManager;
-    private final BaseMapManager baseMapManager;
-    private final RouteManager routeManager;
     private final ObjectProperty<MapViewParameters> mapViewParametersP;
     private final ObjectProperty<Point2D> mouseOnLastEvent;
     private final DoubleProperty positionAlongRoute;
@@ -47,9 +44,9 @@ public final class AnnotatedMapManager {
         mouseOnLastEvent=new SimpleObjectProperty<>();
         MapViewParameters mapViewParameters = new MapViewParameters(INITIAL_ZOOM_LEVEL, INITIAL_X, INITIAL_Y);
         mapViewParametersP = new SimpleObjectProperty<>(mapViewParameters);
-        waypointsManager = new WaypointsManager(graph, mapViewParametersP,routeBean.getWaypoints(), consumer);
-        baseMapManager = new BaseMapManager(tileManager, waypointsManager, mapViewParametersP);
-        routeManager = new RouteManager(routeBean,mapViewParametersP , consumer);
+        WaypointsManager waypointsManager = new WaypointsManager(graph, mapViewParametersP, routeBean.getWaypoints(), consumer);
+        BaseMapManager baseMapManager = new BaseMapManager(tileManager, waypointsManager, mapViewParametersP);
+        RouteManager routeManager = new RouteManager(routeBean, mapViewParametersP, consumer);
         positionAlongRoute = new SimpleDoubleProperty();
         pane = new StackPane(baseMapManager.pane(), routeManager.pane(), waypointsManager.pane());
         pane.getStylesheets().add("map.css");
@@ -74,6 +71,7 @@ public final class AnnotatedMapManager {
      * sets all the events for the class
      */
     private void setEvents(){
+        //todo demander si vaut mieux faire un add au Point2D ou pas
         pane.setOnMouseMoved(event-> mouseOnLastEvent.set(new Point2D(event.getX() , event.getY())));
 
         pane.setOnMouseExited(event-> mouseOnLastEvent.set(null));
@@ -82,6 +80,10 @@ public final class AnnotatedMapManager {
                 this::updatePositionAlongRoute, mouseOnLastEvent, routeBean.route(), mapViewParametersP));
     }
 
+    /**
+     * calculates the position along the route
+     * @return the position along the route
+     */
     private double updatePositionAlongRoute(){
         if(mapViewParametersP.get()==null || routeBean.route().get()==null || mouseOnLastEvent.get()==null)return MOUSE_NOT_CLOSE_TO_ROUTE;
         PointWebMercator pointWebMercator = mapViewParametersP.get().pointAt(mouseOnLastEvent.get().getX(), mouseOnLastEvent.get().getY());
