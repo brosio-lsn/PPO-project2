@@ -53,6 +53,7 @@ public record Edge(int fromNodeId, int toNodeId, PointCh fromPoint, PointCh toPo
      * @return the point at the given position on the edge, in meters
      */
     public PointCh pointAt(double position) {
+        if(length==0)return fromPoint;
         double e = Math2.interpolate(fromPoint.e(), toPoint.e(), position/length);
         double n = Math2.interpolate(fromPoint.n(), toPoint.n(), position/length);
         return new PointCh(e, n);
