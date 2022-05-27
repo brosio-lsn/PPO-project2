@@ -51,7 +51,6 @@ public final class AnnotatedMapManager {
      * @param consumer a consumer to display errors
      */
     public AnnotatedMapManager(Graph graph, TileManager tileManager, RouteBean routeBean, Consumer<String> consumer) {
-        //todo ask for the mapViewParameters (mais je pense c bon)
         this.graph = graph;
         this.tileManager = tileManager;
         this.routeBean = routeBean;
