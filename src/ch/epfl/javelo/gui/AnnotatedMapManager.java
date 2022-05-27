@@ -15,11 +15,10 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 
 import java.util.function.Consumer;
-
 /**
  * @author Louis ROCHE (345620)
  * @author Ambroise AIGUEPERSE (341890)
- * <p>
+ *
  * handels the display of the annotated map
  */
 public final class AnnotatedMapManager {
@@ -30,29 +29,25 @@ public final class AnnotatedMapManager {
     private static final int INITIAL_Y = 370650;
     private final RouteBean routeBean;
     private final Pane pane;
-    private final WaypointsManager waypointsManager;
-    private final BaseMapManager baseMapManager;
-    private final RouteManager routeManager;
     private final ObjectProperty<MapViewParameters> mapViewParametersP;
     private final ObjectProperty<Point2D> mouseOnLastEvent;
     private final DoubleProperty positionAlongRoute;
 
     /**
      * constructor of the class
-     *
-     * @param graph       the with all the edges, node...
+     * @param graph the with all the edges, node...
      * @param tileManager the tile manager
-     * @param routeBean   the bean of the displayed route
-     * @param consumer    a consumer to display errors
+     * @param routeBean the bean of the displayed route
+     * @param consumer a consumer to display errors
      */
     public AnnotatedMapManager(Graph graph, TileManager tileManager, RouteBean routeBean, Consumer<String> consumer) {
         this.routeBean = routeBean;
-        mouseOnLastEvent = new SimpleObjectProperty<>();
+        mouseOnLastEvent=new SimpleObjectProperty<>();
         MapViewParameters mapViewParameters = new MapViewParameters(INITIAL_ZOOM_LEVEL, INITIAL_X, INITIAL_Y);
         mapViewParametersP = new SimpleObjectProperty<>(mapViewParameters);
-        waypointsManager = new WaypointsManager(graph, mapViewParametersP, routeBean.getWaypoints(), consumer);
-        baseMapManager = new BaseMapManager(tileManager, waypointsManager, mapViewParametersP);
-        routeManager = new RouteManager(routeBean, mapViewParametersP);
+        WaypointsManager waypointsManager = new WaypointsManager(graph, mapViewParametersP, routeBean.getWaypoints(), consumer);
+        BaseMapManager baseMapManager = new BaseMapManager(tileManager, waypointsManager, mapViewParametersP);
+        RouteManager routeManager = new RouteManager(routeBean, mapViewParametersP);
         positionAlongRoute = new SimpleDoubleProperty();
         pane = new StackPane(baseMapManager.pane(), routeManager.pane(), waypointsManager.pane());
         pane.getStylesheets().add("map.css");
@@ -61,19 +56,15 @@ public final class AnnotatedMapManager {
 
     /**
      * returns the pane with the annotated map
-     *
      * @return the pane with the annotated map
      */
-    public Pane pane() {
-        return pane;
-    }
+    public Pane pane(){return pane;}
 
     /**
      * returns the property containing the position of the mouse along the route
-     *
      * @return the property containing the position of the mouse along the route
      */
-    public DoubleProperty mousePositionOnRouteProperty() {
+    public DoubleProperty mousePositionOnRouteProperty(){
         return positionAlongRoute;
     }
 
@@ -89,9 +80,12 @@ public final class AnnotatedMapManager {
                 this::updatePositionAlongRoute, mouseOnLastEvent, routeBean.route(), mapViewParametersP));
     }
 
-    private double updatePositionAlongRoute() {
-        if (mapViewParametersP.get() == null || routeBean.route().get() == null || mouseOnLastEvent.get() == null)
-            return MOUSE_NOT_CLOSE_TO_ROUTE;
+    /**
+     * calculates the position along the route
+     * @return the position along the route
+     */
+    private double updatePositionAlongRoute(){
+        if(mapViewParametersP.get()==null || routeBean.route().get()==null || mouseOnLastEvent.get()==null)return MOUSE_NOT_CLOSE_TO_ROUTE;
         PointWebMercator pointWebMercator = mapViewParametersP.get().pointAt(mouseOnLastEvent.get().getX(), mouseOnLastEvent.get().getY());
         PointCh pointCh = pointWebMercator.toPointCh();
         if (pointCh == null) return MOUSE_NOT_CLOSE_TO_ROUTE;

@@ -3,7 +3,9 @@ package ch.epfl.javelo.gui;
 import ch.epfl.javelo.data.Graph;
 import ch.epfl.javelo.projection.PointCh;
 import ch.epfl.javelo.projection.PointWebMercator;
+import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -27,8 +29,19 @@ import java.util.function.Consumer;
 
 public final class WaypointsManager {
 //todo commenter les attributs
+    /**
+     * svg for the group exterior
+     */
     private static final String SVG_EXTERIOR_STRING = "M-8-20C-5-14-2-7 0 0 2-7 5-14 8-20 20-40-20-40-8-20";
+
+    /**
+     * svg for the group interior
+     */
     private static final String SVG_INTERIOR_STRING = "M0-23A1 1 0 000-29 1 1 0 000-23";
+
+    /**
+     * error message for invalid waypoint placement
+     */
     private static final String ERROR_MESSAGE = "Aucune route à proximité !";
     /**
      * the graph of the route
@@ -58,22 +71,12 @@ public final class WaypointsManager {
     /**
      * search distance for node closest to
      */
-    private final static int SEARCH_DISTANCE_NODE_CLOSEST_TO_1 = 1000;
-
-    /**
-     * pre-drag x coordinate of the marker that is being dragged
-     */
-    private double xBeforeDrag;
-
-    /**
-     * pre-drag y coordinate of the marker that is being dragged
-     */
-    private double yBeforeDrag;
+    private final static int SEARCH_DISTANCE_NODE_CLOSEST_TO = 1000;
 
     /**
      * property recording the coordinates of the mouse on the last event it indulged in
      */
-    private final ObjectProperty<Point2D> mouseOnLastEvent;
+    private ObjectProperty<Point2D> mouseOnLastEvent;
 
     /**
      * constructor of WaypointsManager
@@ -91,6 +94,7 @@ public final class WaypointsManager {
         this.mouseOnLastEvent = new SimpleObjectProperty<>();
         pane = createPane();
         createMarkers();
+        this.mouseOnLastEvent=new SimpleObjectProperty<>();
         initiateListeners();
     }
 
@@ -152,7 +156,7 @@ public final class WaypointsManager {
         PointWebMercator pointWebMercator = mapViewParameters.get().pointAt(x, y);
         PointCh pointCh = pointWebMercator.toPointCh();
         if (pointCh != null) {
-            int nodeId = graph.nodeClosestTo(pointCh, SEARCH_DISTANCE_NODE_CLOSEST_TO_1);
+            int nodeId = graph.nodeClosestTo(pointCh, SEARCH_DISTANCE_NODE_CLOSEST_TO);
             if (nodeId == -1) {
                 errorConsumer.accept(ERROR_MESSAGE);
                 return;
@@ -188,50 +192,55 @@ public final class WaypointsManager {
         exterior.setContent(SVG_EXTERIOR_STRING);
         exterior.getStyleClass().add("pin_outside");
 
-        SVGPath interior = new SVGPath();
+        SVGPath interior=new SVGPath();
         interior.setContent(SVG_INTERIOR_STRING);
         interior.getStyleClass().add("pin_inside");
 
-        Group group = new Group(exterior, interior);
+        Group group=new Group(exterior, interior);
         group.getStyleClass().add("pin");
 
         PointWebMercator nodePointWebMercator = PointWebMercator.ofPointCh(wayPoint.point());
         group.setLayoutX(mapViewParameters.get().viewX(nodePointWebMercator));
         group.setLayoutY(mapViewParameters.get().viewY(nodePointWebMercator));
 
-        group.setOnMouseClicked(event -> {
-            if (event.isStillSincePress()) wayPointsList.remove(wayPoint);
+        ObjectProperty<WayPoint> draggedWayPoint = new SimpleObjectProperty<>();
+        DoubleProperty yBeforeDrag= new SimpleDoubleProperty();
+        DoubleProperty xBeforeDrag = new SimpleDoubleProperty();
+
+        group.setOnMouseClicked(event->{
+            if (event.isStillSincePress())wayPointsList.remove(wayPoint);
         });
         ObjectProperty<WayPoint> draggedWayPoint = new SimpleObjectProperty<>();
         group.setOnMousePressed(event -> {
             xBeforeDrag = group.getLayoutX();
             yBeforeDrag = group.getLayoutY();
+
+        group.setOnMousePressed(event-> {
+            xBeforeDrag.set(group.getLayoutX());
+            yBeforeDrag.set(group.getLayoutY());
             draggedWayPoint.set(wayPoint);
             mouseOnLastEvent.set(new Point2D(event.getX(), event.getY()));
         });
-        //todo demander si le truc des mouse ca va(oui)
-        group.setOnMouseDragged(event -> {
+        group.setOnMouseDragged(event-> {
             double deltaX = event.getX() - mouseOnLastEvent.get().getX();
             double deltaY = event.getY() - mouseOnLastEvent.get().getY();
-            group.setLayoutX(group.getLayoutX() + deltaX);
-            group.setLayoutY(group.getLayoutY() + deltaY);
+            group.setLayoutX(group.getLayoutX()+deltaX);
+            group.setLayoutY(group.getLayoutY()+deltaY);
             mouseOnLastEvent.get().add(deltaX, deltaY);
         });
 
-        group.setOnMouseReleased(event -> {
+        group.setOnMouseReleased(event-> {
             if (!event.isStillSincePress()) {
                 PointCh pointCh = mapViewParameters.get().pointAt(group.getLayoutX(), group.getLayoutY()).toPointCh();
-                int nodeId = -1;
-                if (pointCh != null) nodeId = graph.nodeClosestTo(pointCh, SEARCH_DISTANCE_NODE_CLOSEST_TO_1);
+                int nodeId=-1;
+                if (pointCh!=null)nodeId= graph.nodeClosestTo(pointCh, SEARCH_DISTANCE_NODE_CLOSEST_TO);
                 if (nodeId == -1) {
-                    group.setLayoutX(xBeforeDrag);
-                    group.setLayoutY(yBeforeDrag);
+                    group.setLayoutX(xBeforeDrag.doubleValue());
+                    group.setLayoutY(yBeforeDrag.doubleValue());
                     errorConsumer.accept(ERROR_MESSAGE);
                 }
-                //todo ca (done)
                 else wayPointsList.set(wayPointsList.indexOf(draggedWayPoint.get()), new WayPoint(pointCh, nodeId));
             }
         });
         return group;
     }
-}

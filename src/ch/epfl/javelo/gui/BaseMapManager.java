@@ -41,7 +41,7 @@ public final class BaseMapManager {
     /**
      * boolean telling whether a redraw of the map is needed.
      */
-    private boolean redrawNeeded;
+    boolean redrawNeeded;
     /**
      * number of pixels per tile
      */
@@ -125,6 +125,7 @@ public final class BaseMapManager {
                     imageToDraw = tileManager.imageForTileAt(new TileManager.TileId(zoomLevel, xTileIndex, yTileIndex));
                 } catch (Exception e) {
                     canDraw = false;
+                    System.out.println(e.getMessage());
                     break;
                 }
                 if (canDraw) {
@@ -156,7 +157,6 @@ public final class BaseMapManager {
 
         SimpleLongProperty minScrollTime = new SimpleLongProperty();
         pane.setOnScroll(e -> {
-            //TODO e.getX cher ?
             if (e.getDeltaY() == 0) return;
             mouseOnLastEvent.set(new Point2D(e.getX(), e.getY()));
             long currentTime = System.currentTimeMillis();

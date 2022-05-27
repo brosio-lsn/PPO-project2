@@ -126,7 +126,7 @@ public final class GpxGenerator {
                 transformer.transform(new DOMSource(doc),
                         new StreamResult(writer));
             } catch (TransformerException e) {
-                throw new Error(e);
+                throw new Error(e); // Should never happen
             }
         }
     }

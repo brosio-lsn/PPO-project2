@@ -129,10 +129,10 @@ public final class RouteManager {
      */
     private void positionCircle() {
         if (routeBean.route().get() != null && !Double.isNaN(routeBean.highlightedPosition())) {
-            PointCh pointCh = routeBean.route().get().pointAt(routeBean.highlightedPosition());
-            PointWebMercator pointWebMercator = PointWebMercator.ofPointCh(pointCh);
-            circle.setLayoutX(mapViewParameters.get().viewX(pointWebMercator));
-            circle.setLayoutY(mapViewParameters.get().viewY(pointWebMercator));
+            PointCh pointChAtHighlighted = routeBean.route().get().pointAt(routeBean.highlightedPosition());
+            PointWebMercator pointWebMercatorAtHighlighted = PointWebMercator.ofPointCh(pointChAtHighlighted);
+            circle.setLayoutX(mapViewParameters.get().viewX(pointWebMercatorAtHighlighted));
+            circle.setLayoutY(mapViewParameters.get().viewY(pointWebMercatorAtHighlighted));
             circle.setVisible(true);
         } else circle.setVisible(false);
     }
@@ -147,9 +147,9 @@ public final class RouteManager {
             Point2D point2D = circle.localToParent(event.getX(), event.getY());
             int nodeId = routeBean.route().get().nodeClosestTo(routeBean.highlightedPosition());
 
-            PointWebMercator pointWebMercator = mapViewParameters.get().pointAt(point2D.getX(), point2D.getY());
-            int indexOfSegmentAtHightlightedPosition = routeBean.indexOfNonEmptySegmentAt(routeBean.highlightedPosition());
-            routeBean.getWaypoints().add(indexOfSegmentAtHightlightedPosition + 1, new WayPoint(pointWebMercator.toPointCh(), nodeId));
+            PointWebMercator pointWebMercatorOfEvent = mapViewParameters.get().pointAt(point2D.getX(), point2D.getY());
+            int indexOfSegmentAtHighlightedPosition = routeBean.indexOfNonEmptySegmentAt(routeBean.highlightedPosition());
+            routeBean.getWaypoints().add(indexOfSegmentAtHighlightedPosition + 1, new WayPoint(pointWebMercatorOfEvent.toPointCh(), nodeId));
         });
 
         mapViewParameters.addListener((property, previousV, newV) -> {

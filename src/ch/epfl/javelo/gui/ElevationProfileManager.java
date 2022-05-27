@@ -303,7 +303,7 @@ public final class ElevationProfileManager {
         line.layoutXProperty().bind(Bindings.createDoubleBinding(() ->
                         worldToScreen.get().transform(position.doubleValue(),
                                 elevationProfile.get().elevationAt(position.doubleValue())).getX(),
-                position));
+                                    position));
         line.startYProperty().bind(Bindings.select(rectangle, "minY"));
         line.endYProperty().bind(Bindings.select(rectangle, "maxY"));
         line.visibleProperty().bind(Bindings.greaterThan(position, 0).and(Bindings.lessThan(position, elevationProfile.get().length())));
