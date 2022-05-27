@@ -91,7 +91,6 @@ public final class GpxGenerator {
             PointCh point = pointChIterator.next();
             double lat = Math.toDegrees(point.lat());
             double lon = Math.toDegrees(point.lon());
-            //todo demander si nommer ca en constantes
             rtept.setAttribute("lat", String.valueOf(lat));
             rtept.setAttribute("lon", String.valueOf(lon));
 

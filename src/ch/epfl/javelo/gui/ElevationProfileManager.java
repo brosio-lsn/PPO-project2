@@ -316,11 +316,11 @@ public final class ElevationProfileManager {
             drawPolygone();
             createGrid();
         });
-
-        screenToWorld.addListener((property, previousV, newV) -> {
+        //removed below because a change in world to screen always imply a change in screenToWorld
+        /*screenToWorld.addListener((property, previousV, newV) -> {
             drawPolygone();
             createGrid();
-        });
+        });*/
 
 
         position.addListener((property, previousV, newV) ->{

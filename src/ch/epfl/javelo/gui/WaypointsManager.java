@@ -126,7 +126,6 @@ public final class WaypointsManager {
      * creates the markers corresponding to the waypoints contained in observableList
      * and adds them as children to the pane
      */
-    //todo nommer les constantes first last...?(non)
     private void createMarkers (){
         List<Node> markers = new ArrayList<>();
         int size = observableList.size();
@@ -163,7 +162,6 @@ public final class WaypointsManager {
      * @param mapViewParameters the new mapviewParameters
      */
     private void relocateMarkers(MapViewParameters mapViewParameters){
-        //todo demander si meilleur maniere de le faire(nn)
         Iterator<WayPoint> itWaypoints = observableList.iterator();
         for (Node node : pane.getChildren()) {
             WayPoint wayPoint = itWaypoints.next();
@@ -178,7 +176,6 @@ public final class WaypointsManager {
      * @return a regular marker group
      */
     private Group createMarkerGroup (WayPoint wayPoint){
-        //todo nommer ces constantes?(dt care)
         SVGPath exterior=new SVGPath();
         exterior.setContent(SVG_EXTERIOR_STRING);
         exterior.getStyleClass().add("pin_outside");
@@ -208,7 +205,6 @@ public final class WaypointsManager {
             draggedWayPoint.set(wayPoint);
             mouseOnLastEvent.set(new Point2D(event.getX(), event.getY()));
         });
-        //todo demander si mieux de add pour la mouseProperty ou de set direct?
         group.setOnMouseDragged(event-> {
             double deltaX = event.getX() - mouseOnLastEvent.get().getX();
             double deltaY = event.getY() - mouseOnLastEvent.get().getY();

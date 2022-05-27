@@ -103,7 +103,6 @@ public final class RouteManager {
      * the circle and te polyline as its children
      */
     private void createPane() {
-        //todo demander si constantes pour ces strings
         polyline.setId("route");
         circle.setId("highlight");
         circle.setRadius(CIRCLE_RADIUS);
@@ -157,7 +156,6 @@ public final class RouteManager {
      * highlighted position on the route)
      */
     private void setEvents() {
-        //todo demander si moy d opti la methode (done)
         circle.setOnMouseClicked(event -> {
             Point2D point2D = circle.localToParent(event.getX(), event.getY());
             int nodeId = routeBean.route().get().nodeClosestTo(routeBean.highlightedPosition());
