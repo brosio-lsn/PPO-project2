@@ -126,7 +126,8 @@ final public class SingleRoute implements Route {
         RoutePoint routePoint = RoutePoint.NONE;
         for (int i = 0; i < edges.size(); ++i) {
             Edge edge = edges.get(i);
-            double positionOnEdge = Math2.clamp(0, edge.positionClosestTo(point), edge.length());
+            double positionOnEdge =0;
+            if(!(length() == 0)) positionOnEdge = Math2.clamp(0, edge.positionClosestTo(point), edge.length());
             PointCh pointOnEdge = edge.pointAt(positionOnEdge);
             routePoint = routePoint.min(pointOnEdge, nodesDistanceTable[i] + positionOnEdge, point.distanceTo(pointOnEdge));
         }

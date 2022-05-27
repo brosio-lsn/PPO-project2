@@ -13,6 +13,7 @@ import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SplitPane;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
 
@@ -25,8 +26,8 @@ public final class JaVelo extends Application {
     private static final int PANE_MIN_HEIGHT = 600;
     private static final int PANE_MIN_WIDTH = 800;
     private static final String TITLE = "JaVelo";
-    private static final String FILE_NAME = "Files";
-    private static final String EXPORTER_GFX = "Export GFX";
+    private static final String FILE_NAME = "Fichiers";
+    private static final String EXPORTER_GFX = "Exporter GFX";
     private static final String SERVER_NAME = "tile.openstreetmap.org";
     private static final String PATH_TO_REPERTORY = "osm-cache";
     private static final String NAME_OF_DATA_FILES = "javelo-data";
@@ -66,6 +67,7 @@ public final class JaVelo extends Application {
         SplitPane.setResizableWithParent(profileManager.pane(), false);
 
         bean.route().addListener((observable, oldValue, newValue) -> {
+            window.getItems().remove(profileManager.pane());
             if (newValue != null) {
                 ElevationProfile profile = ElevationProfileComputer
                         .elevationProfile(bean.route().get(), MAX_STEP_LENGTH);
@@ -78,20 +80,19 @@ public final class JaVelo extends Application {
                         throw new UncheckedIOException(e);
                     }
                 });
-                window.getItems().setAll(map.pane(), profileManager.pane());
+                window.getItems().add(profileManager.pane());
                 bar.setUseSystemMenuBar(true);
-                bean.highlightedPosition.bind(Bindings.createDoubleBinding(() -> map.mousePositionOnRouteProperty().get() >= 0
+                bean.highlightedPositionProperty().bind(Bindings.createDoubleBinding(() -> map.mousePositionOnRouteProperty().get() >= 0
                         ? map.mousePositionOnRouteProperty().get()
                         : profileManager.mousePositionOnProfileProperty().get(), profileManager.mousePositionOnProfileProperty(), map.mousePositionOnRouteProperty()));
             } else {
-                window.getItems().setAll(map.pane());
                 bar.setDisable(true);
             }
         });
 
         window.getItems().add(map.pane());
-        StackPane scene = new StackPane(window, errorManager.pane(), bar);
-        StackPane.setAlignment(bar, Pos.TOP_CENTER);
+        StackPane mapView = new StackPane(window, errorManager.pane());
+        BorderPane scene = new BorderPane(mapView, bar, null, null, null);
         primaryStage.setMinWidth(PANE_MIN_WIDTH);
         primaryStage.setMinHeight(PANE_MIN_HEIGHT);
         primaryStage.setTitle(TITLE);

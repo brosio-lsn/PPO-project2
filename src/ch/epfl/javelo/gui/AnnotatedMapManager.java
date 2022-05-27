@@ -2,6 +2,7 @@ package ch.epfl.javelo.gui;
 
 import ch.epfl.javelo.Math2;
 import ch.epfl.javelo.data.Graph;
+import ch.epfl.javelo.projection.PointCh;
 import ch.epfl.javelo.projection.PointWebMercator;
 import ch.epfl.javelo.routing.RoutePoint;
 import javafx.beans.binding.Bindings;
@@ -14,10 +15,11 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
 
 import java.util.function.Consumer;
+
 /**
  * @author Louis ROCHE (345620)
  * @author Ambroise AIGUEPERSE (341890)
- *
+ * <p>
  * handels the display of the annotated map
  */
 public final class AnnotatedMapManager {
@@ -37,19 +39,20 @@ public final class AnnotatedMapManager {
 
     /**
      * constructor of the class
-     * @param graph the with all the edges, node...
+     *
+     * @param graph       the with all the edges, node...
      * @param tileManager the tile manager
-     * @param routeBean the bean of the displayed route
-     * @param consumer a consumer to display errors
+     * @param routeBean   the bean of the displayed route
+     * @param consumer    a consumer to display errors
      */
     public AnnotatedMapManager(Graph graph, TileManager tileManager, RouteBean routeBean, Consumer<String> consumer) {
         this.routeBean = routeBean;
-        mouseOnLastEvent=new SimpleObjectProperty<>();
+        mouseOnLastEvent = new SimpleObjectProperty<>();
         MapViewParameters mapViewParameters = new MapViewParameters(INITIAL_ZOOM_LEVEL, INITIAL_X, INITIAL_Y);
         mapViewParametersP = new SimpleObjectProperty<>(mapViewParameters);
-        waypointsManager = new WaypointsManager(graph, mapViewParametersP,routeBean.getWaypoints(), consumer);
+        waypointsManager = new WaypointsManager(graph, mapViewParametersP, routeBean.getWaypoints(), consumer);
         baseMapManager = new BaseMapManager(tileManager, waypointsManager, mapViewParametersP);
-        routeManager = new RouteManager(routeBean,mapViewParametersP , consumer);
+        routeManager = new RouteManager(routeBean, mapViewParametersP);
         positionAlongRoute = new SimpleDoubleProperty();
         pane = new StackPane(baseMapManager.pane(), routeManager.pane(), waypointsManager.pane());
         pane.getStylesheets().add("map.css");
@@ -58,41 +61,48 @@ public final class AnnotatedMapManager {
 
     /**
      * returns the pane with the annotated map
+     *
      * @return the pane with the annotated map
      */
-    public Pane pane(){return pane;}
+    public Pane pane() {
+        return pane;
+    }
 
     /**
      * returns the property containing the position of the mouse along the route
+     *
      * @return the property containing the position of the mouse along the route
      */
-    public DoubleProperty mousePositionOnRouteProperty(){
+    public DoubleProperty mousePositionOnRouteProperty() {
         return positionAlongRoute;
     }
 
     /**
      * sets all the events for the class
      */
-    private void setEvents(){
-        pane.setOnMouseMoved(event-> mouseOnLastEvent.set(new Point2D(event.getX() , event.getY())));
-
-        pane.setOnMouseExited(event-> mouseOnLastEvent.set(null));
+    private void setEvents() {
+        pane.setOnMouseMoved(event -> mouseOnLastEvent.set(new Point2D(event.getX(), event.getY())));
+        pane.setOnMouseDragged(event -> mouseOnLastEvent.set(new Point2D(event.getX(), event.getY())));
+        pane.setOnMouseExited(event -> mouseOnLastEvent.set(null));
 
         positionAlongRoute.bind(Bindings.createDoubleBinding(
                 this::updatePositionAlongRoute, mouseOnLastEvent, routeBean.route(), mapViewParametersP));
     }
 
-    private double updatePositionAlongRoute(){
-        if(mapViewParametersP.get()==null || routeBean.route().get()==null || mouseOnLastEvent.get()==null)return MOUSE_NOT_CLOSE_TO_ROUTE;
+    private double updatePositionAlongRoute() {
+        if (mapViewParametersP.get() == null || routeBean.route().get() == null || mouseOnLastEvent.get() == null)
+            return MOUSE_NOT_CLOSE_TO_ROUTE;
         PointWebMercator pointWebMercator = mapViewParametersP.get().pointAt(mouseOnLastEvent.get().getX(), mouseOnLastEvent.get().getY());
-        RoutePoint pointOnRoute = routeBean.route().get().pointClosestTo(pointWebMercator.toPointCh());
+        PointCh pointCh = pointWebMercator.toPointCh();
+        if (pointCh == null) return MOUSE_NOT_CLOSE_TO_ROUTE;
+        RoutePoint pointOnRoute = routeBean.route().get().pointClosestTo(pointCh);
         PointWebMercator pointWebMercatorOfPointCh = PointWebMercator.ofPointCh(pointOnRoute.point());
-        double uX=mouseOnLastEvent.get().getX()-mapViewParametersP.get().viewX(pointWebMercatorOfPointCh);
-        double uY=mouseOnLastEvent.get().getY()-mapViewParametersP.get().viewY(pointWebMercatorOfPointCh);
+        double uX = mouseOnLastEvent.get().getX() - mapViewParametersP.get().viewX(pointWebMercatorOfPointCh);
+        double uY = mouseOnLastEvent.get().getY() - mapViewParametersP.get().viewY(pointWebMercatorOfPointCh);
         double distanceInPixels = Math2.norm(uX, uY);
-        if(distanceInPixels< MAXIMAL_PIXEL_DISTANCE_FOR_MOUSE){
-            return pointOnRoute.position();}
-        else return MOUSE_NOT_CLOSE_TO_ROUTE;
+        if (distanceInPixels < MAXIMAL_PIXEL_DISTANCE_FOR_MOUSE) {
+            return pointOnRoute.position();
+        } else return MOUSE_NOT_CLOSE_TO_ROUTE;
     }
 
 }

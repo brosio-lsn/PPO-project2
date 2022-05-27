@@ -33,7 +33,7 @@ public final class GpxGenerator {
     private static final int INITIAL_POSITION_ON_ROUTE = 0;
 
     /**
-     * private constructor
+     * private constructor to make the class non instantiable
      */
     private GpxGenerator() {
     }
@@ -113,7 +113,7 @@ public final class GpxGenerator {
      * @param fileName name of the file in which the GPX document will be written
      * @param route    the given Route
      * @param profile  the elevation profile of the given Route
-     * @throws IOException
+     * @throws IOException if the path to write the files onto does not exist
      */
     public static void writeGpx(String fileName, Route route, ElevationProfile profile) throws IOException {
         Document doc = createGpx(route, profile);

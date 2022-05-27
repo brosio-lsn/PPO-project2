@@ -3,28 +3,22 @@ package ch.epfl.javelo.gui;
 import ch.epfl.javelo.projection.PointCh;
 import ch.epfl.javelo.projection.PointWebMercator;
 import ch.epfl.javelo.routing.Route;
-import com.sun.jdi.PrimitiveValue;
-import com.sun.security.jgss.GSSUtil;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Point2D;
 import javafx.scene.layout.Pane;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polyline;
 
-import java.rmi.server.ExportException;
 import java.util.function.Consumer;
 
-// recontruite full la polyline si on chnage itineraire/zoom et sinon juste la déclaer
-//comment bouger la polyline (faut faire comme les waypoitns immobiles)
-
+/**
+ * Manages the route
+ * @author Louis ROCHE (345620)
+ * @author Ambroise AIGUEPERSE (341890)
+ */
 
 public final class RouteManager {
 
-    /**
-     * error message
-     */
-    private static final String ERROR_MESSAGE = "Un point de passage est déjà présent à cet endroit !";
 
     /**
      * y center coordinate
@@ -35,6 +29,10 @@ public final class RouteManager {
      * x center coordinate
      */
     private static final int X_CENTER = 0;
+
+    /**
+     * circle radius
+     */
     private static final int CIRCLE_RADIUS = 5;
 
     /**
@@ -42,10 +40,6 @@ public final class RouteManager {
      */
     private final RouteBean routeBean;
 
-    /**
-     * constant to signal that the circle shouldn't be drawn
-     */
-    private static final double noPosition = Double.NaN;
 
     /**
      * property containing the parameters of the displayed map
@@ -53,39 +47,33 @@ public final class RouteManager {
     private final ObjectProperty<MapViewParameters> mapViewParameters;
 
     /**
-     * error consumer to display an error
-     */
-    private final Consumer<String> errorConsumer;
-
-    /**
      * circle representing the highlighted position on the route
      */
-    private Circle circle;
+    private final Circle circle;
 
     /**
      * represents the route itself on the map
      */
-    private Polyline polyline;
+    private final Polyline polyline;
 
     /**
      * the pane containing the route (polyline and the circle)
      */
-    private Pane pane;
+    private final Pane pane;
 
     /**
      * constructor of the class
      *
      * @param routeBean         bean containing the properties related to the route
      * @param mapViewParameters property containing the parameters of the displayed map
-     * @param errorConsumer     circle representing the highlighted position on the route
      */
-    public RouteManager(RouteBean routeBean, ObjectProperty<MapViewParameters> mapViewParameters, Consumer<String> errorConsumer) {
+    public RouteManager(RouteBean routeBean, ObjectProperty<MapViewParameters> mapViewParameters) {
         this.routeBean = routeBean;
         this.mapViewParameters = mapViewParameters;
-        this.errorConsumer = errorConsumer;
         polyline = new Polyline();
         circle = new Circle();
-        createPane();
+        pane = new Pane(polyline, circle);
+        setupPane();
         setEvents();
     }
 
@@ -99,16 +87,14 @@ public final class RouteManager {
     }
 
     /**
-     * creates the pane (used in the constructor) and sets
-     * the circle and te polyline as its children
+     * sets up the pane (used in the constructor) and sets
+     * the circle and the polyline as its children
      */
-    private void createPane() {
-        //todo demander si constantes pour ces strings
+    private void setupPane() {
+        pane.setPickOnBounds(false);
         polyline.setId("route");
         circle.setId("highlight");
         circle.setRadius(CIRCLE_RADIUS);
-        pane = new Pane(polyline, circle);
-        pane.setPickOnBounds(false);
         createPointsCoordinates();
         positionCircle();
     }
@@ -157,7 +143,6 @@ public final class RouteManager {
      * highlighted position on the route)
      */
     private void setEvents() {
-        //todo demander si moy d opti la methode
         circle.setOnMouseClicked(event -> {
             Point2D point2D = circle.localToParent(event.getX(), event.getY());
             int nodeId = routeBean.route().get().nodeClosestTo(routeBean.highlightedPosition());
@@ -179,7 +164,7 @@ public final class RouteManager {
             positionCircle();
         });
 
-        routeBean.highlightedPosition.addListener((property, previousV, newV) -> positionCircle());
+        routeBean.highlightedPositionProperty().addListener((property, previousV, newV) -> positionCircle());
 
         routeBean.route().addListener((property, previousV, newV) -> {
             positionCircle();

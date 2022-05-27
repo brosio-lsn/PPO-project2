@@ -21,40 +21,8 @@ import java.util.LinkedHashMap;
 
 public final class TileManager {
 
-    public record TileId(int zoomLevel, int xIndex, int yIndex) {
-        private static final int TILES_AT_ZOOM_0 = 4;
-
-        /**
-         * constructor of the id of a tile
-         *
-         * @param zoomLevel zoom level on the map - scaling factor of the coordinates of the tile
-         * @param xIndex    x coordinates of the tile.
-         * @param yIndex    y coordinate of the tile.
-         */
-        public TileId {
-            Preconditions.checkArgument(isValid(zoomLevel, xIndex, yIndex));
-        }
-
-        /**
-         * determines whether a tile is valid.
-         *
-         * @param zoomLevel zoom level on the map - scaling factor of the coordinates of the tile
-         * @param xIndex    x coordinate of the tile
-         * @param yIndex    y coordinate of the tile
-         * @return true if the xIndex and the yIndex are within the bounds delimited by the zoom level and
-         * the number of tiles
-         */
-        public static boolean isValid(int zoomLevel, int xIndex, int yIndex) {
-            double nbOfTiles = Math.pow(TILES_AT_ZOOM_0, zoomLevel);
-            return (xIndex >= 0
-                    && yIndex >= 0
-                    && xIndex < Math.sqrt(nbOfTiles)
-                    && yIndex < Math.sqrt(nbOfTiles));
-        }
-    }
-
     //todo pathToImage à renommer en imageURL, faire un pathToimage avec pathToRepertory
-    LinkedHashMap<TileId, Image> cache;
+    private final LinkedHashMap<TileId, Image> cache;
     private final Path pathToRepertory;
     private final String serverName;
     private final static int CAPACITY_OF_CACHE = 100;
@@ -71,8 +39,9 @@ public final class TileManager {
     public TileManager(Path pathToRepertory, String serverName) {
         this.pathToRepertory = pathToRepertory;
         this.serverName = serverName;
-        cache = new LinkedHashMap<>(CAPACITY_OF_CACHE, LOAD_FACTOR, ELDEST_ACCES);
+        this.cache = new LinkedHashMap<>(CAPACITY_OF_CACHE, LOAD_FACTOR, ELDEST_ACCES);
     }
+    //todo assistant modulariser itérateur remove cache
 
     /**
      * returns the corresponding image of a tile of a given id.
@@ -83,6 +52,7 @@ public final class TileManager {
      */
     public Image imageForTileAt(TileId id) throws IOException {
         StringBuilder url = new StringBuilder();
+        //TODO demander à un assistant si on peut faire un format
         String fileOfTile = pathToRepertory + url
                 .append("/")
                 .append(id.zoomLevel)
@@ -95,10 +65,11 @@ public final class TileManager {
                 .append(".png")
                 .toString();
         Path pathToFiles = Path.of(fileOfTile);
-
+        //todo modulariser les strings
+        String pathToImage = pathToRepertory + imageURL;
         if (cache.containsKey(id)) {
             return cache.get(id);
-        } else if (Files.exists(Path.of(pathToRepertory + imageURL), LinkOption.NOFOLLOW_LINKS)) {
+        } else if (Files.exists(Path.of(pathToImage), LinkOption.NOFOLLOW_LINKS)) {
             return imageFromDisk(id, imageURL);
         } else {
             return imageFromServer(id, pathToFiles, imageURL);
@@ -112,12 +83,18 @@ public final class TileManager {
      * @param id        id of the tile to load.
      * @param imagePath local path to such an image.
      * @return the image representing the tile of given id from the local hard drive.
+     * @throws IOException if the path in the fileInputStream is incorrect.
      */
+
     private Image imageFromDisk(TileId id, String imagePath) throws IOException {
         Image fileImage;
         try (FileInputStream inputStream = new FileInputStream(pathToRepertory + imagePath)) {
             fileImage = new Image(inputStream);
             cache.put(id, fileImage);
+            Iterator<TileId> ite = cache.keySet().iterator();
+            if (ite.hasNext() && cache.size() == CAPACITY_OF_CACHE) {
+                cache.remove(ite.next());
+            }
         }
         return fileImage;
     }
@@ -141,8 +118,39 @@ public final class TileManager {
              OutputStream writer = new FileOutputStream(pathToRepertory + imageURL)) {
             i.transferTo(writer);
         }
-        Iterator<TileId> ite = cache.keySet().iterator();
-        if (ite.hasNext() && cache.size() == CAPACITY_OF_CACHE) cache.remove(ite.next());
         return imageFromDisk(id, imageURL);
+    }
+
+
+    public record TileId(int zoomLevel, int xIndex, int yIndex) {
+        private static final int TILES_ON_SIDE_ZOOM_0 = 2;
+
+        /**
+         * constructor of the id of a tile
+         *
+         * @param zoomLevel zoom level on the map - scaling factor of the coordinates of the tile
+         * @param xIndex    x coordinates of the tile.
+         * @param yIndex    y coordinate of the tile.
+         */
+        public TileId {
+            Preconditions.checkArgument(isValid(zoomLevel, xIndex, yIndex));
+        }
+
+        /**
+         * determines whether a tile is valid.
+         *
+         * @param zoomLevel zoom level on the map - scaling factor of the coordinates of the tile
+         * @param xIndex    x coordinate of the tile
+         * @param yIndex    y coordinate of the tile
+         * @return true if the xIndex and the yIndex are within the bounds delimited by the zoom level and
+         * the number of tiles
+         */
+        public static boolean isValid(int zoomLevel, int xIndex, int yIndex) {
+            double sideOfSquare = Math.pow(TILES_ON_SIDE_ZOOM_0, zoomLevel);
+            return (xIndex >= 0
+                    && yIndex >= 0
+                    && xIndex < sideOfSquare
+                    && yIndex < sideOfSquare);
+        }
     }
 }

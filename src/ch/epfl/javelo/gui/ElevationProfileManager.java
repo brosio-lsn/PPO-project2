@@ -7,11 +7,8 @@ import javafx.beans.property.*;
 import javafx.geometry.*;
 import javafx.scene.Group;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.*;
 import javafx.scene.text.Font;
-import javafx.scene.text.FontPosture;
-import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.transform.Affine;
 import javafx.scene.transform.NonInvertibleTransformException;
@@ -177,7 +174,6 @@ public final class ElevationProfileManager {
         rectangle = new SimpleObjectProperty<>();
         insets = new Insets(TOP_PIXELS, RIGHT_PIXELS, BOTTOM_PIXELS, LEFT_PIXELS);
         bindingsDone = false;
-        createChildren();
         setLabels();
         setEvents();
     }
@@ -274,6 +270,7 @@ public final class ElevationProfileManager {
         worldToScreen.addListener((property, previousV, newV) -> {
             drawPolygone();
             createGrid();
+            stats.setText(stats());
         });
 
 
@@ -306,7 +303,7 @@ public final class ElevationProfileManager {
         line.layoutXProperty().bind(Bindings.createDoubleBinding(() ->
                         worldToScreen.get().transform(position.doubleValue(),
                                 elevationProfile.get().elevationAt(position.doubleValue())).getX(),
-                                    position));
+                position));
         line.startYProperty().bind(Bindings.select(rectangle, "minY"));
         line.endYProperty().bind(Bindings.select(rectangle, "maxY"));
         line.visibleProperty().bind(Bindings.greaterThan(position, 0).and(Bindings.lessThan(position, elevationProfile.get().length())));
@@ -345,7 +342,7 @@ public final class ElevationProfileManager {
 
             //building the vertical lines
             for (int posStep : POS_STEPS) {
-                nbOfVertiLines = (int) (lengthWorld / posStep);
+                nbOfVertiLines = Math2.ceilDiv((int)lengthWorld, posStep);
                 double distanceBetweenLines = worldToScreen.get().deltaTransform(posStep, 0).getX();
                 if (distanceBetweenLines >= HORIZONTAL_DISTANCE_MIN) {
                     stepInWorldPosition = posStep;
@@ -360,14 +357,9 @@ public final class ElevationProfileManager {
             List<Text> labels = new ArrayList<>();
             List<PathElement> positionLines = new ArrayList<>();
             double heightOfLine = worldToScreen.get().deltaTransform(0, -heightWorld).getY();
-            //explanation for the +1 in the for loop -> here we have divided the grid in nbOfVertiLines parts.
-            // Say we want to divide a line ------ in 3 parts with vertical lines so that the line ends with vertical lines
-            // the partition will go as following : |--|--|--|. Here we have divided the line in 3 parts with 4 vertical lines.
-            // Hence the +1 here.
-            for (int i = 0; i < nbOfVertiLines+1; i++) {
+            for (int i = 0; i < nbOfVertiLines; i++) {
                 positionLines.add(new MoveTo(LEFT_PIXELS + stepInScreenPosition * i, heightOfRectangle + TOP_PIXELS));
                 positionLines.add(new LineTo(LEFT_PIXELS + stepInScreenPosition * i, heightOfRectangle - heightOfLine + TOP_PIXELS));
-                //TODO nommage de constantes
                 Text label = new Text(String.valueOf((stepInWorldPosition * i) / ROUND_TO_KILOMETERS_FACTOR));
                 label.textOriginProperty().set(VPos.TOP);
                 label.relocate(LEFT_PIXELS + stepInScreenPosition * i - label.getLayoutBounds().getWidth()/2, rectangle.get().getHeight() + TOP_PIXELS);
@@ -398,11 +390,10 @@ public final class ElevationProfileManager {
             double minElevation = elevationProfile.get().minElevation();
             int closestStepToMinHeight = Math2.ceilDiv((int) minElevation, stepInWorldElevation) * stepInWorldElevation;
             double delta = -worldToScreen.get().deltaTransform(0, (Math2.ceilDiv((int) minElevation, stepInWorldElevation) * stepInWorldElevation - minElevation)).getY();
-            System.out.println(delta);
             List<PathElement> elevationLines = new ArrayList<>();
             for (int i = 0; i < nbOfHoriLines; i++) {
                 double yCoordinateOfLine = rectangle.get().getHeight() - stepInScreenElevation * i - delta + TOP_PIXELS;
-                if (!(yCoordinateOfLine < heightOfRectangle - heightOfLine)) {
+                if (!(yCoordinateOfLine < insets.getTop())) {
                     elevationLines.add(new MoveTo(LEFT_PIXELS, yCoordinateOfLine));
                     elevationLines.add(new LineTo(widthOfRectangle + LEFT_PIXELS, yCoordinateOfLine));
                     Text label = new Text(String.valueOf((stepInWorldElevation * i + closestStepToMinHeight)));

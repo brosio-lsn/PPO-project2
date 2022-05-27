@@ -59,11 +59,11 @@ public final class BaseMapManager {
      */
     private final ObjectProperty<Point2D> mouseOnLastEvent;
     /**
-     * Number of iterations needed to draw the image on the X-axis of the canvas
+     * Number of additional iterations needed to draw the image on the X-axis of the canvas
      */
     private final int X_ITERATIONS = 2 * PIXELS_PER_TILE;
     /**
-     * Number of iterations needed to draw the image on the Y-axis of the canvas
+     * Number of additional iterations needed to draw the image on the Y-axis of the canvas
      */
     private final int Y_ITERATIONS = PIXELS_PER_TILE;
 
@@ -99,14 +99,21 @@ public final class BaseMapManager {
     }
 
     /**
-     * redraws the canvas if it is needed - if redrawOnNextPulse() has been called
+     * redraws the map if it is needed - if redrawOnNextPulse() has been called
      */
     private void redrawIfNeeded() {
+        if (!redrawNeeded) return;
+        redrawNeeded = false;
+        drawMap();
+    }
+
+    /**
+     * draws the map on the canvas
+     */
+    private void drawMap() {
         double xTopLeft = mapViewParametersProp.get().topLeft().getX();
         double yTopLeft = mapViewParametersProp.get().topLeft().getY();
         int zoomLevel = mapViewParametersProp.get().zoomLevel();
-        if (!redrawNeeded) return;
-        redrawNeeded = false;
         GraphicsContext context = canvas.getGraphicsContext2D();
         Image imageToDraw;
         boolean canDraw = true;
@@ -118,7 +125,6 @@ public final class BaseMapManager {
                     imageToDraw = tileManager.imageForTileAt(new TileManager.TileId(zoomLevel, xTileIndex, yTileIndex));
                 } catch (Exception e) {
                     canDraw = false;
-                    System.out.println(e.getMessage());
                     break;
                 }
                 if (canDraw) {
@@ -150,6 +156,7 @@ public final class BaseMapManager {
 
         SimpleLongProperty minScrollTime = new SimpleLongProperty();
         pane.setOnScroll(e -> {
+            //TODO e.getX cher ?
             if (e.getDeltaY() == 0) return;
             mouseOnLastEvent.set(new Point2D(e.getX(), e.getY()));
             long currentTime = System.currentTimeMillis();
@@ -158,8 +165,10 @@ public final class BaseMapManager {
             double zoomDelta = Math.signum(e.getDeltaY());
             int currentZoomLevel = mapViewParametersProp.get().zoomLevel();
             int newZoomLevel = (int) Math2.clamp(ZOOM_LEVEl_MIN, currentZoomLevel + zoomDelta, ZOOM_LEVEL_MAX);
-            PointWebMercator corner = mapViewParametersProp.get().pointAt(e.getX() , e.getY());
-            mapViewParametersProp.set(new MapViewParameters(newZoomLevel, corner.xAtZoomLevel(newZoomLevel) - e.getX(), corner.yAtZoomLevel(newZoomLevel) - e.getY()));
+            PointWebMercator corner = mapViewParametersProp.get().pointAt(e.getX(), e.getY());
+            mapViewParametersProp.set(new MapViewParameters(newZoomLevel
+                    , corner.xAtZoomLevel(newZoomLevel) - e.getX()
+                    , corner.yAtZoomLevel(newZoomLevel) - e.getY()));
         });
         pane.setOnMousePressed(event -> {
             mouseOnLastEvent.set(new Point2D(event.getX(), event.getY()));
@@ -173,7 +182,7 @@ public final class BaseMapManager {
         });
         pane.setOnMouseReleased(event -> mouseOnLastEvent.set(new Point2D(event.getX(), event.getY())));
         pane.setOnMouseClicked(event -> {
-            if (mouseOnLastEvent.get() == null) mouseOnLastEvent.set(new Point2D(event.getX(), event.getY()));
+            mouseOnLastEvent.set(new Point2D(event.getX(), event.getY()));
             if (event.isStillSincePress()) waypointsManager.addWayPoint(event.getX(), event.getY());
         });
     }
@@ -197,9 +206,7 @@ public final class BaseMapManager {
     private void installListeners() {
         canvas.sceneProperty().addListener((p, oldS, newS) -> {
             assert oldS == null;
-            if(newS != null) {
-                newS.addPreLayoutPulseListener(this::redrawIfNeeded);
-            }
+            newS.addPreLayoutPulseListener(this::redrawIfNeeded);
         });
         canvas.heightProperty().addListener((observable, oldValue, newValue) -> redrawOnNextPulse());
         canvas.widthProperty().addListener((o, oV, nV) -> redrawOnNextPulse());

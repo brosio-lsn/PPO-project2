@@ -93,8 +93,7 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
                 Q28_4.ofInt(2)) + 1;
         int profileId = Bits.extractSigned(profileIds.get(edgeId), 0, 30);
         float[] samples = new float[nbOfSamples];
-        ProfileType type = List.of(ProfileType.values())
-                .get(Bits.extractUnsigned(profileIds.get(edgeId), 30, 2));
+        ProfileType type = List.of(ProfileType.values()).get(Bits.extractUnsigned(profileIds.get(edgeId), 30, 2));
         switch (type) {
             case NO_TYPE:
                 return new float[]{};
@@ -104,11 +103,11 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
                 }
                 break;
             case COMPRESSED_44:
-                samples[0] = Q28_4.asFloat(elevations.get(profileId));
+                samples[0] = Q28_4.asFloat(Short.toUnsignedInt(elevations.get(profileId)));
                 createSamples(nbOfSamples, SAMPLES_PER_SHORT_44, profileId, samples);
                 break;
             case COMPRESSED_04:
-                samples[0] = Q28_4.asFloat(elevations.get(profileId));
+                samples[0] = Q28_4.asFloat(Short.toUnsignedInt(elevations.get(profileId)));
                 createSamples(nbOfSamples, SAMPLES_PER_SHORT_04, profileId, samples);
         }
         if (isInverted(edgeId)) {
@@ -160,7 +159,6 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
      */
     private void createSamples(int nbOfSamples, int samplesPerShort, int profileId, float[] samples) {
         int count = 1;
-        samples[0] = Q28_4.asFloat(elevations.get(profileId));
         //the number of shorts a compressed profile takes is the number of samples (-1 because
         //the first sample is not compressed) divided by the
         //number of samples a byte can contain, and rounded up since there might exist a byte
@@ -170,7 +168,7 @@ public record GraphEdges(ByteBuffer edgesBuffer, IntBuffer profileIds, ShortBuff
             for (int hexIndex = samplesPerShort-1; hexIndex >= 0; hexIndex--) {
                 if (count < nbOfSamples)
                     samples[count] = samples[count - 1] +
-                            Q28_4.asFloat(Bits.extractSigned(elevations.get(profileId + shortIndex), Short.SIZE/samplesPerShort * hexIndex, Short.SIZE/samplesPerShort));
+                            (Q28_4.asFloat(Bits.extractSigned(elevations.get(profileId + shortIndex), Short.SIZE/samplesPerShort * hexIndex, Short.SIZE/samplesPerShort)));
                 ++count;
             }
         }
