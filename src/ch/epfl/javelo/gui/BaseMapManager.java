@@ -12,6 +12,8 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 
+import java.io.IOException;
+
 /**
  * @author Louis ROCHE (345620)
  * @author Ambroise AIGUEPERSE (341890)
@@ -125,11 +127,13 @@ public final class BaseMapManager {
                     imageToDraw = tileManager.imageForTileAt(new TileManager.TileId(zoomLevel, xTileIndex, yTileIndex));
                 } catch (Exception e) {
                     canDraw = false;
-                    System.out.println(e.getMessage());
+                    System.out.println("e + " + e.getMessage());
+                    e.printStackTrace();
                     break;
                 }
                 if (canDraw) {
                     context.drawImage(imageToDraw, xTileIndex * PIXELS_PER_TILE - xTopLeft, yTileIndex * PIXELS_PER_TILE - yTopLeft);
+                    System.out.println("x : " + xTileIndex + " y : " + yTileIndex);
                 }
                 canDraw = true;
             }
