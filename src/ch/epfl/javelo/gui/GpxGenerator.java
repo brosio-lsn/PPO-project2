@@ -78,7 +78,7 @@ public final class GpxGenerator {
         //initiate different objects for the following while loop
         Iterator<PointCh> pointChIterator = route.points().iterator();
         Iterator<Edge> edgeIterator = route.edges().iterator();
-        double positionOnRtoue = INITIAL_POSITION_ON_ROUTE;
+        double positionOnRoute = INITIAL_POSITION_ON_ROUTE;
         double altitude;
         Element rtept;
 
@@ -95,13 +95,13 @@ public final class GpxGenerator {
             rtept.setAttribute("lon", String.valueOf(lon));
 
             //altitude of rtept element
-            altitude = profile.elevationAt(positionOnRtoue);
+            altitude = profile.elevationAt(positionOnRoute);
             Element ele = doc.createElement("ele");
             rtept.appendChild(ele);
             ele.setTextContent(String.valueOf(altitude));
 
             //update position on route
-            if (edgeIterator.hasNext()) positionOnRtoue += edgeIterator.next().length();
+            if (edgeIterator.hasNext()) positionOnRoute += edgeIterator.next().length();
         }
 
         return doc;

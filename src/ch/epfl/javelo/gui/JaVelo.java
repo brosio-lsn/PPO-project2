@@ -20,6 +20,7 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
+import java.util.function.Consumer;
 
 public final class JaVelo extends Application {
 
@@ -61,6 +62,7 @@ public final class JaVelo extends Application {
 
         SplitPane window = new SplitPane();
         window.setOrientation(Orientation.VERTICAL);
+        window.getItems().add(map.pane());
 
         ObjectProperty<ElevationProfile> profileProperty = new SimpleObjectProperty<>();
         ElevationProfileManager profileManager = new ElevationProfileManager(profileProperty, bean.highlightedPositionProperty());
@@ -90,7 +92,7 @@ public final class JaVelo extends Application {
             }
         });
 
-        window.getItems().add(map.pane());
+
         StackPane mapView = new StackPane(window, errorManager.pane());
         BorderPane scene = new BorderPane(mapView, bar, null, null, null);
         primaryStage.setMinWidth(PANE_MIN_WIDTH);

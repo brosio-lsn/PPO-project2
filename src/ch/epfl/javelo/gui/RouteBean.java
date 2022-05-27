@@ -11,7 +11,6 @@ import javafx.util.Pair;
 import java.util.*;
 
 public final class RouteBean {
-    private static final int MAX_STEP_LENGTH = 5;
     /**
      * routeComputer to use to compute the itineraries between the multiple waypoints.
      */
@@ -38,9 +37,14 @@ public final class RouteBean {
      */
     private final LinkedHashMap<Pair<Integer, Integer>, Route> bestRouteCache;
     /**
+     * List representing the multiple itineraries linking the multiple waypoints on the map.
+     */
+    private final List<Route> theRoutes;
+    /**
      * initial size of the bestRouteCache
      */
     private final static int INITIAL_CAPACITY = 30;
+
     /**
      * default load factor of any LinkedHashMap -> to be used in the constructor of bestRouteCache.
      */
@@ -48,11 +52,9 @@ public final class RouteBean {
     /**
      * determines whether any iterator accesses the elements in a LinkedHashMap by their reversed order of access (true here)
      */
-    private final static boolean ELDEST_ACCES = true;
-    /**
-     * List representing the multiple itineraries linking the multiple waypoints on the map.
-     */
-    private final List<Route> theRoutes;
+    private final static boolean ELDEST_ACCESS = true;
+    private static final int MAX_STEP_LENGTH = 5;
+
 
     /**
      * constructor of the RouteBean class, creates a bean which is used for observation purposes.
@@ -62,12 +64,12 @@ public final class RouteBean {
      */
     public RouteBean(RouteComputer routeComputer) {
         this.routeComputer = routeComputer;
-        bestRouteCache = new LinkedHashMap<>(INITIAL_CAPACITY, LOAD_FACTOR, ELDEST_ACCES);
-        route = new SimpleObjectProperty<>();
-        waypoints = FXCollections.observableArrayList();
-        elevationProfile = new SimpleObjectProperty<>();
-        highlightedPosition = new SimpleDoubleProperty();
-        theRoutes = new ArrayList<>();
+        this.bestRouteCache = new LinkedHashMap<>(INITIAL_CAPACITY, LOAD_FACTOR, ELDEST_ACCESS);
+        this.route = new SimpleObjectProperty<>();
+        this.waypoints = FXCollections.observableArrayList();
+        this.elevationProfile = new SimpleObjectProperty<>();
+        this.highlightedPosition = new SimpleDoubleProperty();
+        this.theRoutes = new ArrayList<>();
         installListeners();
     }
 

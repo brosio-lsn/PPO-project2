@@ -22,6 +22,45 @@ import java.util.List;
  */
 public final class ElevationProfileManager {
     /**
+     * Minimal horizontal distance between the lines of the grid
+     */
+    private static final int HORIZONTAL_DISTANCE_MIN = 50;
+    /**
+     * Minimal vertical distance between the lines of the grid
+     */
+    private static final int VERTICAL_DISTANCE_MIN = 25;
+
+    /**
+     * The different position steps one can use.
+     */
+    private static final int[] POS_STEPS =
+            {1000, 2000, 5000, 10_000, 25_000, 50_000, 100_000};
+    /**
+     * The different elevation steps one can use.
+     */
+    private static final int[] ELE_STEPS =
+            {5, 10, 20, 25, 50, 100, 200, 250, 500, 1_000};
+    /**
+     * Left offset of the rectangle
+     */
+    private static final int LEFT_PIXELS = 40;
+    /**
+     * Top offset of the rectangle
+     */
+    private static final int TOP_PIXELS = 10;
+    /**
+     * Bottom offset of the rectangle
+     */
+    private static final int BOTTOM_PIXELS = 20;
+    /**
+     * Right offset of the rectangle
+     */
+    private static final int RIGHT_PIXELS = 10;
+    /**
+     * Represents the value the mouseOnProfileProperty should take when the mouse is not in the rectangle
+     */
+    private static final double MOUSE_NOT_IN_RECTANGLE = Double.NaN;
+    /**
      * Format of the statistics display.
      */
     private static final String FORMAT = "Longueur : %.1f km" +
@@ -45,8 +84,8 @@ public final class ElevationProfileManager {
      * number of bottom points of the polygon
      */
     private static final int NUMBER_OF_BOTTOM_POINTS = 2;
-    public static final String DEFAULT_FONT = "Avenir";
-    public static final int PREF_WIDTH = 0;
+    private static final String DEFAULT_FONT = "Avenir";
+    private static final int PREF_WIDTH = 0;
     /**
      * elevation profile this is supposed to display
      */
@@ -105,26 +144,7 @@ public final class ElevationProfileManager {
      * Represents which position on the elevationProfile the mouse is at.
      */
     private final DoubleProperty mousePositionOnProfileProperty;
-    /**
-     * Left offset of the rectangle
-     */
-    private static final int LEFT_PIXELS = 40;
-    /**
-     * Top offset of the rectangle
-     */
-    private static final int TOP_PIXELS = 10;
-    /**
-     * Bottom offset of the rectangle
-     */
-    private static final int BOTTOM_PIXELS = 20;
-    /**
-     * Right offset of the rectangle
-     */
-    private static final int RIGHT_PIXELS = 10;
-    /**
-     * Represents the value the mouseOnProfileProperty should take when the mouse is not in the rectangle
-     */
-    private static final double MOUSE_NOT_IN_RECTANGLE = Double.NaN;
+
     /**
      * Insets representing the offsets by which the rectangle will be placed
      */
@@ -133,29 +153,12 @@ public final class ElevationProfileManager {
      * Boolean used to not initiate the bindings more than once.
      */
     private boolean bindingsDone;
-    /**
-     * Minimal horizontal distance between the lines of the grid
-     */
-    private static final int HORIZONTAL_DISTANCE_MIN = 50;
-    /**
-     * Minimal vertical distance between the lines of the grid
-     */
-    private static final int VERTICAL_DISTANCE_MIN = 25;
 
     /**
-     * The different position steps one can use.
-     */
-    private static final int[] POS_STEPS =
-            {1000, 2000, 5000, 10_000, 25_000, 50_000, 100_000};
-    /**
-     * The different elevation steps one can use.
-     */
-    private static final int[] ELE_STEPS =
-            {5, 10, 20, 25, 50, 100, 200, 250, 500, 1_000};
-    /**
-     *the constructor of the class
+     * the constructor of the class
+     *
      * @param elevationProfile property containing the profile of the route
-     * @param position property containing the position to highlight along the route
+     * @param position         property containing the position to highlight along the route
      */
     public ElevationProfileManager(ObjectProperty<ElevationProfile> elevationProfile, DoubleProperty position) {
         this.elevationProfile = elevationProfile;
@@ -180,6 +183,7 @@ public final class ElevationProfileManager {
 
     /**
      * returns the pane containing the Node elements related to the profile
+     *
      * @return the pane containing the Node elements related to the profile
      */
     public Pane pane() {
@@ -189,6 +193,7 @@ public final class ElevationProfileManager {
     /**
      * returns a property containing the position of the mouse cursor along the profile
      * or NaN if the cursor isn't above the profile
+     *
      * @return the position of the mouse on the profile
      */
     public ReadOnlyDoubleProperty mousePositionOnProfileProperty() {
@@ -203,7 +208,7 @@ public final class ElevationProfileManager {
         //(after discussion with the assistants)
         int numberOfTopPoints = (int) rectangle.get().getWidth();
         Double[] points = new Double[(NUMBER_OF_BOTTOM_POINTS + numberOfTopPoints) * 2];
-        if(numberOfTopPoints<2) return;
+        if (numberOfTopPoints < 2) return;
         double stepLength = elevationProfile.get().length() / (numberOfTopPoints - 1);
         int j = 0;
         for (int i = 0; i < numberOfTopPoints; ++i) {
@@ -235,6 +240,7 @@ public final class ElevationProfileManager {
 
     /**
      * returns the String containing the stats about the profile
+     *
      * @return the String containing the stats about the profile
      */
     private String stats() {
@@ -250,7 +256,7 @@ public final class ElevationProfileManager {
      */
 
     private void setEvents() {
-        elevationProfile.addListener((property, previousV, newV)-> createTransformations());
+        elevationProfile.addListener((property, previousV, newV) -> createTransformations());
 
         pane.setOnMouseMoved(event -> {
             if (screenToWorld.get() != null)
@@ -264,7 +270,6 @@ public final class ElevationProfileManager {
         pane.widthProperty().addListener((property, previousV, newV) -> widthAndHeightListenerContent());
 
         rectangle.addListener((property, previousV, newV) -> {
-            stats.setText(stats());
             createTransformations();
         });
         worldToScreen.addListener((property, previousV, newV) -> {
@@ -280,7 +285,7 @@ public final class ElevationProfileManager {
      * creates the transformation from the screen to the actual profile and its inverse
      */
     private void createTransformations() {
-        if(rectangle.get()!=null) {
+        if (rectangle.get() != null) {
             Affine affine = new Affine();
             affine.prependTranslation(0, -elevationProfile.get().maxElevation());
             affine.prependScale(rectangle.get().getWidth() / elevationProfile.get().length(),
@@ -303,11 +308,11 @@ public final class ElevationProfileManager {
         line.layoutXProperty().bind(Bindings.createDoubleBinding(() ->
                         worldToScreen.get().transform(position.doubleValue(),
                                 elevationProfile.get().elevationAt(position.doubleValue())).getX(),
-                                    position));
+                position));
         line.startYProperty().bind(Bindings.select(rectangle, "minY"));
         line.endYProperty().bind(Bindings.select(rectangle, "maxY"));
         line.visibleProperty().bind(Bindings.greaterThan(position, 0).and(Bindings.lessThan(position, elevationProfile.get().length())));
-        line.visibleProperty().bind(Bindings.greaterThan(position, 0).and(Bindings.createBooleanBinding(() -> position.get()<=elevationProfile.get().length(), position)));
+        line.visibleProperty().bind(Bindings.greaterThan(position, 0).and(Bindings.createBooleanBinding(() -> position.get() <= elevationProfile.get().length(), position)));
     }
 
     /**
@@ -342,7 +347,7 @@ public final class ElevationProfileManager {
 
             //building the vertical lines
             for (int posStep : POS_STEPS) {
-                nbOfVertiLines = Math2.ceilDiv((int)lengthWorld, posStep);
+                nbOfVertiLines = Math2.ceilDiv((int) lengthWorld, posStep);
                 double distanceBetweenLines = worldToScreen.get().deltaTransform(posStep, 0).getX();
                 if (distanceBetweenLines >= HORIZONTAL_DISTANCE_MIN) {
                     stepInWorldPosition = posStep;
@@ -362,7 +367,7 @@ public final class ElevationProfileManager {
                 positionLines.add(new LineTo(LEFT_PIXELS + stepInScreenPosition * i, heightOfRectangle - heightOfLine + TOP_PIXELS));
                 Text label = new Text(String.valueOf((stepInWorldPosition * i) / ROUND_TO_KILOMETERS_FACTOR));
                 label.textOriginProperty().set(VPos.TOP);
-                label.relocate(LEFT_PIXELS + stepInScreenPosition * i - label.getLayoutBounds().getWidth()/2, rectangle.get().getHeight() + TOP_PIXELS);
+                label.relocate(LEFT_PIXELS + stepInScreenPosition * i - label.getLayoutBounds().getWidth() / 2, rectangle.get().getHeight() + TOP_PIXELS);
                 label.prefWidth(PREF_WIDTH);
                 label.setFont(new Font(DEFAULT_FONT, FONT_SIZE));
                 label.getStyleClass().addAll("grid_label", "position");
@@ -402,7 +407,7 @@ public final class ElevationProfileManager {
                     label.prefWidth(PREF_WIDTH);
                     label.setFont(new Font(DEFAULT_FONT, FONT_SIZE));
                     //we substract by label.getlayoutBounds.getHeight() divided by two to recenter the text at the right height
-                    label.relocate(LEFT_PIXELS - label.getLayoutBounds().getWidth() - OFFSET_ELEVATION_TEXT , yCoordinateOfLine - label.getLayoutBounds().getHeight() / 2);
+                    label.relocate(LEFT_PIXELS - label.getLayoutBounds().getWidth() - OFFSET_ELEVATION_TEXT, yCoordinateOfLine - label.getLayoutBounds().getHeight() / 2);
                     labels.add(label);
                 }
             }

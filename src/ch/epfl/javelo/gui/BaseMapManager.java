@@ -12,12 +12,14 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 
+import java.io.IOException;
+
 /**
  * @author Louis ROCHE (345620)
  * @author Ambroise AIGUEPERSE (341890)
  */
 public final class BaseMapManager {
-    private static final int TIME_TO_WAIT = 200;
+    private double yTopLeftOnPress, xTopLeftOnPress;
     /**
      * TileManager to be used to load each image
      */
@@ -41,7 +43,7 @@ public final class BaseMapManager {
     /**
      * boolean telling whether a redraw of the map is needed.
      */
-    boolean redrawNeeded;
+    private boolean redrawNeeded;
     /**
      * number of pixels per tile
      */
@@ -61,13 +63,17 @@ public final class BaseMapManager {
     /**
      * Number of additional iterations needed to draw the image on the X-axis of the canvas
      */
-    private final int X_ITERATIONS = 2 * PIXELS_PER_TILE;
+    private final static int X_ITERATIONS = 2 * PIXELS_PER_TILE;
     /**
      * Number of additional iterations needed to draw the image on the Y-axis of the canvas
      */
-    private final int Y_ITERATIONS = PIXELS_PER_TILE;
+    private final static int Y_ITERATIONS = PIXELS_PER_TILE;
+    /**
+     * Time to wait before scrolling again
+     */
+    private final static int TIME_TO_WAIT = 200;
 
-    private double yTopLeftOnPress, xTopLeftOnPress;
+
 
     /**
      * Constructor of the BaseMapManager class.
@@ -117,15 +123,14 @@ public final class BaseMapManager {
         GraphicsContext context = canvas.getGraphicsContext2D();
         Image imageToDraw;
         boolean canDraw = true;
-        for (int xOnCanvas = 0; xOnCanvas <= canvas.getWidth() + X_ITERATIONS; xOnCanvas += PIXELS_PER_TILE) {
-            for (int yOnCanvas = 0; yOnCanvas <= canvas.getHeight() + Y_ITERATIONS; yOnCanvas += PIXELS_PER_TILE) {
+        for (int xOnCanvas = 0; xOnCanvas <= canvas.getWidth()+X_ITERATIONS; xOnCanvas += PIXELS_PER_TILE) {
+            for (int yOnCanvas = 0; yOnCanvas <= canvas.getHeight()+Y_ITERATIONS; yOnCanvas += PIXELS_PER_TILE) {
                 int yTileIndex = (int) (yTopLeft + yOnCanvas) / PIXELS_PER_TILE;
                 int xTileIndex = (int) (xTopLeft + xOnCanvas) / PIXELS_PER_TILE;
                 try {
                     imageToDraw = tileManager.imageForTileAt(new TileManager.TileId(zoomLevel, xTileIndex, yTileIndex));
                 } catch (Exception e) {
                     canDraw = false;
-                    System.out.println(e.getMessage());
                     break;
                 }
                 if (canDraw) {

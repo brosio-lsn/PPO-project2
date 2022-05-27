@@ -28,7 +28,11 @@ import java.util.function.Consumer;
  */
 
 public final class WaypointsManager {
-//todo commenter les attributs
+
+    /**
+     * search distance for node closest to
+     */
+    private final static int SEARCH_DISTANCE_NODE_CLOSEST_TO = 1000;
     /**
      * svg for the group exterior
      */
@@ -43,6 +47,11 @@ public final class WaypointsManager {
      * error message for invalid waypoint placement
      */
     private static final String ERROR_MESSAGE = "Aucune route à proximité !";
+    /**
+     * If a node is not found by the Graph in the method NodeClosestTo, -1 is returned. Thus, this value
+     * is for comparisons purposes.
+     */
+    private static final int NODE_NOT_FOUND = -1;
     /**
      * the graph of the route
      */
@@ -69,14 +78,9 @@ public final class WaypointsManager {
     private final Pane pane;
 
     /**
-     * search distance for node closest to
-     */
-    private final static int SEARCH_DISTANCE_NODE_CLOSEST_TO = 1000;
-
-    /**
      * property recording the coordinates of the mouse on the last event it indulged in
      */
-    private ObjectProperty<Point2D> mouseOnLastEvent;
+    private final ObjectProperty<Point2D> mouseOnLastEvent;
 
     /**
      * constructor of WaypointsManager
@@ -92,12 +96,48 @@ public final class WaypointsManager {
         this.wayPointsList = wayPointsList;
         this.errorConsumer = errorConsumer;
         this.mouseOnLastEvent = new SimpleObjectProperty<>();
-        pane = createPane();
+        this.pane = createPane();
         createMarkers();
-        this.mouseOnLastEvent = new SimpleObjectProperty<>();
         initiateListeners();
     }
 
+
+    /**
+     * returns the pane containing all the wayPoints
+     *
+     * @return the pane containing all the wayPoints
+     */
+    public Pane pane() {
+        return pane;
+    }
+
+    /**
+     * takes as arguments the x and y coordinates of an initial point and adds a new wayPoint at the closest node in the graph
+     *
+     * @param x x coordinate of the initial point
+     * @param y y coordinate of the initial point
+     */
+    public void addWayPoint(double x, double y) {
+        PointWebMercator pointWebMercator = mapViewParameters.get().pointAt(x, y);
+        PointCh pointCh = pointWebMercator.toPointCh();
+        if (pointCh != null) {
+            int nodeId = graph.nodeClosestTo(pointCh, SEARCH_DISTANCE_NODE_CLOSEST_TO);
+            if (nodeId == NODE_NOT_FOUND) {
+                errorConsumer.accept(ERROR_MESSAGE);
+                return;
+            }
+            WayPoint wayPoint = new WayPoint(pointCh, nodeId);
+            wayPointsList.add(wayPoint);
+        } else errorConsumer.accept(ERROR_MESSAGE);
+    }
+
+    /**
+     * initiates the listeners (used in constructor)
+     */
+    private void initiateListeners() {
+        mapViewParameters.addListener((property, previousV, newV) -> relocateMarkers(newV));
+        wayPointsList.addListener((ListChangeListener<WayPoint>) c -> createMarkers());
+    }
     /**
      * creates the markers corresponding to the waypoints contained in observableList
      * and adds them as children to the pane
@@ -105,8 +145,6 @@ public final class WaypointsManager {
     private void createMarkers() {
         List<Node> markers = new ArrayList<>();
         int size = wayPointsList.size();
-        //todo mieux de faire un forEach avec un i que j incremente tt seul?(nnon)
-        //todo nommage de constantes ?!?!?!?!?
         for (int i = 0; i < size; ++i) {
             WayPoint wayPoint = wayPointsList.get(i);
             Group group = createMarkerGroup(wayPoint);
@@ -128,44 +166,6 @@ public final class WaypointsManager {
         p.setPickOnBounds(false);
         return p;
     }
-
-    /**
-     * returns the pane containing all the wayPoints
-     *
-     * @return the pane containing all the wayPoints
-     */
-    public Pane pane() {
-        return pane;
-    }
-
-    /**
-     * initiates the listeners (used in constructor)
-     */
-    private void initiateListeners() {
-        mapViewParameters.addListener((property, previousV, newV) -> relocateMarkers(newV));
-        wayPointsList.addListener((ListChangeListener<WayPoint>) c -> createMarkers());
-    }
-
-    /**
-     * takes as arguments the x and y coordinates of an initial point and adds a new wayPoint at the closest node in the graph
-     *
-     * @param x x coordinate of the initial point
-     * @param y y coordinate of the initial point
-     */
-    public void addWayPoint(double x, double y) {
-        PointWebMercator pointWebMercator = mapViewParameters.get().pointAt(x, y);
-        PointCh pointCh = pointWebMercator.toPointCh();
-        if (pointCh != null) {
-            int nodeId = graph.nodeClosestTo(pointCh, SEARCH_DISTANCE_NODE_CLOSEST_TO);
-            if (nodeId == -1) {
-                errorConsumer.accept(ERROR_MESSAGE);
-                return;
-            }
-            WayPoint wayPoint = new WayPoint(pointCh, nodeId);
-            wayPointsList.add(wayPoint);
-        } else errorConsumer.accept(ERROR_MESSAGE);
-    }
-
 
     /**
      * relocates the markers according to the new mapviewParameters given in argument
@@ -228,9 +228,9 @@ public final class WaypointsManager {
         group.setOnMouseReleased(event -> {
             if (!event.isStillSincePress()) {
                 PointCh pointCh = mapViewParameters.get().pointAt(group.getLayoutX(), group.getLayoutY()).toPointCh();
-                int nodeId = -1;
+                int nodeId = NODE_NOT_FOUND;
                 if (pointCh != null) nodeId = graph.nodeClosestTo(pointCh, SEARCH_DISTANCE_NODE_CLOSEST_TO);
-                if (nodeId == -1) {
+                if (nodeId == NODE_NOT_FOUND) {
                     group.setLayoutX(xBeforeDrag.doubleValue());
                     group.setLayoutY(yBeforeDrag.doubleValue());
                     errorConsumer.accept(ERROR_MESSAGE);

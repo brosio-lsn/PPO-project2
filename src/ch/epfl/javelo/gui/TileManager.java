@@ -7,7 +7,6 @@ import java.io.*;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -20,8 +19,8 @@ import java.util.LinkedHashMap;
  */
 
 public final class TileManager {
+    //todo la doc ? besoin d'être consistant ?
 
-    //todo pathToImage à renommer en imageURL, faire un pathToimage avec pathToRepertory
     private final LinkedHashMap<TileId, Image> cache;
     private final Path pathToRepertory;
     private final String serverName;
@@ -41,7 +40,6 @@ public final class TileManager {
         this.serverName = serverName;
         this.cache = new LinkedHashMap<>(CAPACITY_OF_CACHE, LOAD_FACTOR, ELDEST_ACCES);
     }
-    //todo assistant modulariser itérateur remove cache
 
     /**
      * returns the corresponding image of a tile of a given id.
@@ -51,28 +49,26 @@ public final class TileManager {
      * @throws IOException if the paths leading to the system files are invalid.
      */
     public Image imageForTileAt(TileId id) throws IOException {
+        //TODO string.format
         StringBuilder url = new StringBuilder();
-        //TODO demander à un assistant si on peut faire un format
         String fileOfTile = pathToRepertory + url
                 .append("/")
                 .append(id.zoomLevel)
                 .append("/")
                 .append(id.xIndex)
                 .toString();
-        String imageURL = url
+        String imagePath = url
                 .append("/")
                 .append(id.yIndex)
                 .append(".png")
                 .toString();
         Path pathToFiles = Path.of(fileOfTile);
-        //todo modulariser les strings
-        String pathToImage = pathToRepertory + imageURL;
         if (cache.containsKey(id)) {
             return cache.get(id);
-        } else if (Files.exists(Path.of(pathToImage), LinkOption.NOFOLLOW_LINKS)) {
-            return imageFromDisk(id, imageURL);
+        } else if (Files.exists(Path.of(pathToRepertory + imagePath))) {
+            return imageFromDisk(id, imagePath);
         } else {
-            return imageFromServer(id, pathToFiles, imageURL);
+            return imageFromServer(id, pathToFiles, imagePath);
         }
     }
 
@@ -105,20 +101,20 @@ public final class TileManager {
      *
      * @param id          id of the tile to download
      * @param pathToFiles local path to create the directory in.
-     * @param imageURL    URL to get the image from in the server
+     * @param imagePath    URL to get the image from in the server
      * @return the image downloaded from the server
      * @throws IOException if there is an error in any of the paths used.
      */
-    private Image imageFromServer(TileId id, Path pathToFiles, String imageURL) throws IOException {
+    private Image imageFromServer(TileId id, Path pathToFiles, String imagePath) throws IOException {
         Files.createDirectories(pathToFiles);
-        URL u = new URL(HTTPS + serverName + imageURL);
+        URL u = new URL(HTTPS + serverName + imagePath);
         URLConnection c = u.openConnection();
         c.setRequestProperty("User-Agent", "JaVelo");
         try (InputStream i = c.getInputStream();
-             OutputStream writer = new FileOutputStream(pathToRepertory + imageURL)) {
+             OutputStream writer = new FileOutputStream(pathToRepertory + imagePath)) {
             i.transferTo(writer);
         }
-        return imageFromDisk(id, imageURL);
+        return imageFromDisk(id, imagePath);
     }
 
 
