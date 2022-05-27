@@ -94,7 +94,7 @@ public final class WaypointsManager {
         this.mouseOnLastEvent = new SimpleObjectProperty<>();
         pane = createPane();
         createMarkers();
-        this.mouseOnLastEvent=new SimpleObjectProperty<>();
+        this.mouseOnLastEvent = new SimpleObjectProperty<>();
         initiateListeners();
     }
 
@@ -192,11 +192,11 @@ public final class WaypointsManager {
         exterior.setContent(SVG_EXTERIOR_STRING);
         exterior.getStyleClass().add("pin_outside");
 
-        SVGPath interior=new SVGPath();
+        SVGPath interior = new SVGPath();
         interior.setContent(SVG_INTERIOR_STRING);
         interior.getStyleClass().add("pin_inside");
 
-        Group group=new Group(exterior, interior);
+        Group group = new Group(exterior, interior);
         group.getStyleClass().add("pin");
 
         PointWebMercator nodePointWebMercator = PointWebMercator.ofPointCh(wayPoint.point());
@@ -204,43 +204,39 @@ public final class WaypointsManager {
         group.setLayoutY(mapViewParameters.get().viewY(nodePointWebMercator));
 
         ObjectProperty<WayPoint> draggedWayPoint = new SimpleObjectProperty<>();
-        DoubleProperty yBeforeDrag= new SimpleDoubleProperty();
+        DoubleProperty yBeforeDrag = new SimpleDoubleProperty();
         DoubleProperty xBeforeDrag = new SimpleDoubleProperty();
 
-        group.setOnMouseClicked(event->{
-            if (event.isStillSincePress())wayPointsList.remove(wayPoint);
+        group.setOnMouseClicked(event -> {
+            if (event.isStillSincePress()) wayPointsList.remove(wayPoint);
         });
-        ObjectProperty<WayPoint> draggedWayPoint = new SimpleObjectProperty<>();
-        group.setOnMousePressed(event -> {
-            xBeforeDrag = group.getLayoutX();
-            yBeforeDrag = group.getLayoutY();
 
-        group.setOnMousePressed(event-> {
+        group.setOnMousePressed(event -> {
             xBeforeDrag.set(group.getLayoutX());
             yBeforeDrag.set(group.getLayoutY());
             draggedWayPoint.set(wayPoint);
             mouseOnLastEvent.set(new Point2D(event.getX(), event.getY()));
         });
-        group.setOnMouseDragged(event-> {
+        group.setOnMouseDragged(event -> {
             double deltaX = event.getX() - mouseOnLastEvent.get().getX();
             double deltaY = event.getY() - mouseOnLastEvent.get().getY();
-            group.setLayoutX(group.getLayoutX()+deltaX);
-            group.setLayoutY(group.getLayoutY()+deltaY);
+            group.setLayoutX(group.getLayoutX() + deltaX);
+            group.setLayoutY(group.getLayoutY() + deltaY);
             mouseOnLastEvent.get().add(deltaX, deltaY);
         });
 
-        group.setOnMouseReleased(event-> {
+        group.setOnMouseReleased(event -> {
             if (!event.isStillSincePress()) {
                 PointCh pointCh = mapViewParameters.get().pointAt(group.getLayoutX(), group.getLayoutY()).toPointCh();
-                int nodeId=-1;
-                if (pointCh!=null)nodeId= graph.nodeClosestTo(pointCh, SEARCH_DISTANCE_NODE_CLOSEST_TO);
+                int nodeId = -1;
+                if (pointCh != null) nodeId = graph.nodeClosestTo(pointCh, SEARCH_DISTANCE_NODE_CLOSEST_TO);
                 if (nodeId == -1) {
                     group.setLayoutX(xBeforeDrag.doubleValue());
                     group.setLayoutY(yBeforeDrag.doubleValue());
                     errorConsumer.accept(ERROR_MESSAGE);
-                }
-                else wayPointsList.set(wayPointsList.indexOf(draggedWayPoint.get()), new WayPoint(pointCh, nodeId));
+                } else wayPointsList.set(wayPointsList.indexOf(draggedWayPoint.get()), new WayPoint(pointCh, nodeId));
             }
         });
         return group;
     }
+}
