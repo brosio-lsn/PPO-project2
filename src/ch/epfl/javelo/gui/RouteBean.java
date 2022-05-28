@@ -10,6 +10,11 @@ import javafx.util.Pair;
 
 import java.util.*;
 
+/**
+ * Computes the route between the waypoints on the map
+ * @author Louis ROCHE (345620)
+ * @author Ambroise AIGUEPERSE (341890)
+ */
 public final class RouteBean {
     /**
      * routeComputer to use to compute the itineraries between the multiple waypoints.
@@ -35,7 +40,7 @@ public final class RouteBean {
     /**
      * Cache used to avoid repetitive computations of the best itineraries between two points.
      */
-    private final LinkedHashMap<Pair<Integer, Integer>, Route> bestRouteCache;
+    private final Map<Pair<Integer, Integer>, Route> bestRouteCache;
     /**
      * List representing the multiple itineraries linking the multiple waypoints on the map.
      */
@@ -53,6 +58,9 @@ public final class RouteBean {
      * determines whether any iterator accesses the elements in a LinkedHashMap by their reversed order of access (true here)
      */
     private final static boolean ELDEST_ACCESS = true;
+    /**
+     * Max step length of the elevation profile computer
+     */
     private static final int MAX_STEP_LENGTH = 5;
 
 

@@ -20,8 +20,12 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
-import java.util.function.Consumer;
-
+/**
+ * @author Louis ROCHE (345620)
+ * @author Ambroise AIGUEPERSE (341890)
+ *
+ * final application
+ */
 public final class JaVelo extends Application {
 
     private static final int PANE_MIN_HEIGHT = 600;

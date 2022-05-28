@@ -35,7 +35,7 @@ public final class AnnotatedMapManager {
 
     /**
      * constructor of the class
-     * @param graph the with all the edges, node...
+     * @param graph the graph with all the edges, node...
      * @param tileManager the tile manager
      * @param routeBean the bean of the displayed route
      * @param consumer a consumer to display errors

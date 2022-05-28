@@ -19,6 +19,8 @@ import java.util.List;
 
 /**
  * Manages and displays the elevation profile of the route.
+ * @author Louis ROCHE (345620)
+ * @author Ambroise AIGUEPERSE (341890)
  */
 public final class ElevationProfileManager {
     /**
@@ -29,7 +31,6 @@ public final class ElevationProfileManager {
      * Minimal vertical distance between the lines of the grid
      */
     private static final int VERTICAL_DISTANCE_MIN = 25;
-
     /**
      * The different position steps one can use.
      */
@@ -84,7 +85,13 @@ public final class ElevationProfileManager {
      * number of bottom points of the polygon
      */
     private static final int NUMBER_OF_BOTTOM_POINTS = 2;
+    /**
+     * default font
+     */
     private static final String DEFAULT_FONT = "Avenir";
+    /**
+     * pref width of the grid elevation lines
+     */
     private static final int PREF_WIDTH = 0;
     /**
      * elevation profile this is supposed to display
@@ -258,10 +265,7 @@ public final class ElevationProfileManager {
     private void setEvents() {
         elevationProfile.addListener((property, previousV, newV) -> createTransformations());
 
-        pane.setOnMouseMoved(event -> {
-            if (screenToWorld.get() != null)
-                mousePositionOnProfileProperty.set(screenToWorld.get().transform(event.getX(), event.getY()).getX());
-        });
+        pane.setOnMouseMoved(event -> mousePositionOnProfileProperty.set(screenToWorld.get().transform(event.getX(), event.getY()).getX()));
 
         pane.setOnMouseExited(event -> mousePositionOnProfileProperty.set(MOUSE_NOT_IN_RECTANGLE));
 
@@ -269,9 +273,8 @@ public final class ElevationProfileManager {
 
         pane.widthProperty().addListener((property, previousV, newV) -> widthAndHeightListenerContent());
 
-        rectangle.addListener((property, previousV, newV) -> {
-            createTransformations();
-        });
+        rectangle.addListener((property, previousV, newV) -> createTransformations());
+
         worldToScreen.addListener((property, previousV, newV) -> {
             drawPolygone();
             createGrid();
@@ -341,7 +344,7 @@ public final class ElevationProfileManager {
             double heightWorld = elevationProfile.get().maxElevation() - elevationProfile.get().minElevation();
             double widthOfRectangle = rectangle.get().getWidth();
             double heightOfRectangle = rectangle.get().getHeight();
-            double stepInScreenPosition = Integer.MAX_VALUE;
+            double stepInScreenPosition = POS_STEPS[POS_STEPS.length - 1];
             int stepInWorldPosition = 0;
             int nbOfVertiLines = 0;
 
@@ -349,15 +352,11 @@ public final class ElevationProfileManager {
             for (int posStep : POS_STEPS) {
                 nbOfVertiLines = Math2.ceilDiv((int) lengthWorld, posStep);
                 double distanceBetweenLines = worldToScreen.get().deltaTransform(posStep, 0).getX();
+                stepInWorldPosition = posStep;
                 if (distanceBetweenLines >= HORIZONTAL_DISTANCE_MIN) {
-                    stepInWorldPosition = posStep;
                     stepInScreenPosition = distanceBetweenLines;
                     break;
                 }
-            }
-            if (stepInScreenPosition == Integer.MAX_VALUE) {
-                stepInWorldPosition = POS_STEPS[POS_STEPS.length - 1];
-                stepInScreenPosition = worldToScreen.get().deltaTransform(stepInWorldPosition, 0).getX();
             }
             List<Text> labels = new ArrayList<>();
             List<PathElement> positionLines = new ArrayList<>();
@@ -367,6 +366,7 @@ public final class ElevationProfileManager {
                 positionLines.add(new LineTo(LEFT_PIXELS + stepInScreenPosition * i, heightOfRectangle - heightOfLine + TOP_PIXELS));
                 Text label = new Text(String.valueOf((stepInWorldPosition * i) / ROUND_TO_KILOMETERS_FACTOR));
                 label.textOriginProperty().set(VPos.TOP);
+                //we divide by 2 to center the text on itself
                 label.relocate(LEFT_PIXELS + stepInScreenPosition * i - label.getLayoutBounds().getWidth() / 2, rectangle.get().getHeight() + TOP_PIXELS);
                 label.prefWidth(PREF_WIDTH);
                 label.setFont(new Font(DEFAULT_FONT, FONT_SIZE));
@@ -377,19 +377,15 @@ public final class ElevationProfileManager {
             //determining what steps to use for the elevation
             int nbOfHoriLines = 0;
             int stepInWorldElevation = 0;
-            double stepInScreenElevation = Integer.MAX_VALUE;
+            double stepInScreenElevation = POS_STEPS[POS_STEPS.length - 1];
             for (int eleStep : ELE_STEPS) {
                 nbOfHoriLines = Math2.ceilDiv((int) heightWorld, eleStep);
                 double distance = worldToScreen.get().deltaTransform(0, -eleStep).getY();
+                stepInWorldElevation = eleStep;
                 if (distance >= VERTICAL_DISTANCE_MIN) {
-                    stepInWorldElevation = eleStep;
                     stepInScreenElevation = distance;
                     break;
                 }
-            }
-            if (stepInScreenElevation == Integer.MAX_VALUE) {
-                stepInWorldElevation = POS_STEPS[POS_STEPS.length - 1];
-                stepInScreenElevation = worldToScreen.get().deltaTransform(0, -stepInWorldElevation).getY();
             }
             //building the horizontal lines
             double minElevation = elevationProfile.get().minElevation();
@@ -398,7 +394,7 @@ public final class ElevationProfileManager {
             List<PathElement> elevationLines = new ArrayList<>();
             for (int i = 0; i < nbOfHoriLines; i++) {
                 double yCoordinateOfLine = rectangle.get().getHeight() - stepInScreenElevation * i - delta + TOP_PIXELS;
-                if (!(yCoordinateOfLine < insets.getTop())) {
+                //if (!(yCoordinateOfLine < insets.getTop())) {
                     elevationLines.add(new MoveTo(LEFT_PIXELS, yCoordinateOfLine));
                     elevationLines.add(new LineTo(widthOfRectangle + LEFT_PIXELS, yCoordinateOfLine));
                     Text label = new Text(String.valueOf((stepInWorldElevation * i + closestStepToMinHeight)));
@@ -409,7 +405,7 @@ public final class ElevationProfileManager {
                     //we substract by label.getlayoutBounds.getHeight() divided by two to recenter the text at the right height
                     label.relocate(LEFT_PIXELS - label.getLayoutBounds().getWidth() - OFFSET_ELEVATION_TEXT, yCoordinateOfLine - label.getLayoutBounds().getHeight() / 2);
                     labels.add(label);
-                }
+                //}
             }
             positionLines.addAll(elevationLines);
             texts.getChildren().setAll(labels);

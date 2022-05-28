@@ -10,6 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Manages the tiles of the JaVelo map.
@@ -19,9 +20,8 @@ import java.util.LinkedHashMap;
  */
 
 public final class TileManager {
-    //todo la doc ? besoin d'être consistant ?
 
-    private final LinkedHashMap<TileId, Image> cache;
+    private final Map<TileId, Image> cache;
     private final Path pathToRepertory;
     private final String serverName;
     private final static int CAPACITY_OF_CACHE = 100;
@@ -49,19 +49,8 @@ public final class TileManager {
      * @throws IOException if the paths leading to the system files are invalid.
      */
     public Image imageForTileAt(TileId id) throws IOException {
-        //TODO string.format
-        StringBuilder url = new StringBuilder();
-        String fileOfTile = pathToRepertory + url
-                .append("/")
-                .append(id.zoomLevel)
-                .append("/")
-                .append(id.xIndex)
-                .toString();
-        String imagePath = url
-                .append("/")
-                .append(id.yIndex)
-                .append(".png")
-                .toString();
+        String fileOfTile = pathToRepertory + String.format("/%d/%d", id.zoomLevel, id.xIndex);
+        String imagePath = String.format("/%d/%d/%d.png", id.zoomLevel, id.xIndex, id.yIndex);
         Path pathToFiles = Path.of(fileOfTile);
         if (cache.containsKey(id)) {
             return cache.get(id);

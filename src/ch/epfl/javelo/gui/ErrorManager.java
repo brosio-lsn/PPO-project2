@@ -15,14 +15,14 @@ import javafx.util.Duration;
  */
 public final class ErrorManager {
 
-    public static final int LOW_OPACITY = 0;
-    public static final double HIGH_OPACITY = 0.8;
     private final Pane pane;
     private final Text text;
     private SequentialTransition sequentialTransition;
     private static final Duration FIRST_DURATION=new Duration(200);
     private static final Duration SECOND_DURATION=new Duration(500);
     private static final Duration PAUSE_DURATION=new Duration(2000);
+    private static final int LOW_OPACITY = 0;
+    private static final double HIGH_OPACITY = 0.8;
 
     /**
      * constructor of the class
@@ -55,7 +55,7 @@ public final class ErrorManager {
     }
 
     /**
-     * creates the necessary transitions for the erroe message display
+     * creates the necessary transitions for the error message display
      */
     private void createSequentialTransition(){
         FadeTransition firstFadeTransition = new FadeTransition(FIRST_DURATION, pane);

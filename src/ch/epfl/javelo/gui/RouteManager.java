@@ -9,7 +9,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polyline;
 
-import java.util.function.Consumer;
 
 /**
  * Manages the route
@@ -39,7 +38,6 @@ public final class RouteManager {
      * bean containing the properties related to the route
      */
     private final RouteBean routeBean;
-
 
     /**
      * property containing the parameters of the displayed map

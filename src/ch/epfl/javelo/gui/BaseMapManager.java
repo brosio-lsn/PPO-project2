@@ -12,14 +12,13 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Pane;
 
-import java.io.IOException;
 
 /**
+ * Manages the display of the map
  * @author Louis ROCHE (345620)
  * @author Ambroise AIGUEPERSE (341890)
  */
 public final class BaseMapManager {
-    private double yTopLeftOnPress, xTopLeftOnPress;
     /**
      * TileManager to be used to load each image
      */
@@ -82,7 +81,6 @@ public final class BaseMapManager {
      * @param waypointsManager      waypointsManager to be used to add/remove waypoints
      * @param mapViewParametersProp property to use to observe the mapViewParameters.
      */
-
     public BaseMapManager(TileManager tileManager, WaypointsManager waypointsManager, ObjectProperty<MapViewParameters> mapViewParametersProp) {
         this.waypointsManager = waypointsManager;
         this.mapViewParametersProp = mapViewParametersProp;
@@ -177,13 +175,13 @@ public final class BaseMapManager {
         });
         pane.setOnMousePressed(event -> {
             mouseOnLastEvent.set(new Point2D(event.getX(), event.getY()));
-            xTopLeftOnPress = mapViewParametersProp.get().x();
-            yTopLeftOnPress = mapViewParametersProp.get().y();
         });
         pane.setOnMouseDragged(event -> {
             double deltaX = event.getX() - mouseOnLastEvent.get().getX();
             double deltaY = event.getY() - mouseOnLastEvent.get().getY();
-            mapViewParametersProp.set(mapViewParametersProp.get().withMinXY(xTopLeftOnPress - deltaX, yTopLeftOnPress - deltaY));
+            mapViewParametersProp.set(mapViewParametersProp.get().withMinXY(mapViewParametersProp.get().x() - deltaX,
+                    mapViewParametersProp.get().y() - deltaY));
+            mouseOnLastEvent.set(new Point2D(event.getX(), event.getY()));
         });
         pane.setOnMouseReleased(event -> mouseOnLastEvent.set(new Point2D(event.getX(), event.getY())));
         pane.setOnMouseClicked(event -> {
