@@ -33,6 +33,7 @@ public final class TileManager {
     private final static boolean ELDEST_ACCES = true;
     private final static String HTTPS = "https://";
     private String apiKey;
+
     /**
      * Constructor of the TileManager
      *
@@ -47,9 +48,10 @@ public final class TileManager {
 
     /**
      * Constructor of the TileManager with the API Key.
+     *
      * @param pathToRepertory path in which the program will write and read images.
-     * @param serverName server to get the tiles and the corresponding images from.
-     * @param apiKey apiKey which enables the program to download the tiles from the given server.
+     * @param serverName      server to get the tiles and the corresponding images from.
+     * @param apiKey          apiKey which enables the program to download the tiles from the given server.
      */
     public TileManager(Path pathToRepertory, String serverName, String apiKey) {
         this.pathToRepertory = pathToRepertory;
@@ -66,14 +68,15 @@ public final class TileManager {
      * @throws IOException if the paths leading to the system files are invalid.
      */
     public Image imageForTileAt(TileId id) throws IOException {
-        System.out.println(id);
-        Long tileAndServer = id.tileIdIndex()*100 + serverName.hashCode()%100;
-        String fileOfTile = pathToRepertory + String.format("/%d/%d", id.zoomLevel, id.xIndex);
+
+        Long tileAndServer = id.tileIdIndex()*100+ serverName.get().hashCode()%100;
+        System.out.println(tileAndServer);
+        String fileOfTile = pathToRepertory + String.format("/%s/%d/%d",serverName.get() , id.zoomLevel, id.xIndex);
         String imagePath = String.format("/%d/%d/%d.png", id.zoomLevel, id.xIndex, id.yIndex);
         Path pathToFiles = Path.of(fileOfTile);
         if (cache.containsKey(tileAndServer)) {
             return cache.get(tileAndServer);
-        } else if (Files.exists(Path.of(pathToRepertory + serverName.get() + imagePath))) {
+        } else if (Files.exists(Path.of(pathToRepertory + "/" + serverName.get() + imagePath))) {
             return imageFromDisk(tileAndServer, imagePath);
         } else {
             return imageFromServer(tileAndServer, pathToFiles, imagePath);
@@ -92,7 +95,7 @@ public final class TileManager {
 
     private Image imageFromDisk(Long id, String imagePath) throws IOException {
         Image fileImage;
-        try (FileInputStream inputStream = new FileInputStream(pathToRepertory + serverName.get() + imagePath)) {
+        try (FileInputStream inputStream = new FileInputStream(pathToRepertory + "/" + serverName.get() + imagePath)) {
             fileImage = new Image(inputStream);
             cache.put(id, fileImage);
             Iterator<Long> ite = cache.keySet().iterator();
@@ -109,17 +112,17 @@ public final class TileManager {
      *
      * @param id          id of the tile to download
      * @param pathToFiles local path to create the directory in.
-     * @param imagePath    URL to get the image from in the server
+     * @param imagePath   URL to get the image from in the server
      * @return the image downloaded from the server
      * @throws IOException if there is an error in any of the paths used.
      */
     private Image imageFromServer(Long id, Path pathToFiles, String imagePath) throws IOException {
         Files.createDirectories(pathToFiles);
-        URL u = new URL(HTTPS + serverName + imagePath + apiKey);
+        URL u = new URL(HTTPS + serverName.get() + imagePath + apiKey);
         URLConnection c = u.openConnection();
         c.setRequestProperty("User-Agent", "JaVelo");
         try (InputStream i = c.getInputStream();
-             OutputStream writer = new FileOutputStream(pathToRepertory + serverName.get() + imagePath)) {
+             OutputStream writer = new FileOutputStream(pathToRepertory + "/" + serverName.get() + "/" + imagePath)) {
             i.transferTo(writer);
         }
         return imageFromDisk(id, imagePath);
@@ -127,13 +130,15 @@ public final class TileManager {
 
     /**
      * sets the new server to download the tiles from
+     *
      * @param serverName name of the server to download the tiles from.
-     * @param apiKey Key which enables the program to download the tiles from the server
+     * @param apiKey     Key which enables the program to download the tiles from the server
      */
     public void setNewServer(String serverName, String apiKey) {
         this.serverName.set(serverName);
         this.apiKey = apiKey;
     }
+
     public ReadOnlyProperty<String> serverProperty() {
         return serverName;
     }
@@ -154,6 +159,7 @@ public final class TileManager {
         public TileId {
             Preconditions.checkArgument(isValid(zoomLevel, xIndex, yIndex));
         }
+
         public long tileIdIndex() {
             return (long) (zoomLevel * SEPARATING_FACTOR_ZX + xIndex * SEPARATING_FACTOR_XY + yIndex);
         }
