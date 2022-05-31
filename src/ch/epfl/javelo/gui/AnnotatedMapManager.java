@@ -4,12 +4,11 @@ import ch.epfl.javelo.Math2;
 import ch.epfl.javelo.data.Graph;
 import ch.epfl.javelo.projection.PointCh;
 import ch.epfl.javelo.projection.PointWebMercator;
+import ch.epfl.javelo.projection.SwissBounds;
+import ch.epfl.javelo.projection.WebMercator;
 import ch.epfl.javelo.routing.RoutePoint;
 import javafx.beans.binding.Bindings;
-import javafx.beans.property.DoubleProperty;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.*;
 import javafx.collections.ObservableList;
 import javafx.geometry.Point2D;
 import javafx.scene.control.Button;
@@ -30,8 +29,11 @@ import java.util.function.Consumer;
  * handels the display of the annotated map
  */
 public final class AnnotatedMapManager {
+    //private static final double[] DISTANCES_FOR_SCALE = {10000, 5000, 3600, 1600, 800, 400, 200, 100, 50, 20, 10, 5, 2, 1, 0.5, 0.2, 0.1, 0.05, 0.02, 0.01};
+    private static final double[] DISTANCES_FOR_SCALE = {10, 20, 50, 100, 200, 500, 1000, 2000, 3000, 5000, 7000, 10000, 15000, 20000, 35000, 50000, 100000, 200000};
     private static final double MouseNotCloseToRoute = Double.NaN;
     private static final int MAXIMAL_PIXEL_DISTANCE_FOR_MOUSE = 15;
+    private static final double EARTH_RADIUS_IN_KM = 6372.795477598;
     private final Graph graph;
     private final TileManager tileManager;
     private final RouteBean routeBean;
@@ -44,6 +46,7 @@ public final class AnnotatedMapManager {
     private final ObjectProperty<Point2D> mouseOnLastEvent;
     private final DoubleProperty positionAlongRoute;
     private final GridPane statsPane;
+    private IntegerProperty distanceScaleIndex;
 
     /**
      * constructor of the class
@@ -67,6 +70,7 @@ public final class AnnotatedMapManager {
         positionAlongRoute = new SimpleDoubleProperty();
         pane = new StackPane();
         this.statsPane = new StatsPane(routeBean, consumer).pane();
+        distanceScaleIndex= new SimpleIntegerProperty(9);
         createPane();
         setEvents();
         createButtons();
@@ -102,17 +106,26 @@ public final class AnnotatedMapManager {
         Button reverseRoute = new Button("reverse route");
         Button ecoStat = new Button("display eco-stats");
         Line line = new Line(pane.getWidth()-100, 35, pane.getWidth(), 35);
-        Text text = new Text();
-        Pane buttonPane = new Pane(removeAllBtn,reverseRoute, ecoStat, line, text);
+        Text scale = new Text();
+        Pane buttonPane = new Pane(removeAllBtn,reverseRoute, ecoStat, line, scale);
         buttonPane.setPickOnBounds(false);
         pane.getChildren().add(buttonPane);
 
-        double[] distances = {10000, 5000, 3600, 1600, 800, 400, 200, 100, 50,20,10,5,2,1,0.5,0.2, 0.1, 0.05, 0.02, 0.01};
-        text.textProperty().bind(Bindings.createStringBinding(()->{
-            return "0";
-        }, mapViewParametersP));
-        line.startXProperty().bind(Bindings.createDoubleBinding(()->pane.getWidth()-100, pane.widthProperty()));
-        line.endXProperty().bind(Bindings.createDoubleBinding(()->pane.getWidth()-50, pane.widthProperty()));
+        scale.textProperty().bind(Bindings.createStringBinding(()->{
+
+            //double distance = DISTANCES_FOR_SCALE[distanceScaleIndex.get()];
+            double distance = DISTANCES_FOR_SCALE[findIndex()];
+            return distance<1000 ? String.valueOf(distance) +" m": String.valueOf(distance/1000) +" km";
+        }, distanceScaleIndex));
+
+        line.startXProperty().bind(Bindings.createDoubleBinding(()->pane.getWidth()-findLength(), mapViewParametersP, pane.widthProperty()));
+        line.endXProperty().bind(Bindings.createDoubleBinding(()->pane.getWidth(),mapViewParametersP, pane.widthProperty()));
+        scale.layoutXProperty().bind(Bindings.createDoubleBinding(()->line.startXProperty().get(), line.startXProperty()));
+        scale.setLayoutY(line.startYProperty().get()+15);
+        //System.out.println(line.getLayoutY());
+        //scale.setLayoutY(300);
+        //scale.setLayoutX(400);
+
 
         removeAllBtn.setOnAction(event -> routeBean.getWaypoints().clear());
         removeAllBtn.visibleProperty().bind(Bindings.createBooleanBinding(() ->routeBean.getWaypoints().size()>0, routeBean.getWaypoints()));
@@ -151,6 +164,39 @@ public final class AnnotatedMapManager {
         reverseRoute.setLayoutY(75);
     }
 
+    private int findLength(){
+        //System.out.println(mapViewParametersP.get().zoomLevel());
+        //System.out.println("called");
+        distanceScaleIndex.set(-1);
+        double distanceInPixels;
+        do{
+            //System.out.println(DISTANCES_FOR_SCALE[i]);
+            distanceScaleIndex.set(distanceScaleIndex.get()+1);
+            PointWebMercator pointWebMercatorExtrem = PointWebMercator.ofPointCh(new PointCh(SwissBounds.MIN_E, 1150000));
+            PointWebMercator pointWebMercatorExtend = PointWebMercator.ofPointCh(new PointCh(SwissBounds.MIN_E+DISTANCES_FOR_SCALE[distanceScaleIndex.get()], 1150000));
+            distanceInPixels =mapViewParametersP.get().viewX(pointWebMercatorExtend)-mapViewParametersP.get().viewX(pointWebMercatorExtrem);
+            //distanceInPixels = Math2.norm(uX, uY)/Math.pow(2, mapViewParametersP.get().zoomLevel()+8)*pane.getWidth();
+            //System.out.println(distanceInPixels);
+        }while(distanceInPixels<60 && distanceScaleIndex.get()<DISTANCES_FOR_SCALE.length);
+        return (int) distanceInPixels;
+    }
+
+    private int findIndex(){
+        //System.out.println(mapViewParametersP.get().zoomLevel());
+        //System.out.println("called");
+        int i=-1;
+        double distanceInPixels;
+        do{
+            //System.out.println(DISTANCES_FOR_SCALE[i]);
+            i++;
+            PointWebMercator pointWebMercatorExtrem = PointWebMercator.ofPointCh(new PointCh(SwissBounds.MIN_E, 1150000));
+            PointWebMercator pointWebMercatorExtend = PointWebMercator.ofPointCh(new PointCh(SwissBounds.MIN_E+DISTANCES_FOR_SCALE[i], 1150000));
+            distanceInPixels =mapViewParametersP.get().viewX(pointWebMercatorExtend)-mapViewParametersP.get().viewX(pointWebMercatorExtrem);
+            //distanceInPixels = Math2.norm(uX, uY)/Math.pow(2, mapViewParametersP.get().zoomLevel()+8)*pane.getWidth();
+            //System.out.println(distanceInPixels);
+        }while(distanceInPixels<60 && i<DISTANCES_FOR_SCALE.length);
+        return i;
+    }
 
     /**
      * sets all the events for the class
