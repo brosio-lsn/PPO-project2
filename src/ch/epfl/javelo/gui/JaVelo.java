@@ -7,12 +7,8 @@ import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.geometry.Orientation;
-import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.SplitPane;
+import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import javafx.stage.Stage;
@@ -20,10 +16,11 @@ import javafx.stage.Stage;
 import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
+
 /**
  * @author Louis ROCHE (345620)
  * @author Ambroise AIGUEPERSE (341890)
- *
+ * <p>
  * final application
  */
 public final class JaVelo extends Application {
@@ -38,6 +35,19 @@ public final class JaVelo extends Application {
     private static final String NAME_OF_DATA_FILES = "javelo-data";
     private static final String FILE_NAME_WRITTEN = "javelo.gpx";
     private static final int MAX_STEP_LENGTH = 5;
+    public static final String STRING_MAP_1 = "Route adaptée aux vélos";
+    public static final String STRING_MAP_0 = "Route par défaut";
+    public static final String STRING_MAP_2 = "Carte Paysage";
+    public static final String STRING_MAP_3 = "Carte réaliste";
+    public static final String STRING_MAP_4 = "Carte spéciale Suisse";
+    public static final String BONUS_MENU_TEXT = "Affichage de la carte";
+    public static final String FIRST_MAP = "tile.thunderforest.com/cycle";
+    public static final String DEFAULT_SERVER = "tile.openstreetmap.org";
+    public static final String SECOND_MAP = "tile.thunderforest.com/landscape";
+    public static final String THIRD_MAP = "tile.thunderforest.com/outdoors";
+    public static final String FOURTH_MAP = "tile.osm.ch/osm-swiss-style/";
+    public static final String API_KEY_THUNDERFOREST = "?apikey=00364017c0f944099888ffa7a7e24159";
+    public static final String DEFAULT_API_KEY = "";
 
     public static void main(String[] args) {
         launch(args);
@@ -106,21 +116,48 @@ public final class JaVelo extends Application {
         primaryStage.setScene(new Scene(scene));
         primaryStage.show();
     }
+
     private void bonusOptions(MenuBar bar, TileManager tileManager) {
-        MenuItem cycleOSM = new MenuItem("Route adaptée aux vélos");
-        MenuItem defaultOSM = new MenuItem("Route par défaut");
-        MenuItem landscapeOSM = new MenuItem("Carte Paysage");
-        MenuItem realistOSM = new MenuItem("Carte réaliste");
-        MenuItem swissOSM = new MenuItem("Carte spéciale Suisse");
-        Menu itineraryOptions = new Menu("Affichage de la carte", null, defaultOSM, cycleOSM, landscapeOSM, realistOSM, swissOSM);
-        cycleOSM.setOnAction(e -> tileManager.setNewServer("tile.thunderforest.com/cycle", "?apikey=00364017c0f944099888ffa7a7e24159"));
-        defaultOSM.setOnAction(e -> {
-            tileManager.setNewServer("tile.openstreetmap.org", "");
+        CheckMenuItem cycleOSM = new CheckMenuItem(STRING_MAP_1);
+        CheckMenuItem defaultOSM = new CheckMenuItem(STRING_MAP_0);
+        defaultOSM.setSelected(true);
+        CheckMenuItem landscapeOSM = new CheckMenuItem(STRING_MAP_2);
+        CheckMenuItem realistOSM = new CheckMenuItem(STRING_MAP_3);
+        CheckMenuItem swissOSM = new CheckMenuItem(STRING_MAP_4);
+        Menu itineraryOptions = new Menu(BONUS_MENU_TEXT, null, defaultOSM, cycleOSM, landscapeOSM, realistOSM, swissOSM);
+        cycleOSM.setOnAction(e -> {
+            deselectAll(defaultOSM, cycleOSM, landscapeOSM, realistOSM, swissOSM);
+            tileManager.setNewServer(FIRST_MAP, API_KEY_THUNDERFOREST);
+            cycleOSM.setSelected(true);
 
         });
-        landscapeOSM.setOnAction(e -> tileManager.setNewServer("tile.thunderforest.com/landscape", "?apikey=00364017c0f944099888ffa7a7e24159"));
-        realistOSM.setOnAction(e -> tileManager.setNewServer("tile.thunderforest.com/outdoors", "?apikey=00364017c0f944099888ffa7a7e24159"));
-        swissOSM.setOnAction(e -> tileManager.setNewServer("tile.osm.ch/osm-swiss-style/", ""));
+        defaultOSM.setOnAction(e -> {
+            deselectAll(defaultOSM, cycleOSM, landscapeOSM, realistOSM, swissOSM);
+            tileManager.setNewServer(DEFAULT_SERVER, DEFAULT_API_KEY);
+            defaultOSM.setSelected(true);
+        });
+        landscapeOSM.setOnAction(e -> {
+            deselectAll(defaultOSM, cycleOSM, landscapeOSM, realistOSM, swissOSM);
+            tileManager.setNewServer(SECOND_MAP, API_KEY_THUNDERFOREST);
+            landscapeOSM.setSelected(true);
+        });
+        realistOSM.setOnAction(e -> {
+            deselectAll(defaultOSM, cycleOSM, landscapeOSM, realistOSM, swissOSM);
+            tileManager.setNewServer(THIRD_MAP, API_KEY_THUNDERFOREST);
+            realistOSM.setSelected(true);
+        });
+        swissOSM.setOnAction(e -> {
+                    deselectAll(defaultOSM, cycleOSM, landscapeOSM, realistOSM, swissOSM);
+                    tileManager.setNewServer(FOURTH_MAP, DEFAULT_API_KEY);
+                    swissOSM.setSelected(true);
+                }
+        );
         bar.getMenus().add(itineraryOptions);
+    }
+
+    private void deselectAll(CheckMenuItem... checkMenuItems) {
+        for (CheckMenuItem c : checkMenuItems) {
+            c.setSelected(false);
+        }
     }
 }
