@@ -23,6 +23,7 @@ public class StatsPane {
     private static final int UNIT_TO_THOUSAND = 1000;
     private static final double DIESEL_CO2_GRAMS_PER_LITER = 2640;
     private static final double GASOLINE_CO2_GRAMS_PER_LITER = 2392;
+    private static final int HUNDRED_TO_UNIT_FACTOR = 100;
     private final RouteBean routeBean;
     private final Label conso;
     private final TextField consoF;
@@ -95,7 +96,7 @@ public class StatsPane {
             }
             double factor = selectedFuelType.equals("diesel") ? DIESEL_CO2_GRAMS_PER_LITER : GASOLINE_CO2_GRAMS_PER_LITER;
             calValue.textProperty().set(String.format("%.1f kilogrammes of CO2 not produced :)",
-                    inDouble * factor * routeBean.route().get().length() / (UNIT_TO_THOUSAND * UNIT_TO_THOUSAND)));
+                    inDouble * factor * routeBean.route().get().length() / (UNIT_TO_THOUSAND * UNIT_TO_THOUSAND* HUNDRED_TO_UNIT_FACTOR)));
         });
 
         routeBean.route().addListener((property, prev, newV) -> {

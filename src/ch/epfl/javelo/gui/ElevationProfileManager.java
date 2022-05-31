@@ -261,16 +261,9 @@ public final class ElevationProfileManager {
                 CycleMethod.NO_CYCLE,
                 list
         );
-        //System.out.println(linearGradient);
-        //System.out.println("filled");
 
         profile.getPoints().setAll(points);
         profile.setFill(linearGradient);
-        //profile.setFill(linearGradient);
-        /*System.out.println("called");
-        System.out.println(linearGradient);
-        System.out.println(profile.getFill());*/
-        //System.out.println(profile.getFill());
     }
 
     /**
@@ -281,15 +274,14 @@ public final class ElevationProfileManager {
         vbox.setId("profile_data");
         grid.setId("grid");
         profile.setId("profile");
+        distanceAtPosition.setFill(Color.WHITE);
+        elevationAtPosition.setFill(Color.WHITE);
+        slopeAtPosition.setFill(Color.WHITE);
+        distanceAtPosition.setFont(Font.font("Avenir", FontWeight.BOLD, FontPosture.REGULAR, 10));
+        elevationAtPosition.setFont(Font.font("Avenir", FontWeight.BOLD, FontPosture.REGULAR, 10));
+        slopeAtPosition.setFont(Font.font("Avenir", FontWeight.BOLD, FontPosture.REGULAR, 10));
     }
     private Color choseColor(double slope){
-        /*if(slope<0) return Color.LIGHTGREEN;
-        else if(slope<2) return Color.YELLOW;
-        else if(slope<6) return Color.ORANGE;
-        else if(slope<9) return Color.RED;
-        else if(slope<13) return Color.DARKRED;
-        else return Color.BLACK;*/
-        //todo cst pr ca?
         return  new Color(Math2.clamp(0,slope*20,255)/255, 0.65*(1-Math2.clamp(0,Math.abs(slope)*20,200)/255), 1,1);
     }
     /**
@@ -373,14 +365,8 @@ public final class ElevationProfileManager {
                 double elevation=elevationProfile.get().elevationAt(position.doubleValue());
                 double slope = elevationProfile.get().slope(position.doubleValue());
                 elevationAtPosition.textProperty().set("elevation : "+String.format("%.1f" , elevation));
-                elevationAtPosition.setFill(Color.WHITE);
                 slopeAtPosition.textProperty().set("pente : " + String.format("%.1f", slope) + "%");
-                slopeAtPosition.setFill(Color.WHITE);
                 distanceAtPosition.textProperty().set("distance : " + String.format("%.0f",position.doubleValue()));
-                distanceAtPosition.setFill(Color.WHITE);
-                distanceAtPosition.setFont(Font.font("Avenir", FontWeight.BOLD, FontPosture.REGULAR, 10));
-                elevationAtPosition.setFont(Font.font("Avenir", FontWeight.BOLD, FontPosture.REGULAR, 10));
-                slopeAtPosition.setFont(Font.font("Avenir", FontWeight.BOLD, FontPosture.REGULAR, 10));
                 gridPane.layoutYProperty().set(worldToScreen.get().transform(position.doubleValue(), elevation).getY()
                 );
             }

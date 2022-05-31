@@ -16,7 +16,9 @@ import javafx.scene.control.Button;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Text;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -92,13 +94,25 @@ public final class AnnotatedMapManager {
         pane.getChildren().addAll(baseMapManager.pane(), routeManager.pane(), waypointsManager.pane());
     }
 
+    /**
+     * creation of the buttons for the bonus
+     */
     private void createButtons(){
         Button removeAllBtn = new Button("remove all waypoints");
         Button reverseRoute = new Button("reverse route");
         Button ecoStat = new Button("display eco-stats");
-        Pane buttonPane = new Pane(removeAllBtn,reverseRoute, ecoStat);
+        Line line = new Line(pane.getWidth()-100, 35, pane.getWidth(), 35);
+        Text text = new Text();
+        Pane buttonPane = new Pane(removeAllBtn,reverseRoute, ecoStat, line, text);
         buttonPane.setPickOnBounds(false);
         pane.getChildren().add(buttonPane);
+
+        double[] distances = {10000, 5000, 3600, 1600, 800, 400, 200, 100, 50,20,10,5,2,1,0.5,0.2, 0.1, 0.05, 0.02, 0.01};
+        text.textProperty().bind(Bindings.createStringBinding(()->{
+            return "0";
+        }, mapViewParametersP));
+        line.startXProperty().bind(Bindings.createDoubleBinding(()->pane.getWidth()-100, pane.widthProperty()));
+        line.endXProperty().bind(Bindings.createDoubleBinding(()->pane.getWidth()-50, pane.widthProperty()));
 
         removeAllBtn.setOnAction(event -> routeBean.getWaypoints().clear());
         removeAllBtn.visibleProperty().bind(Bindings.createBooleanBinding(() ->routeBean.getWaypoints().size()>0, routeBean.getWaypoints()));
@@ -108,6 +122,7 @@ public final class AnnotatedMapManager {
             Collections.reverse(reverseW);
             routeBean.getWaypoints().setAll(reverseW);
         });
+
         reverseRoute.visibleProperty().bind(Bindings.createBooleanBinding(() ->routeBean.route().get()!=null, routeBean.route()));
 
         ecoStat.visibleProperty().bind(Bindings.createBooleanBinding(() ->routeBean.route().get()!=null, routeBean.route()));
@@ -153,7 +168,7 @@ public final class AnnotatedMapManager {
     }
 
     private double updatePositionAlongRoute(){
-        if(mapViewParametersP.get()==null || routeBean.route().get()==null || mouseOnLastEvent.get()==null)return MouseNotCloseToRoute;
+        if(mapViewParametersP.get()==null || routeBean.route().get()==null || mouseOnLastEvent.get()==null || pane.getChildren().contains(statsPane))return MouseNotCloseToRoute;
         PointWebMercator pointWebMercator = mapViewParametersP.get().pointAt(mouseOnLastEvent.get().getX(), mouseOnLastEvent.get().getY());
         PointCh pointCh = pointWebMercator.toPointCh();
         if(pointCh==null) return MouseNotCloseToRoute;
