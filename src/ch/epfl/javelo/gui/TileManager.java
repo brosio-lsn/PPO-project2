@@ -1,6 +1,10 @@
 package ch.epfl.javelo.gui;
 
 import ch.epfl.javelo.Preconditions;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyDoubleProperty;
+import javafx.beans.property.ReadOnlyProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.image.Image;
 
 import java.io.*;
@@ -21,24 +25,37 @@ import java.util.Map;
 
 public final class TileManager {
 
-    private final Map<TileId, Image> cache;
+    private final Map<Long, Image> cache;
     private final Path pathToRepertory;
-    private final String serverName;
+    private final ObjectProperty<String> serverName;
     private final static int CAPACITY_OF_CACHE = 100;
     private final static float LOAD_FACTOR = 0.75f;
     private final static boolean ELDEST_ACCES = true;
     private final static String HTTPS = "https://";
-
+    private String apiKey;
     /**
      * Constructor of the TileManager
      *
      * @param pathToRepertory path in which the program will write and read images.
      * @param serverName      server to get the tiles and the corresponding images from.
+     *                        this constructor is to be used when one does not need
+     *                        an APIKey to download the tiles from a certain server.
      */
     public TileManager(Path pathToRepertory, String serverName) {
+        this(pathToRepertory, serverName, "");
+    }
+
+    /**
+     * Constructor of the TileManager with the API Key.
+     * @param pathToRepertory path in which the program will write and read images.
+     * @param serverName server to get the tiles and the corresponding images from.
+     * @param apiKey apiKey which enables the program to download the tiles from the given server.
+     */
+    public TileManager(Path pathToRepertory, String serverName, String apiKey) {
         this.pathToRepertory = pathToRepertory;
-        this.serverName = serverName;
-        this.cache = new LinkedHashMap<>(CAPACITY_OF_CACHE, LOAD_FACTOR, ELDEST_ACCES);
+        this.serverName = new SimpleObjectProperty<>(serverName);
+        this.apiKey = apiKey;
+        cache = new LinkedHashMap<>(CAPACITY_OF_CACHE, LOAD_FACTOR, ELDEST_ACCES);
     }
 
     /**
@@ -49,15 +66,17 @@ public final class TileManager {
      * @throws IOException if the paths leading to the system files are invalid.
      */
     public Image imageForTileAt(TileId id) throws IOException {
+        System.out.println(id);
+        Long tileAndServer = id.tileIdIndex()*100 + serverName.hashCode()%100;
         String fileOfTile = pathToRepertory + String.format("/%d/%d", id.zoomLevel, id.xIndex);
         String imagePath = String.format("/%d/%d/%d.png", id.zoomLevel, id.xIndex, id.yIndex);
         Path pathToFiles = Path.of(fileOfTile);
-        if (cache.containsKey(id)) {
-            return cache.get(id);
-        } else if (Files.exists(Path.of(pathToRepertory + imagePath))) {
-            return imageFromDisk(id, imagePath);
+        if (cache.containsKey(tileAndServer)) {
+            return cache.get(tileAndServer);
+        } else if (Files.exists(Path.of(pathToRepertory + serverName.get() + imagePath))) {
+            return imageFromDisk(tileAndServer, imagePath);
         } else {
-            return imageFromServer(id, pathToFiles, imagePath);
+            return imageFromServer(tileAndServer, pathToFiles, imagePath);
         }
     }
 
@@ -71,12 +90,12 @@ public final class TileManager {
      * @throws IOException if the path in the fileInputStream is incorrect.
      */
 
-    private Image imageFromDisk(TileId id, String imagePath) throws IOException {
+    private Image imageFromDisk(Long id, String imagePath) throws IOException {
         Image fileImage;
-        try (FileInputStream inputStream = new FileInputStream(pathToRepertory + imagePath)) {
+        try (FileInputStream inputStream = new FileInputStream(pathToRepertory + serverName.get() + imagePath)) {
             fileImage = new Image(inputStream);
             cache.put(id, fileImage);
-            Iterator<TileId> ite = cache.keySet().iterator();
+            Iterator<Long> ite = cache.keySet().iterator();
             if (ite.hasNext() && cache.size() == CAPACITY_OF_CACHE) {
                 cache.remove(ite.next());
             }
@@ -94,21 +113,36 @@ public final class TileManager {
      * @return the image downloaded from the server
      * @throws IOException if there is an error in any of the paths used.
      */
-    private Image imageFromServer(TileId id, Path pathToFiles, String imagePath) throws IOException {
+    private Image imageFromServer(Long id, Path pathToFiles, String imagePath) throws IOException {
         Files.createDirectories(pathToFiles);
-        URL u = new URL(HTTPS + serverName + imagePath);
+        URL u = new URL(HTTPS + serverName + imagePath + apiKey);
         URLConnection c = u.openConnection();
         c.setRequestProperty("User-Agent", "JaVelo");
         try (InputStream i = c.getInputStream();
-             OutputStream writer = new FileOutputStream(pathToRepertory + imagePath)) {
+             OutputStream writer = new FileOutputStream(pathToRepertory + serverName.get() + imagePath)) {
             i.transferTo(writer);
         }
         return imageFromDisk(id, imagePath);
     }
 
+    /**
+     * sets the new server to download the tiles from
+     * @param serverName name of the server to download the tiles from.
+     * @param apiKey Key which enables the program to download the tiles from the server
+     */
+    public void setNewServer(String serverName, String apiKey) {
+        this.serverName.set(serverName);
+        this.apiKey = apiKey;
+    }
+    public ReadOnlyProperty<String> serverProperty() {
+        return serverName;
+    }
+
 
     public record TileId(int zoomLevel, int xIndex, int yIndex) {
         private static final int TILES_ON_SIDE_ZOOM_0 = 2;
+        private static final double SEPARATING_FACTOR_XY = 1e6;
+        private static final double SEPARATING_FACTOR_ZX = 1e12;
 
         /**
          * constructor of the id of a tile
@@ -119,6 +153,9 @@ public final class TileManager {
          */
         public TileId {
             Preconditions.checkArgument(isValid(zoomLevel, xIndex, yIndex));
+        }
+        public long tileIdIndex() {
+            return (long) (zoomLevel * SEPARATING_FACTOR_ZX + xIndex * SEPARATING_FACTOR_XY + yIndex);
         }
 
         /**

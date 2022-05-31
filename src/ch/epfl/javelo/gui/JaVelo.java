@@ -63,6 +63,7 @@ public final class JaVelo extends Application {
         MenuItem option = new MenuItem(EXPORTER_GFX);
         Menu filesMenu = new Menu(FILE_NAME, null, option);
         MenuBar bar = new MenuBar(filesMenu);
+        bonusOptions(bar, tileManager);
 
         SplitPane window = new SplitPane();
         window.setOrientation(Orientation.VERTICAL);
@@ -104,5 +105,22 @@ public final class JaVelo extends Application {
         primaryStage.setTitle(TITLE);
         primaryStage.setScene(new Scene(scene));
         primaryStage.show();
+    }
+    private void bonusOptions(MenuBar bar, TileManager tileManager) {
+        MenuItem cycleOSM = new MenuItem("Route adaptée aux vélos");
+        MenuItem defaultOSM = new MenuItem("Route par défaut");
+        MenuItem landscapeOSM = new MenuItem("Carte Paysage");
+        MenuItem realistOSM = new MenuItem("Carte réaliste");
+        MenuItem swissOSM = new MenuItem("Carte spéciale Suisse");
+        Menu itineraryOptions = new Menu("Affichage de la carte", null, defaultOSM, cycleOSM, landscapeOSM, realistOSM, swissOSM);
+        cycleOSM.setOnAction(e -> tileManager.setNewServer("tile.thunderforest.com/cycle", "?apikey=00364017c0f944099888ffa7a7e24159"));
+        defaultOSM.setOnAction(e -> {
+            tileManager.setNewServer("tile.openstreetmap.org", "");
+
+        });
+        landscapeOSM.setOnAction(e -> tileManager.setNewServer("tile.thunderforest.com/landscape", "?apikey=00364017c0f944099888ffa7a7e24159"));
+        realistOSM.setOnAction(e -> tileManager.setNewServer("tile.thunderforest.com/outdoors", "?apikey=00364017c0f944099888ffa7a7e24159"));
+        swissOSM.setOnAction(e -> tileManager.setNewServer("tile.osm.ch/osm-swiss-style/", ""));
+        bar.getMenus().add(itineraryOptions);
     }
 }

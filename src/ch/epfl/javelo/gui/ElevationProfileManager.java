@@ -7,8 +7,14 @@ import javafx.beans.property.*;
 import javafx.geometry.*;
 import javafx.scene.Group;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.CycleMethod;
+import javafx.scene.paint.LinearGradient;
+import javafx.scene.paint.Stop;
 import javafx.scene.shape.*;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontPosture;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.transform.Affine;
 import javafx.scene.transform.NonInvertibleTransformException;
@@ -94,6 +100,10 @@ public final class ElevationProfileManager {
      */
     private static final int PREF_WIDTH = 0;
     /**
+     * Number of color samples to put on the polygon to obtain a fade.
+     */
+    private static final int NUMBER_OF_COLOR_SAMPLES_TO_PUT_ON_POLYGON = 500;
+    /**
      * elevation profile this is supposed to display
      */
     private final ObjectProperty<ElevationProfile> elevationProfile;
@@ -160,7 +170,14 @@ public final class ElevationProfileManager {
      * Boolean used to not initiate the bindings more than once.
      */
     private boolean bindingsDone;
-
+    /**
+     * Gives the elevation, the distance, and the slope at the position of the mouse on the profile.
+     */
+    private final Text elevationAtPosition, distanceAtPosition, slopeAtPosition;
+    /**
+     * pane containing the elevationAtPosition and the distanceAtPosition
+     */
+    private final GridPane gridPane;
     /**
      * the constructor of the class
      *
@@ -177,13 +194,18 @@ public final class ElevationProfileManager {
         this.stats = new Text();
         this.pane = new Pane(profile, grid, texts, line);
         this.vbox = new VBox(stats);
+        this.elevationAtPosition=new Text();
+        this.distanceAtPosition=new Text();
+        this.slopeAtPosition = new Text();
         this.borderPane = new BorderPane(pane, null, null, vbox, null);
+        this.gridPane = new GridPane();
         worldToScreen = new SimpleObjectProperty<>();
         screenToWorld = new SimpleObjectProperty<>();
         mousePositionOnProfileProperty = new SimpleDoubleProperty(MOUSE_NOT_IN_RECTANGLE);
         rectangle = new SimpleObjectProperty<>();
         insets = new Insets(TOP_PIXELS, RIGHT_PIXELS, BOTTOM_PIXELS, LEFT_PIXELS);
         bindingsDone = false;
+        setUpGridPane();
         setLabels();
         setEvents();
     }
@@ -231,8 +253,26 @@ public final class ElevationProfileManager {
         points[points.length - 3] = insets.getTop() + rectangle.get().getHeight();
         points[points.length - 2] = insets.getLeft();
         points[points.length - 1] = insets.getTop() + rectangle.get().getHeight();
+        List<Stop> list=new ArrayList<>();
+        int numberOfSamples= NUMBER_OF_COLOR_SAMPLES_TO_PUT_ON_POLYGON;
+        double sampleLength=elevationProfile.get().length()/numberOfSamples;
+        for (int i = 0; i < numberOfSamples-1; ++i) {
+            double positionOnProfile = sampleLength * (i);
+            double averageSlope = elevationProfile.get().slope(positionOnProfile, sampleLength);
+            list.add(new Stop((float)i/numberOfSamples, choseColor(averageSlope)));
+        }
+
+        LinearGradient linearGradient = new LinearGradient(.0f,
+                0f,
+                1f,
+                0f,
+                true,
+                CycleMethod.NO_CYCLE,
+                list
+        );
 
         profile.getPoints().setAll(points);
+        profile.setFill(linearGradient);
     }
 
     /**
@@ -243,6 +283,25 @@ public final class ElevationProfileManager {
         vbox.setId("profile_data");
         grid.setId("grid");
         profile.setId("profile");
+        distanceAtPosition.setFill(Color.WHITE);
+        elevationAtPosition.setFill(Color.WHITE);
+        slopeAtPosition.setFill(Color.WHITE);
+        distanceAtPosition.setFont(Font.font("Avenir", FontWeight.BOLD, FontPosture.REGULAR, 10));
+        elevationAtPosition.setFont(Font.font("Avenir", FontWeight.BOLD, FontPosture.REGULAR, 10));
+        slopeAtPosition.setFont(Font.font("Avenir", FontWeight.BOLD, FontPosture.REGULAR, 10));
+    }
+    private Color choseColor(double slope){
+        return new Color(Math2.clamp(0,slope*20,255)/255, 0.65*(1-Math2.clamp(0,Math.abs(slope)*20,200)/255), 1,1);
+    }
+    private void setUpGridPane() {
+        gridPane.addRow(0, distanceAtPosition);
+        gridPane.addRow(1, elevationAtPosition);
+        gridPane.addRow(2, slopeAtPosition);
+        gridPane.backgroundProperty().set(new Background(new BackgroundFill(
+                Color.BLUE,
+                new CornerRadii(2),
+                new Insets(0)
+        )));
     }
 
     /**
@@ -280,7 +339,17 @@ public final class ElevationProfileManager {
             createGrid();
             stats.setText(stats());
         });
-
+        position.addListener((property, previousV, newV) ->{
+            if(position.doubleValue()>0 && worldToScreen.get()!=null){
+                double elevation=elevationProfile.get().elevationAt(position.doubleValue());
+                double slope = elevationProfile.get().slope(position.doubleValue());
+                elevationAtPosition.textProperty().set("elevation : "+String.format("%.1f" , elevation));
+                slopeAtPosition.textProperty().set("pente : " + String.format("%.1f", slope) + "%");
+                distanceAtPosition.textProperty().set("distance : " + String.format("%.0f",position.doubleValue()));
+                gridPane.layoutYProperty().set(worldToScreen.get().transform(position.doubleValue(), elevation).getY()
+                );
+            }
+        });
 
     }
 
@@ -316,6 +385,8 @@ public final class ElevationProfileManager {
         line.endYProperty().bind(Bindings.select(rectangle, "maxY"));
         line.visibleProperty().bind(Bindings.greaterThan(position, 0).and(Bindings.lessThan(position, elevationProfile.get().length())));
         line.visibleProperty().bind(Bindings.greaterThan(position, 0).and(Bindings.createBooleanBinding(() -> position.get() <= elevationProfile.get().length(), position)));
+        gridPane.visibleProperty().bind(line.visibleProperty());
+        gridPane.layoutXProperty().bind(line.layoutXProperty());
     }
 
     /**

@@ -214,6 +214,7 @@ public final class BaseMapManager {
         canvas.heightProperty().addListener((observable, oldValue, newValue) -> redrawOnNextPulse());
         canvas.widthProperty().addListener((o, oV, nV) -> redrawOnNextPulse());
         mapViewParametersProp.addListener((o, oV, nV) -> redrawOnNextPulse());
+        tileManager.serverProperty().addListener((o, oV, nV) -> redrawOnNextPulse());
     }
 }
 

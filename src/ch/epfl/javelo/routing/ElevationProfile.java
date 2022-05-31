@@ -14,6 +14,7 @@ import java.util.function.DoubleUnaryOperator;
  */
 
 public final class ElevationProfile {
+    private static final double DEFAULT_DELTA = 1e-9;
     /**
      * the length of the profile (meters)
      */
@@ -109,6 +110,31 @@ public final class ElevationProfile {
      */
     public double elevationAt(double position) {
         return function.applyAsDouble(position);
+    }
+
+    /**
+     * returns the slope of the elevation profile (in %) at the given position (linear approximation with delta = 1e-9).
+     * @param position position to compute the slope at
+     * @return the slope of the elevation profile in % at the given position.
+     */
+    public double slope(double position) {
+        return slope(position, DEFAULT_DELTA);
+    }
+
+    /**
+     * returns the slope of the elevation profile in % at the given position, given a delta.
+     * @param position position to compute the slope at.
+     * @param delta difference in position between the given position and the next one.
+     *              Note : the smaller the delta, the more precise the approximation is.
+     * @return the slope of the elevation profile in % at the given position, given a delta.
+     */
+
+    public double slope(double position, double delta) {
+        double elevation = elevationAt(position);
+        double deltaElevation = elevationAt(position+delta);
+        double coeff = (deltaElevation-elevation)/delta;
+        double angle = Math.atan(coeff);
+        return angle/(Math.PI/2)*100;
     }
 
     /**
